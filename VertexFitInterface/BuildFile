@@ -1,0 +1,10 @@
+# -*- Makefile -*-
+# $Id: BuildFile,v 1.1 2008/07/03 10:12:21 paus Exp $
+
+<use name=DataFormats/TrackReco>
+<use name=MitVertex/Fit>
+
+<flags CXXFLAGS="-g">
+<export>
+  <lib name=MitEdmVertexFitInterface>
+</export>

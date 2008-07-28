@@ -1,0 +1,7 @@
+<use name=DataFormats/TrackReco>
+<use name=root>
+
+<flags CXXFLAGS="-g">
+<export>
+   <lib name=MitEdmAnalysisDataFormats>
+</export>
