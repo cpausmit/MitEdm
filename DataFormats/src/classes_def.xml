@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="mitedm::BasePart"/>
+  <class name="std::vector<mitedm::BasePart*>"/>
+  <class name="edm::Wrapper<std::vector<mitedm::BasePart*> >"/>
+</lcgdict>
