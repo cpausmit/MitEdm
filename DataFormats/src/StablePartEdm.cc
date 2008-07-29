@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: StablePartEdm.cc,v 1.1 2008/07/29 13:16:22 loizides Exp $
 
 #include "MitEdm/DataFormats/interface/StablePartEdm.h"
 #include "MitEdm/DataFormats/interface/BasePartAction.h"
@@ -17,13 +17,6 @@ StablePartEdm::StablePartEdm(int pid, const reco::TrackRef &trk) :
 StablePartEdm::StablePartEdm(int pid, double mass, const reco::TrackRef &trk) :
   StablePart(pid,mass),
   track_    (trk)
-{
-  convertFromTrack(track());
-}
-
-StablePartEdm::StablePartEdm(StablePartEdm &s) :
-  StablePart(s),
-  track_    (s.track_)
 {
   convertFromTrack(track());
 }

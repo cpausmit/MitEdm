@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: StablePartEdm.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
 //
 // StablePartEdm
 //
@@ -23,16 +23,16 @@ namespace mitedm
   {
     public:
       // Constructors
-      StablePartEdm();
+      StablePartEdm() {}
       StablePartEdm(int pid, const reco::TrackRef &trk);
       StablePartEdm(int pid, double mass, const reco::TrackRef &trk);
-      StablePartEdm(StablePartEdm &s);
       ~StablePartEdm() {}
     
       // Helpers
       void               convertFromTrack(const reco::Track *trk);
       // Accessors
       const reco::Track *track      () const { return track_.get(); }
+      const reco::TrackRef &trackRef()  const { return track_; }
       virtual double     trackCharge() const { return track()->charge(); }
 
       // General printing method

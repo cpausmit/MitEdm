@@ -1,3 +1,6 @@
+#if 0
+//will be reenabled later
+
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -10,11 +13,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "MitEdm/AnalysisDataFormats/interface/Types.h"
+#include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
-#include "MitEdm/AnalysisDataFormats/interface/CollectionsEdm.h"
-#include "MitEdm/AnalysisDataFormats/interface/DecayPart.h"
-#include "MitEdm/AnalysisDataFormats/interface/StablePartEdm.h"
+#include "MitEdm/DataFormats/interface/CollectionsEdm.h"
+#include "MitEdm/DataFormats/interface/DecayPart.h"
+#include "MitEdm/DataFormats/interface/StablePartEdm.h"
 #include "MitEdm/Producers/interface/V2SS.h"
 
 using namespace std;
@@ -58,7 +61,7 @@ void V2SS::produce(Event &evt, const EventSetup &setup)
   // -----------------------------------------------------------------------------------------------
   // Create the output collection
   // -----------------------------------------------------------------------------------------------
-  auto_ptr<BasePartObjArr> pD(new BasePartObjArr(200));
+  auto_ptr<DecayPartCol> pD(new DecayPartCol());
 
   // -----------------------------------------------------------------------------------------------
   // Simple double loop
@@ -106,7 +109,7 @@ void V2SS::produce(Event &evt, const EventSetup &setup)
 	d->setFittedMass     (mass);
 	d->setFittedMassError(massErr);
 	// Put the result into our collection
-	pD->Add(d);
+	pD->push_back(*d);
       }
 
     }
@@ -126,3 +129,5 @@ void V2SS::endJob() {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(V2SS);
+
+#endif

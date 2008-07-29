@@ -1,5 +1,15 @@
 <lcgdict>
   <class name="mitedm::BasePart"/>
+  <class name="mitedm::StablePart"/>
+  <class name="mitedm::StablePartEdm"/>
+  <class name="mitedm::DecayPart"/>
   <class name="std::vector<mitedm::BasePart*>"/>
+  <class name="std::vector<mitedm::StablePartEdm>"/>
+  <class name="std::vector<mitedm::DecayPart>"/>
   <class name="edm::Wrapper<std::vector<mitedm::BasePart*> >"/>
+  <class name="edm::Wrapper<std::vector<mitedm::StablePartEdm> >"/>
+  <class name="edm::Wrapper<std::vector<mitedm::DecayPart> >"/>
+  <class name="edm::RefToBaseVector<mitedm::BasePart>"/>
+  <class name="edm::RefToBase<mitedm::BasePart>"/>
+  <class name="edm::reftobase::BaseVectorHolder<mitedm::BasePart>"/>
 </lcgdict>

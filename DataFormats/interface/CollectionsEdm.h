@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: CollectionsEdm.h,v 1.1 2008/07/28 23:05:36 paus Exp $
+// $Id: CollectionsEdm.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
 //
 // Collections
 //
@@ -8,14 +8,18 @@
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef DATAFORMAT_COLLECTIONS_H
-#define DATAFORMAT_COLLECTIONS_H
+#ifndef DATAFORMAT_COLLECTIONSEDM_H
+#define DATAFORMAT_COLLECTIONSEDM_H
  
 #include <vector>
-#include "MitEdm/AnalysisDataFormats/interface/BasePart.h"
+#include "MitEdm/DataFormats/interface/BasePart.h"
+#include "MitEdm/DataFormats/interface/StablePartEdm.h"
+#include "MitEdm/DataFormats/interface/DecayPart.h"
 
 namespace mitedm
 {
   typedef std::vector<BasePart*>        PartColl;
+  typedef std::vector<StablePartEdm>    StablePartCol;
+  typedef std::vector<DecayPart>        DecayPartCol;
 }
 #endif

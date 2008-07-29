@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.2 2008/07/29 10:38:47 loizides Exp $
+// $Id: DecayPart.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
 //
 // DecayPart
 //
@@ -20,6 +20,7 @@
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/DataFormats/interface/BasePart.h"
+#include "MitEdm/DataFormats/interface/BasePartFwd.h"
 
 namespace mitedm
 {
@@ -32,13 +33,13 @@ namespace mitedm
     enum DecayType {Fast, Slow};
   
     // Type definitions
-    typedef std::vector<BasePart*>                 PartColl;
-    typedef std::vector<BasePart*>::iterator       Iter;
-    typedef std::vector<BasePart*>::const_iterator ConstIter;
+    //typedef std::vector<BasePart*>                 PartColl;
+    //typedef std::vector<BasePart*>::iterator       Iter;
+    //typedef std::vector<BasePart*>::const_iterator ConstIter;
   
     // Constructors
     DecayPart() {}
-    DecayPart(const mitedm::DecayPart &d);
+    //DecayPart(const mitedm::DecayPart &d);
     DecayPart(int pid) {}
     DecayPart(int pid, double mass);
     DecayPart(int pid, double mass, DecayType dType);
@@ -51,9 +52,10 @@ namespace mitedm
     virtual double      charge       () const { return 0.; }
   
     // Extend the particle contents
-    void                addChild     (BasePart* part) { children_.push_back(part); }
+    void                addChild     (BasePartBaseRef partRef) { children_.push_back(partRef); }
   
-    const BasePart*     getChild     (int i) const    { return children_.at(i); }
+    const BasePart*     getChild     (int i) const    { return children_.at(i).get(); }
+    const BasePartBaseRef getChildRef (int i) const { return children_.at(i); }
     int                 nChild       () const         { return children_.size();  }
   
     virtual void        print        (std::ostream& os = std::cout) const;
@@ -134,12 +136,11 @@ namespace mitedm
     const ThreeVector        &position() const { return position_; }
     void                   setPosition(const ThreeVector &position) { position_ = position; }
     // Error
-    const HepSymMatrix       &error() const { return error_; }
-    void                   setError(const HepSymMatrix &error) { error_.assign(error); }
+    const ThreeSymMatrix     &error() const { return error_; }
+    void                   setError(const ThreeSymMatrix &error) { error_ = error; }
     // Big 7x7 Error Matrix
-    const HepSymMatrix       &bigError() const { return bigError_; }
-    void                   setBigError(const HepSymMatrix &bigError) { bigError_.assign(bigError); }
-    void                   setBigError(const HepMatrix    &bigError) { bigError_.assign(bigError); }
+    const SevenSymMatrix     &bigError() const { return bigError_; }
+    void                   setBigError(const SevenSymMatrix &bigError) { bigError_ = bigError; }
     
   private:
     // Decay type (either fast of slow)
@@ -171,11 +172,11 @@ namespace mitedm
     FourVector          fourMomentum_;
     // Extended vertex fit info
     ThreeVector         position_;
-    HepSymMatrix        error_;
-    HepSymMatrix        bigError_;
+    ThreeSymMatrix      error_;
+    SevenSymMatrix      bigError_;
     
     // Contents of the decay
-    PartColl            children_;
+    BasePartBaseRefVector children_;
 
     //ClassDef(DecayPart, 1)
   };

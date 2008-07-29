@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: StablePart.cc,v 1.1 2008/07/29 13:16:22 loizides Exp $
 
 #include "MitEdm/DataFormats/interface/BasePartAction.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
@@ -39,18 +39,6 @@ StablePart::StablePart(int pid, double mass) :
   pt_  (0) ,ptErr_  (0),
   z0_  (0) ,z0Err_  (0),
   cotT_(0) ,cotTErr_(0)
-{
-}
-
-StablePart::StablePart(const StablePart &s) :
-  BasePart(s),
-  hits_(s.hits ()  ),
-  stat_(s.stat ()  ),
-  phi0_(s.phi0 ()  ), phi0Err_(s.phi0Err()),
-  d0_  (s.d0Raw()  ), d0Err_  (s.d0Err  ()),
-  pt_  (s.pt   ()  ), ptErr_  (s.ptErr  ()),
-  z0_  (s.z0Raw()  ), z0Err_  (s.z0Err  ()),
-  cotT_(s.cotT ()  ), cotTErr_(s.cotTErr())
 {
 }
 

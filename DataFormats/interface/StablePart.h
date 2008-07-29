@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: StablePart.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
 //
 // StablePart
 //
@@ -28,7 +28,6 @@ namespace mitedm
     StablePart();
     StablePart(int pid);
     StablePart(int pid, double mass);
-    StablePart(const StablePart &);
     // Destructor
     virtual ~StablePart() {}
     

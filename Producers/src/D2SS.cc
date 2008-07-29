@@ -2,11 +2,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "MitEdm/AnalysisDataFormats/interface/Types.h"
+#include "MitEdm/DataFormats/interface/Types.h"
+#include "MitEdm/DataFormats/interface/CollectionsEdm.h"
+#include "MitEdm/DataFormats/interface/DecayPart.h"
+#include "MitEdm/DataFormats/interface/StablePartEdm.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
-#include "MitEdm/AnalysisDataFormats/interface/CollectionsEdm.h"
-#include "MitEdm/AnalysisDataFormats/interface/DecayPart.h"
-#include "MitEdm/AnalysisDataFormats/interface/StablePartEdm.h"
 #include "MitEdm/Producers/interface/D2SS.h"
 
 using namespace std;
@@ -20,6 +20,7 @@ D2SS::D2SS(const ParameterSet& cfg) :
   iStables1_   (cfg.getUntrackedParameter<string>("iStables1","" )),
   iStables2_   (cfg.getUntrackedParameter<string>("iStables2","" ))
 {
+  produces<DecayPartCol>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -34,26 +35,26 @@ void D2SS::produce(Event &evt, const EventSetup &setup)
   // Get the input
   // -----------------------------------------------------------------------------------------------
   // First input collection
-  Handle<BasePartObjArr> hStables1;
+  Handle<StablePartCol> hStables1;
   if (!GetProduct(iStables1_, hStables1, evt))
     return;  
-  const BasePartObjArr *pS1 = hStables1.product();
+  const StablePartCol *pS1 = hStables1.product();
   // Second input collection
-  Handle<BasePartObjArr> hStables2;
+  Handle<StablePartCol> hStables2;
   if (!GetProduct(iStables2_, hStables2, evt))
     return;
-  const BasePartObjArr *pS2 = hStables2.product();
+  const StablePartCol *pS2 = hStables2.product();
 
   // -----------------------------------------------------------------------------------------------
   // Create the output collection
   // -----------------------------------------------------------------------------------------------
-  auto_ptr<BasePartObjArr> pD(new BasePartObjArr(10));
+  auto_ptr<DecayPartCol> pD(new DecayPartCol());
 
   // -----------------------------------------------------------------------------------------------
   // Simple double loop
   // -----------------------------------------------------------------------------------------------
-  for (UInt_t i = 0; i<pS1->Entries(); ++i) {
-    StablePartEdm *s1 = (StablePartEdm*) pS1->At(i);
+  for (UInt_t i = 0; i<pS1->size(); ++i) {
+    const StablePartEdm &s1 =  pS1->at(i);
     
     UInt_t j;
     if (iStables1_ == iStables2_)
@@ -61,19 +62,24 @@ void D2SS::produce(Event &evt, const EventSetup &setup)
     else
       j = 0;
     
-    for (; j<pS2->Entries(); ++j) {
-      StablePartEdm *s2 = (StablePartEdm*) pS2->At(j);
+    for (; j<pS2->size(); ++j) {
+      const StablePartEdm &s2 = pS2->at(j);
 
       // Vertex fit now (temporary screwing around)
       MultiVertexFitter fit;
       fit.init(4.0);                                    // Reset to the MC magnetic field of 4 Tesla
       MvfInterface fitInt(&fit);
-      fitInt.addTrack(s1->track(),1,s1->mass(),MultiVertexFitter::VERTEX_1);
-      fitInt.addTrack(s2->track(),2,s2->mass(),MultiVertexFitter::VERTEX_1);
+      fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitter::VERTEX_1);
+      fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitter::VERTEX_1);
       if (fit.fit()) {
 	DecayPart *d = new DecayPart(oPid_,oMass_,DecayPart::Fast);
-	d->addChild(s1);
-	d->addChild(s2);
+        
+        RefToBaseProd<BasePart> baseRef1(hStables1);
+        RefToBaseProd<BasePart> baseRef2(hStables2);
+        BasePartBaseRef ref1(baseRef1,i);
+        BasePartBaseRef ref2(baseRef2,j);
+	d->addChild(ref1);
+	d->addChild(ref2);
 	// Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)
 	d->setProb(fit.prob());
 	d->setChi2(fit.chisq());
@@ -91,7 +97,8 @@ void D2SS::produce(Event &evt, const EventSetup &setup)
 	d->setFittedMass     (mass);
 	d->setFittedMassError(massErr);
 	// Put the result into our collection
-	pD->Add(d);
+	pD->push_back(*d);
+        delete d;
       }
 
     }
@@ -100,7 +107,7 @@ void D2SS::produce(Event &evt, const EventSetup &setup)
   // -----------------------------------------------------------------------------------------------
   // Write the collection even if it is empty
   // -----------------------------------------------------------------------------------------------
-  cout << " D2SS::produce - " << pD->Entries() << " entries collection created -"
+  cout << " D2SS::produce - " << pD->size() << " entries collection created -"
        << " (Pid: " << oPid_ << ", Mass: " << oMass_ << ")\n";
   evt.put(pD);
 }

@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: DecayPart.cc,v 1.1 2008/07/29 13:16:22 loizides Exp $
 
 #include "MitEdm/DataFormats/interface/BasePartAction.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
@@ -31,9 +31,7 @@ DecayPart::DecayPart(int pid, double mass) :
   pt_             (0),
   ptError_        (0),
   fourMomentum_   (0,0,0,0),
-  position_       (0,0,0),
-  error_          (3,0),
-  bigError_       (7,0)
+  position_       (0,0,0)
 {
 }
 
@@ -62,49 +60,47 @@ DecayPart::DecayPart(int pid, double mass, DecayType decayType) :
   pt_             (0),
   ptError_        (0),
   fourMomentum_   (0,0,0,0),
-  position_       (0,0,0),
-  error_          (3,0),
-  bigError_       (7,0)
+  position_       (0,0,0)
 {
 }
 
-DecayPart::DecayPart(const DecayPart &d) :
-  BasePart        (d.pid(),d.mass()),
-  decayType_      (d.decayType      ()),
-  prob_           (d.prob           ()),
-  chi2_           (d.chi2           ()),
-  ndof_           (d.ndof           ()),
-  fittedMass_     (d.fittedMass     ()),
-  fittedMassError_(d.fittedMassError()),
-  lxy_            (d.lxy            ()),
-  lxyError_       (d.lxyError       ()),
-  lxyToPv_        (d.lxyToPv        ()),
-  lxyToPvError_   (d.lxyToPvError   ()),
-  dxy_            (d.dxy            ()),
-  dxyError_       (d.dxyError       ()),
-  dxyToPv_        (d.dxyToPv        ()),
-  dxyToPvError_   (d.dxyToPvError   ()),
-  lz_             (d.lz             ()),
-  lzError_        (d.lzError        ()),
-  lzToPv_         (d.lzToPv         ()),
-  lzToPvError_    (d.lzToPvError    ()),
-  cTau_           (d.cTau           ()),
-  cTauError_      (d.cTauError      ()),
-  pt_             (d.pt             ()),
-  ptError_        (d.ptError        ()),
-  fourMomentum_   (d.fourMomentum   ()),
-  position_       (d.position       ()),
-  error_          (d.error          ()),
-  bigError_       (d.bigError       ())
-{
-}
+// DecayPart::DecayPart(const DecayPart &d) :
+//   BasePart        (d.pid(),d.mass()),
+//   decayType_      (d.decayType      ()),
+//   prob_           (d.prob           ()),
+//   chi2_           (d.chi2           ()),
+//   ndof_           (d.ndof           ()),
+//   fittedMass_     (d.fittedMass     ()),
+//   fittedMassError_(d.fittedMassError()),
+//   lxy_            (d.lxy            ()),
+//   lxyError_       (d.lxyError       ()),
+//   lxyToPv_        (d.lxyToPv        ()),
+//   lxyToPvError_   (d.lxyToPvError   ()),
+//   dxy_            (d.dxy            ()),
+//   dxyError_       (d.dxyError       ()),
+//   dxyToPv_        (d.dxyToPv        ()),
+//   dxyToPvError_   (d.dxyToPvError   ()),
+//   lz_             (d.lz             ()),
+//   lzError_        (d.lzError        ()),
+//   lzToPv_         (d.lzToPv         ()),
+//   lzToPvError_    (d.lzToPvError    ()),
+//   cTau_           (d.cTau           ()),
+//   cTauError_      (d.cTauError      ()),
+//   pt_             (d.pt             ()),
+//   ptError_        (d.ptError        ()),
+//   fourMomentum_   (d.fourMomentum   ()),
+//   position_       (d.position       ()),
+//   error_          (d.error          ()),
+//   bigError_       (d.bigError       ())
+// {
+// }
 
 void DecayPart::print(ostream &os) const
 {
   os << " DecayPart::print - pid: " << pid_ << "  mass: " << mass_
      << "  decayType: " << decayType_ << endl
      <<  "  Decays to \n";
-  for (ConstIter ip=children_.begin(); ip!=children_.end(); ip++) {
+  for (BasePartBaseRefVector::const_iterator ip=children_.begin(); ip!=children_.end(); ip++) {
     os << "   "; (*ip)->print(os);    
   }
   os <<  "  -- end decays to -------\n";
@@ -122,8 +118,8 @@ void DecayPart::doAction(BasePartAction *action) const
   if (action->getActionType() == BasePartAction::TopDown)
     action->doAction(this);
   
-  for (ConstIter ip=children_.begin(); ip!=children_.end(); ip++) {
-    action->incLevel(); (*ip)->doAction(action); action->decLevel();
+  for (BasePartBaseRefVector::const_iterator ip=children_.begin(); ip!=children_.end(); ip++) {
+    action->incLevel(); (ip->get())->doAction(action); action->decLevel();
   }
 
   if (action->getActionType() == BasePartAction::BottomUp)

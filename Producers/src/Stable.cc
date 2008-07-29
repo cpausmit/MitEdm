@@ -2,8 +2,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "MitEdm/AnalysisDataFormats/interface/CollectionsEdm.h"
-#include "MitEdm/AnalysisDataFormats/interface/StablePartEdm.h"
+#include "MitEdm/DataFormats/interface/CollectionsEdm.h"
+#include "MitEdm/DataFormats/interface/StablePartEdm.h"
 #include "MitEdm/Producers/interface/Stable.h"
 
 using namespace std;
@@ -16,6 +16,7 @@ Stable::Stable(const ParameterSet& cfg) :
   BaseCandidate(cfg),
   iTracks_     (cfg.getUntrackedParameter<string>("iTracks",""))
 {
+    produces<StablePartCol>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ void Stable::produce(Event &evt, const EventSetup &setup)
   // -----------------------------------------------------------------------------------------------
   // Create the output collection
   // -----------------------------------------------------------------------------------------------
-  auto_ptr<BasePartObjArr> pS(new BasePartObjArr(200));
+  auto_ptr<StablePartCol> pS(new StablePartCol());
 
   // -----------------------------------------------------------------------------------------------
   // Simple conversion of tracks to stable particles
@@ -45,13 +46,14 @@ void Stable::produce(Event &evt, const EventSetup &setup)
   for (TrackCollection::const_iterator it = iTrks.begin(); it != iTrks.end(); ++it) {
     const reco::TrackRef theRef(hTrks, it - iTrks.begin());
     StablePartEdm *s = new StablePartEdm(oPid_,oMass_,theRef);
-    pS->Add(s);
+    pS->push_back(*s);
+    delete s;
   }
 
   // -----------------------------------------------------------------------------------------------
   // Write the collection even if it is empty
   // -----------------------------------------------------------------------------------------------
-  cout << " Stable::produce - " << pS->Entries() << " entries collection created -"
+  cout << " Stable::produce - " << pS->size() << " entries collection created -"
        << " (Pid: " << oPid_ << ", Mass: " << oMass_ << ")\n";
   evt.put(pS);
 }

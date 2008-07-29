@@ -1,7 +1,7 @@
 #include <TSystem.h>
 #include <TError.h>
 
-#include "MitEdm/AnalysisDataFormats/interface/CollectionsEdm.h"
+#include "MitEdm/DataFormats/interface/CollectionsEdm.h"
 #include "MitEdm/Producers/interface/BaseCandidate.h"
 
 using namespace edm;
@@ -13,7 +13,6 @@ BaseCandidate::BaseCandidate(const ParameterSet& cfg) :
   oMass_(cfg.getUntrackedParameter<double>("oMass",0.0))
 {
   // register your base product
-  produces<BasePartObjArr>();
 }
 
 //--------------------------------------------------------------------------------------------------
