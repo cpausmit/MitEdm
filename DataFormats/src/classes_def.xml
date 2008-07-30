@@ -1,4 +1,4 @@
-<!-- $Id: $ -->
+<!-- $Id: classes_def.xml,v 1.3 2008/07/30 08:41:41 loizides Exp $ -->
 
 <lcgdict>
   <class name="mitedm::BasePart"/>
@@ -9,14 +9,22 @@
   <class name="std::vector<mitedm::DecayPart>"/>
   <class name="edm::Wrapper<std::vector<mitedm::StablePartEdm> >"/>
   <class name="edm::Wrapper<std::vector<mitedm::DecayPart> >"/>
-  <class name="edm::RefToBaseVector<mitedm::BasePart>"/>
-<!--
   <class name="edm::RefToBase<mitedm::BasePart>"/>
+  <class name="edm::RefToBaseVector<mitedm::BasePart>"/>
+    <field name="holder_" transient="true"/>
+  <class name="edm::reftobase::BaseVectorHolder<mitedm::BasePart>"/> 
+
+
+
+  
+<!--
+
+  <class name="edm::reftobase::BaseHolder<mitedm::BasePart>" />
+    <class name="std::vector<edm::RefToBase<mitedm::BasePart> >"/>
   <class name="edm::Wrapper<RefToBase<mitedm::BasePart> >"/>
   <class name="edm::Wrapper<edm::RefToBaseVector<mitedm::BasePart> >"/>
-  <class name="edm::reftobase::BaseHolder<mitedm::BasePart>" />
   <class name="edm::reftobase::Holder<mitedm::BasePart, mitedm::BasePart>" />
 
 -->
-  <class name="edm::reftobase::BaseVectorHolder<mitedm::BasePart>"/> 
+
 </lcgdict>
