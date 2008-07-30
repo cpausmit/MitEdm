@@ -90,7 +90,8 @@ void D2SS::produce(Event &evt, const EventSetup &setup)
 	p4Fitted += fit.getTrackP4(2);
 	d->setFourMomentum(p4Fitted);
 	d->setPosition(fit.getVertex     (MultiVertexFitter::VERTEX_1));
-	d->setError   (fit.getErrorMatrix(MultiVertexFitter::VERTEX_1));
+        //this needs to be fixed
+	//d->setError   (fit.getErrorMatrix(MultiVertexFitter::VERTEX_1));
 	float mass, massErr;
 	const int trksIds[2] = { 1, 2 };
 	mass = fit.getMass(2,trksIds,massErr);
