@@ -18,7 +18,7 @@ namespace mitedm
     // ---------------------------------------------------------------------------------------------
     // CMS parameter ordering for the vector/matrix, which is assumed here:
     //
-    //   qoverp, cotTheta, phi0, d0, z0;
+    //   qoverp, lambda = pi/2 - theta, phi0, dxy, dsz;
     //   mapping to CDF is therefore { 1, 0*, 4, 3, 2 }, where * indicates that a transformation is
     //                                                   needed
     //
