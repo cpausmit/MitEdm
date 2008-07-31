@@ -1,29 +1,26 @@
-// $Id: $
+// $Id: BasePart.cc,v 1.1 2008/07/29 13:16:22 loizides Exp $
 
 #include "MitEdm/DataFormats/interface/BasePart.h"
 
 using namespace std;
 using namespace mitedm;
 
-BasePart::BasePart(int pid) :
-  pid_ (pid),
-  mass_(0.0)           // need to have funtion to automatically get mass from database using the pid
+//--------------------------------------------------------------------------------------------------
+Double_t BasePart::mass() const
 {
+  // Get Mass from Pdg Lookup
+
+  TParticlePDG* pdgEntry = particlePdgEntry();
+  if (pdgEntry)
+    return pdgEntry->Mass();
+  else {
+    return -99.0;
+    printf("Absolute Pdg Code %i not found in table, returning Mass=-99.0 GeV", pid_);
+  }
 }
 
-BasePart::BasePart(int pid, double mass) :
-  pid_ (pid),
-  mass_(mass)
-{
-}
-
-BasePart::BasePart(const BasePart &d) :
-  pid_ (d.pid ()),
-  mass_(d.mass())
-{
-}
-
+//--------------------------------------------------------------------------------------------------
 void BasePart::print(ostream &os) const
 {
-  os << " BasePart::print - pid: " << pid_ << "  mass: " << mass_ << endl;
+  os << " BasePart::print - pid: " << pid_ << "  mass: " << mass() << endl;
 }

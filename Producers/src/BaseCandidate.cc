@@ -9,8 +9,7 @@ using namespace mitedm;
 
 //--------------------------------------------------------------------------------------------------
 BaseCandidate::BaseCandidate(const ParameterSet& cfg) :
-  oPid_ (cfg.getUntrackedParameter<int>   ("oPid", 0  )),
-  oMass_(cfg.getUntrackedParameter<double>("oMass",0.0))
+  oPid_ (cfg.getUntrackedParameter<int>   ("oPid", 0  ))
 {
   // register your base product
 }

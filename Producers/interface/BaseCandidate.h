@@ -41,7 +41,6 @@ namespace mitedm
 
     // Parameters always being used
     int         oPid_;
-    double      oMass_;
   };
 
   //------------------------------------------------------------------------------------------------

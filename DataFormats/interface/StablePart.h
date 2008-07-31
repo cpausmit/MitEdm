@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: StablePart.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
+// $Id: StablePart.h,v 1.2 2008/07/29 22:52:54 bendavid Exp $
 //
 // StablePart
 //
@@ -17,6 +17,8 @@
 #include <cmath>
 
 #include "MitEdm/DataFormats/interface/BasePart.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 namespace mitedm
 {
@@ -24,11 +26,10 @@ namespace mitedm
   class StablePart : public BasePart
   {
   public:
-    // Constructors
-    StablePart();
-    StablePart(int pid);
-    StablePart(int pid, double mass);
-    // Destructor
+    StablePart() {}
+    StablePart(int pid, const reco::TrackRef &trk) :
+                BasePart(pid),
+                track_  (trk) {}
     virtual ~StablePart() {}
     
     // Override recursion helper method
@@ -36,52 +37,14 @@ namespace mitedm
     // General printing method
     virtual void   print      (std::ostream &os = std::cout) const;
 
-    //----------------------------------------------------------------------------------------------
-    // Acessors
-    //----------------------------------------------------------------------------------------------
-    // Getting
-    int            stat       () const { return stat_; }
-    int            hits       () const { return hits_; }
-    // Track parameters and errors
-    double         phi0       () const { return phi0_; }
-    double         phi0Err    () const { return phi0Err_; }
-    //double         d0         (TVector3 *vtx) const;
-    double         d0Raw      () const { return d0_; }
-    double         d0Err      () const { return d0Err_; }
-    double         pt         () const { return fabs(pt_); }
-    double         ptErr      () const { return ptErr_; }
-    //double         z0         (TVector3 *vtx) const;
-    double         z0Raw      () const { return z0_; }
-    double         z0Err      () const { return z0Err_; }
-    double         cotT       () const { return cotT_; }
-    double         cotTErr    () const { return cotTErr_; }
-    // Setting
-    void           setStat    (int   v) { stat_    = v; }
-    void           setHits    (int   v) { hits_    = v; }
-    void           setPhi0    (float v) { phi0_    = v; }
-    void           setPhi0Err (float v) { phi0Err_ = v; }
-    void           setD0Raw   (float v) { d0_      = v; }
-    void           setD0Err   (float v) { d0Err_   = v; }
-    void           setPt      (float v) { pt_      = v; }
-    void           setPtErr   (float v) { ptErr_   = v; }
-    void           setZ0Raw   (float v) { z0_      = v; }
-    void           setZ0Err   (float v) { z0Err_   = v; }
-    void           setCotT    (float v) { cotT_    = v; }
-    void           setCotTErr (float v) { cotTErr_ = v; }
-    
-    int            charge     () const { return (pt_>0) ? 1 : -1; }
-   
-  private:
-    // Constant which is store in the file
-    int            hits_;                // Mostly Hit informations
-    int            stat_;                // Storage for various interesting things
-    float          phi0_,phi0Err_;       // Follow track parameters/uncertainties
-    float          d0_,  d0Err_;
-    float          pt_,  ptErr_;
-    float          z0_,  z0Err_;
-    float          cotT_,cotTErr_;
+    // Accessors
+    const reco::Track *track      () const { return track_.get(); }
+    const reco::TrackRef &trackRef() const { return track_; }
+    double                charge  () const { return track()->charge(); }
 
-    //ClassDef(StablePart, 1)
+  private:
+    reco::TrackRef     track_;
+
   };
 }
 #endif

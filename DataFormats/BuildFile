@@ -1,8 +1,9 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.6 2008/07/29 12:15:07 loizides Exp $
+# $Id: BuildFile,v 1.1 2008/07/29 13:16:37 loizides Exp $
 
 <use name=DataFormats/TrackReco>
 <use name=root>
+<lib name=EG>
 <flags CXXFLAGS="-g">
 <export>
    <lib name=MitEdmDataFormats>

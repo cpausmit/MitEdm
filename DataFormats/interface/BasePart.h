@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: BasePart.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
 //
 // BasePart
 //
@@ -15,6 +15,8 @@
 
 #include <iostream>
 #include <vector>
+#include "TParticlePDG.h"
+#include "TDatabasePDG.h"
 
 namespace mitedm
 {
@@ -23,15 +25,14 @@ namespace mitedm
   {
    public:
     // Constructors
-    BasePart() : pid_(0), mass_(0) {}
-    BasePart(int pid);
-    BasePart(int pid, double mass);
-    BasePart(const BasePart &b);
-    // Destructor
+    BasePart() : pid_(0) {}
+    BasePart(int pid) : pid_(pid) {}
     virtual ~BasePart() {}
     
     int                  pid        () const { return pid_; }
-    double               mass       () const { return mass_; }
+    double               mass       () const;
+
+    TParticlePDG        *particlePdgEntry() const;
      
     // Handle for recursive actions (have to implement it but should never be called)
     virtual void         doAction   (BasePartAction *action) const {}
@@ -46,7 +47,14 @@ namespace mitedm
   protected: 
     // General stuff
     int                  pid_;
-    double               mass_;
   };
+}
+
+//--------------------------------------------------------------------------------------------------
+inline TParticlePDG *mitedm::BasePart::particlePdgEntry() const 
+{ 
+  // Return entry to pdg database for the PARTICLE.
+
+  return TDatabasePDG::Instance()->GetParticle(pid_); 
 }
 #endif

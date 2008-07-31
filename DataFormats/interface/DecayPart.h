@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
+// $Id: DecayPart.h,v 1.2 2008/07/29 22:52:54 bendavid Exp $
 //
 // DecayPart
 //
@@ -32,17 +32,9 @@ namespace mitedm
     // Decay type
     enum DecayType {Fast, Slow};
   
-    // Type definitions
-    //typedef std::vector<BasePart*>                 PartColl;
-    //typedef std::vector<BasePart*>::iterator       Iter;
-    //typedef std::vector<BasePart*>::const_iterator ConstIter;
-  
-    // Constructors
     DecayPart() {}
-    //DecayPart(const mitedm::DecayPart &d);
     DecayPart(int pid) {}
-    DecayPart(int pid, double mass);
-    DecayPart(int pid, double mass, DecayType dType);
+    DecayPart(int pid, DecayType dType);
   
     // Accessors
     DecayType           decayType    () const { return decayType_; }
@@ -178,7 +170,6 @@ namespace mitedm
     // Contents of the decay
     BasePartBaseRefVector children_;
 
-    //ClassDef(DecayPart, 1)
   };
 }
 #endif
