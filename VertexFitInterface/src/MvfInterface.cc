@@ -25,12 +25,11 @@ bool MvfInterface::addTrack(const reco::Track* trk, const int id, const float ma
   FiveMatrix derivatives;
   TMatrixDSym covmat(5);
   
-  
-  params[0] = 1.0/TMath::Tan(TMath::PiOver2() - trk->lambda());
-  params[1] = _fCurv*trk->qoverp()/TMath::Cos(trk->lambda());
-  params[2] = trk->dsz()/TMath::Cos(trk->lambda());
-  params[3] = -trk->dxy();
-  params[4] = trk->phi();
+  params[0] = 1.0/TMath::Tan(TMath::PiOver2() - trk->lambda()); //cotTheta
+  params[1] = _fCurv*trk->qoverp()/TMath::Cos(trk->lambda());   //curvature
+  params[2] = trk->dsz()/TMath::Cos(trk->lambda());             //z0
+  params[3] = -trk->dxy();                                      //d0
+  params[4] = trk->phi();                                       //phi0
   
   //derivatives(i,j) gives partial dx_i/dy_j where x are the new parameters and y are the old ones
   derivatives(0,0) = 0;
