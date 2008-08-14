@@ -4,6 +4,7 @@
 #include "TMatrixDSym.h"
 #include "TVectorD.h"
 
+using namespace TMath;
 using namespace reco;
 using namespace mitedm;
 
@@ -22,76 +23,49 @@ bool MvfInterface::addTrack(const reco::Track* trk, const int id, const float ma
   // Fill the parameters and matrix compliant with the generic fitter this involves remapping and a
   // simple parameter transformation
   TVectorD    params(5);                                               // track parameters  
-  FiveMatrix derivatives;
+  FiveMatrix  dPidPj;
   TMatrixDSym covmat(5);
   
-  params[0] = 1.0/TMath::Tan(TMath::PiOver2() - trk->lambda()); //cotTheta
-  params[1] = _fCurv*trk->qoverp()/TMath::Cos(trk->lambda());   //curvature
-  params[2] = trk->dsz()/TMath::Cos(trk->lambda());             //z0
+  params[0] = 1.0/Tan(PiOver2() - trk->lambda());               //cotTheta
+  params[1] = _fCurv*trk->qoverp()/Cos(trk->lambda());          //curvature
+  params[2] = trk->dsz()/Cos(trk->lambda());                    //z0
   params[3] = -trk->dxy();                                      //d0
   params[4] = trk->phi();                                       //phi0
   
-  //derivatives(i,j) gives partial dx_i/dy_j where x are the new parameters and y are the old ones
-  derivatives(0,0) = 0;
-  derivatives(0,1) = -1.0/(TMath::Sin(TMath::PiOver2() - trk->lambda())*TMath::Sin(TMath::PiOver2() - trk->lambda()));
-  derivatives(0,2) = 0;
-  derivatives(0,3) = 0;
-  derivatives(0,4) = 0;
-  derivatives(1,0) = _fCurv/TMath::Cos(trk->lambda());
-  derivatives(1,1) = _fCurv*TMath::Abs(trk->qoverp())*TMath::Tan(trk->lambda())/TMath::Cos(trk->lambda());
-  derivatives(1,2) = 0;
-  derivatives(1,3) = 0;
-  derivatives(1,4) = 0;
-  derivatives(2,0) = 0;
-  derivatives(2,1) = -trk->dsz()*TMath::Tan(trk->lambda())/TMath::Cos(trk->lambda());
-  derivatives(2,2) = 0;
-  derivatives(2,3) = 0;
-  derivatives(2,4) = 1.0/TMath::Cos(trk->lambda());
-  derivatives(3,0) = 0;
-  derivatives(3,1) = 0;
-  derivatives(3,2) = 0;
-  derivatives(3,3) = -1.0;
-  derivatives(3,4) = 0;
-  derivatives(4,0) = 0;
-  derivatives(4,1) = 0;
-  derivatives(4,2) = 1.0;
-  derivatives(4,3) = 0;
-  derivatives(4,4) = 0;
+  // dPidPj(i,j) gives partial dx_i/dy_j where x are the new parameters and y are the old ones
+  dPidPj(0,0) = 0;
+  dPidPj(0,1) = -1.0/(Sin(PiOver2() - trk->lambda())*Sin(PiOver2() - trk->lambda()));
+  dPidPj(0,2) = 0;
+  dPidPj(0,3) = 0;
+  dPidPj(0,4) = 0;
+  dPidPj(1,0) = _fCurv/Cos(trk->lambda());
+  dPidPj(1,1) = _fCurv*Abs(trk->qoverp())*Tan(trk->lambda())/Cos(trk->lambda());
+  dPidPj(1,2) = 0;
+  dPidPj(1,3) = 0;
+  dPidPj(1,4) = 0;
+  dPidPj(2,0) = 0;
+  dPidPj(2,1) = -trk->dsz()*Tan(trk->lambda())/Cos(trk->lambda());
+  dPidPj(2,2) = 0;
+  dPidPj(2,3) = 0;
+  dPidPj(2,4) = 1.0/Cos(trk->lambda());
+  dPidPj(3,0) = 0;
+  dPidPj(3,1) = 0;
+  dPidPj(3,2) = 0;
+  dPidPj(3,3) = -1.0;
+  dPidPj(3,4) = 0;
+  dPidPj(4,0) = 0;
+  dPidPj(4,1) = 0;
+  dPidPj(4,2) = 1.0;
+  dPidPj(4,3) = 0;
+  dPidPj(4,4) = 0;
 
   for (Int_t i=0; i<5; i++)
     for (Int_t j=0; j<5; j++) {
       covmat(i,j)=0;
       for (Int_t k=0; k<5; k++)
         for (Int_t l=0; l<5; l++)
-          covmat(i,j) += derivatives(i,k)*derivatives(j,l)*trk->covariance(k,l);
+          covmat(i,j) += dPidPj(i,k)*dPidPj(j,l)*trk->covariance(k,l);
     }
-
-  
-//   double       fcCosTheta   = _fCurv * cos(trk->theta());
-//   double       fcCosThetaSq = fcCosTheta * fcCosTheta;
-// 
-//   // double loop to fill covariance matrix
-//   for (int i=0; i<5; i++) {
-//     params[i] = trk->parameter(cms2GenMap[i]);
-// 
-//     // apply q/p correction
-//     if (i == 1)
-//       params[i] = params[i] * fcCosTheta;
-// 
-//     for (int j=i; j<5; j++) {
-//       covmat(i,j) = trk->covariance(cms2GenMap[i],cms2GenMap[j]);
-// 
-//       // apply q/p correction
-//       if      (1 == 1 && j == 1)
-// 	covmat(i,j) = covmat(i,j) * fcCosThetaSq;
-//       else if (i == 1 || j == 1)
-// 	covmat(i,j) = covmat(i,j) * fcCosTheta;
-// 
-//       // force symmetry (should not be needed but well, better apply)
-//       if (i != j)
-// 	covmat[j][i] = covmat(i,j);
-//     }
-//   }
 
   return (_mvf->addTrack(params,covmat,id,mass,jv));
 }
