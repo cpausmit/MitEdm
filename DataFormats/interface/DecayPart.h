@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.2 2008/07/29 22:52:54 bendavid Exp $
+// $Id: DecayPart.h,v 1.3 2008/07/31 13:29:35 bendavid Exp $
 //
 // DecayPart
 //
@@ -136,36 +136,36 @@ namespace mitedm
     
   private:
     // Decay type (either fast of slow)
-    DecayType           decayType_;
+    DecayType              decayType_;
     // Fit quality
-    double              prob_;
-    double              chi2_;
-    int                 ndof_;
+    double                 prob_;
+    double                 chi2_;
+    int                    ndof_;
     // Base vertex fit info
-    double              fittedMass_;
-    double              fittedMassError_;
-    double              normalizedMass_;
-    double              lxy_;
-    double              lxyError_;
-    double              lxyToPv_;
-    double              lxyToPvError_;
-    double              dxy_;
-    double              dxyError_;
-    double              dxyToPv_;
-    double              dxyToPvError_;
-    double              lz_;
-    double              lzError_;
-    double              lzToPv_;
-    double              lzToPvError_;
-    double              cTau_;
-    double              cTauError_;
-    double              pt_;
-    double              ptError_;
-    FourVector          fourMomentum_;
+    double                 fittedMass_;
+    double                 fittedMassError_;
+    double                 normalizedMass_;
+    double                 lxy_;
+    double                 lxyError_;
+    double                 lxyToPv_;
+    double                 lxyToPvError_;
+    double                 dxy_;
+    double                 dxyError_;
+    double                 dxyToPv_;
+    double                 dxyToPvError_;
+    double                 lz_;
+    double                 lzError_;
+    double                 lzToPv_;
+    double                 lzToPvError_;
+    double                 cTau_;
+    double                 cTauError_;
+    double                 pt_;
+    double                 ptError_;
+    FourVector             fourMomentum_;
     // Extended vertex fit info
-    ThreeVector         position_;
-    ThreeSymMatrix      error_;
-    SevenSymMatrix      bigError_;
+    ThreeVector            position_;
+    ThreeSymMatrix         error_;
+    SevenSymMatrix         bigError_;
     
     // Contents of the decay
     BasePartBaseRefVector children_;

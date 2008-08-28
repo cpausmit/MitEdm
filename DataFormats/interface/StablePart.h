@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: StablePart.h,v 1.2 2008/07/29 22:52:54 bendavid Exp $
+// $Id: StablePart.h,v 1.3 2008/07/31 13:29:35 bendavid Exp $
 //
 // StablePart
 //
@@ -27,23 +27,21 @@ namespace mitedm
   {
   public:
     StablePart() {}
-    StablePart(int pid, const reco::TrackRef &trk) :
-                BasePart(pid),
-                track_  (trk) {}
+    StablePart(int pid, const reco::TrackRef &trk) : BasePart(pid), track_(trk) {}
     virtual ~StablePart() {}
     
     // Override recursion helper method
-    virtual void   doAction   (BasePartAction *Action) const;
+    virtual void          doAction(BasePartAction *Action) const;
     // General printing method
-    virtual void   print      (std::ostream &os = std::cout) const;
+    virtual void          print   (std::ostream &os = std::cout) const;
 
     // Accessors
-    const reco::Track *track      () const { return track_.get(); }
+    const reco::Track    *track   () const { return track_.get(); }
     const reco::TrackRef &trackRef() const { return track_; }
     double                charge  () const { return track()->charge(); }
 
   private:
-    reco::TrackRef     track_;
+    reco::TrackRef        track_;
 
   };
 }

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePartFwd.h,v 1.1 2008/07/29 22:56:37 bendavid Exp $
+// $Id: BasePartFwd.h,v 1.2 2008/07/30 11:43:16 bendavid Exp $
 //
 // BasePartFwd
 //
@@ -16,7 +16,7 @@
 
 namespace mitedm {
   class BasePart;
-  typedef edm::RefToBase<mitedm::BasePart> BasePartBaseRef;
+  typedef edm::RefToBase<mitedm::BasePart>       BasePartBaseRef;
   typedef edm::RefToBaseVector<mitedm::BasePart> BasePartBaseRefVector;
 }
 #endif

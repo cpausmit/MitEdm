@@ -67,7 +67,7 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 
       // Vertex fit now (temporary screwing around)
       MultiVertexFitter fit;
-      fit.init(4.0);                                    // Reset to the MC magnetic field of 4 Tesla
+      fit.init(3.8);                                    // Reset to the MC magnetic field of 4 Tesla
       MvfInterface fitInt(&fit);
       fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitter::VERTEX_1);
       fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitter::VERTEX_1);
@@ -94,6 +94,22 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 	float mass, massErr;
 	const int trksIds[2] = { 1, 2 };
 	mass = fit.getMass(2,trksIds,massErr);
+	
+	const reco::Track *p1 = s1.track();
+	const reco::Track *p2 = s2.track();
+	
+	// create the dimuon system
+	FourVector mu1(p1->px(),p1->py(),p1->pz(),sqrt(p1->p()*p1->p()+0.105658357*0.105658357));
+	FourVector mu2(p2->px(),p2->py(),p2->pz(),sqrt(p2->p()*p2->p()+0.105658357*0.105658357));
+	FourVector diMu = mu1+mu2;
+	
+	// for convenience and economy
+	double mass4Vec = sqrt(diMu.M2());
+	
+	printf(" Generated mass:   ....\n");
+	printf(" Four vector mass: %14.6f\n",mass4Vec);
+	printf(" Fitted mass:      %14.6f +- %14.6f\n",mass,massErr);
+
 	d->setFittedMass     (mass);
 	d->setFittedMassError(massErr);
 	// Put the result into our collection

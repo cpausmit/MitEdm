@@ -1,44 +1,37 @@
 //==================================================================================================
-// MvfInterface class header file
+// HisInterface class header file
 //
 // Author:      Christoph Paus, MIT
-// Description: Provide a CMS specific interface for the generic MultiVertexFitter.
+// Description: Provide a CMS specific interface for the generic HelixIntersector (His).
 // Date:        Jul 18, 2008
 //==================================================================================================
-#ifndef MVFINTERFACE_H
-#define MVFINTERFACE_H
+#ifndef HISINTERFACE_H
+#define HISINTERFACE_H
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "MitVertex/Fit/interface/MultiVertexFitter.h"
+#include "MitVertex/Helix/interface/HelixIntersector.h"
 
 namespace mitedm
 {  
-  // Declare the class
-  class MvfInterface
+  class HisInterface
   {
   public:
     // ---------------------------------------------------------------------------------------------
     // *structors
     // ---------------------------------------------------------------------------------------------
-    MvfInterface(MultiVertexFitter *fitter);
-    ~MvfInterface() {}
-  
-    // ---------------------------------------------------------------------------------------------
-    // Fundamental functions
-    // ---------------------------------------------------------------------------------------------
-    bool               addTrack(const reco::Track *trk, const int id, const float mass,
-				MultiVertexFitter::vertexNumber jv);
-  
+    HisInterface(const reco::Track *trk1,const reco::Track *trk2, const double bField = 3.8);
+    ~HisInterface();
+    
     // ---------------------------------------------------------------------------------------------
     // Accessors
     // ---------------------------------------------------------------------------------------------
-    MultiVertexFitter *fitter() { return mvf_;}
+    const HelixIntersector  *hISector() { return his_; }
   
   private:
     // ---------------------------------------------------------------------------------------------
     // Data members of class
     // ---------------------------------------------------------------------------------------------
-    MultiVertexFitter *mvf_;
+    HelixIntersector        *his_;
   };
 }
 #endif

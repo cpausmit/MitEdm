@@ -46,6 +46,7 @@ void ProducerStable::produce(Event &evt, const EventSetup &setup)
   for (TrackCollection::const_iterator it = iTrks.begin(); it != iTrks.end(); ++it) {
     const reco::TrackRef theRef(hTrks, it - iTrks.begin());
     StablePart *s = new StablePart(oPid_,theRef);
+    printf(" Track: %14.8f, %14.8f, %14.8f\n",it->pt(),it->phi(),it->eta());
     pS->push_back(*s);
     delete s;
   }
