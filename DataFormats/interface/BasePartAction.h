@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: $
+// $Id: BasePartAction.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
 //
 // BasePartAction
 //
@@ -16,7 +16,7 @@
 // Then, the handle functions are called once per particle as the action is passed up or down the
 // Particle Decay Graph. A non-recursive action has also been implemented.
 //
-// Author List: Ch.Paus
+// Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITEDM_BASEPARTACTION_H

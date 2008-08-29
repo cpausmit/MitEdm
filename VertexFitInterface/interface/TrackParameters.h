@@ -1,5 +1,5 @@
-//==================================================================================================
-// $Id $
+//--------------------------------------------------------------------------------------------------
+// $Id:$
 //
 // Description: class TrackParameters
 //
@@ -27,7 +27,9 @@
 //   fullCurvature = 1 / Rc = 0.0029979 * q * B / pT = - 0.0029979 * B / pT.
 //
 // see the conventions for the MultiVertexFitter in its own header file.
-//==================================================================================================
+//
+// Author: C.Paus
+//--------------------------------------------------------------------------------------------------
 
 #ifndef _VERTEXFITINTERFACE_TRACKPARAMETERS_H_
 #define _VERTEXFITINTERFACE_TRACKPARAMETERS_H_
@@ -45,7 +47,6 @@ namespace mitedm
   class TrackParameters
   {
   public:
-    // *structors
     TrackParameters() {}
     TrackParameters(const reco::Track     *trk, TrackConvention tcv = iCms, double bField = 3.8);
     TrackParameters(const TrackParameters &trk);

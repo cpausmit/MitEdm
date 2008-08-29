@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.3 2008/07/31 13:29:35 bendavid Exp $
+// $Id: DecayPart.h,v 1.4 2008/08/28 22:09:16 paus Exp $
 //
 // DecayPart
 //
@@ -7,7 +7,7 @@
 // decay particle is basically its link to the particles it decays to. This will be hopefully at
 // some point a useful and good implementation. See the double dispatcher doAction(MyAction).
 //
-// Author List: Ch.Paus
+// Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITEDM_DECAYPART_H
@@ -169,7 +169,6 @@ namespace mitedm
     
     // Contents of the decay
     BasePartBaseRefVector children_;
-
   };
 }
 #endif

@@ -1,11 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePartFwd.h,v 1.2 2008/07/30 11:43:16 bendavid Exp $
+// $Id: BasePartFwd.h,v 1.3 2008/08/28 22:09:16 paus Exp $
 //
 // BasePartFwd
 //
 // Edm reference typedefs for BasePart
 //
-// Author List: J.Bendavid
+// Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITEDM_BASEPARTFWD_H

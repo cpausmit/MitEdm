@@ -1,14 +1,14 @@
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 // $Id $
 //
-// Description: class ProducerD2SS
+// ProducerD2SS
 //
 // Commmon two body particle decay reconstruction (e.g J/psi), special implementations using this as
 // a base class exist for V and conversion.
 //
-// Original Author:  Christoph Paus
-// Created:          Mon Jul 21 14:42:57 CEST 2008
-//==================================================================================================
+// Authors:  C.Paus
+//--------------------------------------------------------------------------------------------------
+
 #ifndef _PRODUCERS_ProducerD2SS_H_
 #define _PRODUCERS_ProducerD2SS_H_
 

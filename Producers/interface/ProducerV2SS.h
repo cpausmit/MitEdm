@@ -1,13 +1,13 @@
-//==================================================================================================
-// $Id $
+//--------------------------------------------------------------------------------------------------
+// $Id:$
 //
-// Description: class ProducerV2SS
+// ProducerV2SS
 //
 // V particle reconstruction (long lived particle, decaying to two stables)
 //
-// Original Author:  Christoph Paus
-// Created:          Mon Jul 21 14:42:57 CEST 2008
-//==================================================================================================
+// Authors:  C.Paus
+//--------------------------------------------------------------------------------------------------
+
 #ifndef _PRODUCERS_ProducerV2SS_H_
 #define _PRODUCERS_ProducerV2SS_H_
 

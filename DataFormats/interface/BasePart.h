@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePart.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
+// $Id: BasePart.h,v 1.2 2008/07/31 13:29:35 bendavid Exp $
 //
 // BasePart
 //
@@ -7,7 +7,7 @@
 // StablePart class. The use of this class is also for looping purposes. See the double dispatcher
 // doAction(MyAction).
 //
-// Author List: Ch.Paus
+// Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITEDM_BASEPART_H
