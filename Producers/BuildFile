@@ -1,16 +1,16 @@
-<use name=clhep>
+# -*- Makefile -*-
+# $Id: BuildFile,v 1.2 2008/07/31 13:29:34 bendavid Exp $
+
 <use name=root>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
-
 <use name=MitVertex/Fit>
 <use name=MitEdm/VertexFitInterface>
 <use name=MitEdm/DataFormats>
-
-<flags CXXFLAGS="-g">
+#<flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
 <export>
   <lib name=MitEdmProducer>
