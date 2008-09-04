@@ -1,3 +1,5 @@
+// $Id:$
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -13,6 +15,7 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace mitedm;
+using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 ProducerD2SS::ProducerD2SS(const ParameterSet& cfg) :
@@ -95,20 +98,22 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 	const int trksIds[2] = { 1, 2 };
 	mass = fit.getMass(2,trksIds,massErr);
 	
-	//const reco::Track *p1 = s1.track();
-	//const reco::Track *p2 = s2.track();
-	//
-	//// create the dimuon system
-	//FourVector mu1(p1->px(),p1->py(),p1->pz(),sqrt(p1->p()*p1->p()+0.105658357*0.105658357));
-	//FourVector mu2(p2->px(),p2->py(),p2->pz(),sqrt(p2->p()*p2->p()+0.105658357*0.105658357));
-	//FourVector diMu = mu1+mu2;
-	//
-	//// for convenience and economy
-	//double mass4Vec = sqrt(diMu.M2());
-	//
-	//printf(" Generated mass:   ....\n");
-	//printf(" Four vector mass: %14.6f\n",mass4Vec);
-	//printf(" Fitted mass:      %14.6f +- %14.6f\n",mass,massErr);
+        if(0) {
+          const reco::Track *p1 = s1.track();
+          const reco::Track *p2 = s2.track();
+	
+          //// create the dimuon system
+          FourVector mu1(p1->px(),p1->py(),p1->pz(),sqrt(p1->p()*p1->p()+0.105658357*0.105658357));
+          FourVector mu2(p2->px(),p2->py(),p2->pz(),sqrt(p2->p()*p2->p()+0.105658357*0.105658357));
+          FourVector diMu = mu1+mu2;
+
+          //// for convenience and economy
+          double mass4Vec = sqrt(diMu.M2());
+	
+          printf(" Generated mass:   ....\n");
+          printf(" Four vector mass: %14.6f\n",mass4Vec);
+          printf(" Fitted mass:      %14.6f +- %14.6f\n",mass,massErr);
+        }
 
 	d->setFittedMass     (mass);
 	d->setFittedMassError(massErr);
@@ -116,7 +121,6 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 	pD->push_back(*d);
         delete d;
       }
-
     }
   }
 

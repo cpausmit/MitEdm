@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id:$
+// $Id: MvfInterface.h,v 1.4 2008/08/29 00:27:22 loizides Exp $
 //
 // MvfInterface class header file
 //
@@ -18,17 +18,17 @@ namespace mitedm
 {  
   class MvfInterface
   {
-  public:
-    MvfInterface(MultiVertexFitter *fitter);
-    ~MvfInterface() {}
+    public:
+      MvfInterface(mithep::MultiVertexFitter *fitter);
+      ~MvfInterface() {}
 
-    bool               addTrack(const reco::Track *trk, const int id, const float mass,
-				MultiVertexFitter::vertexNumber jv);
+      bool                       addTrack(const reco::Track *trk, const int id, const float mass,
+                                          mithep::MultiVertexFitter::vertexNumber jv);
 
-    MultiVertexFitter *fitter() { return mvf_;}
+      mithep::MultiVertexFitter *fitter() { return mvf_;}
   
-  private:
-    MultiVertexFitter *mvf_; //the multi vertex fitter
+    private:
+      mithep::MultiVertexFitter *mvf_; //the multi vertex fitter
   };
 }
 #endif

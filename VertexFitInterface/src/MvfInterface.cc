@@ -1,14 +1,19 @@
+// $Id:$
+
 #include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 
 using namespace reco;
 using namespace mitedm;
+using namespace mithep;
 
+//--------------------------------------------------------------------------------------------------
 MvfInterface::MvfInterface(MultiVertexFitter *fitter) :
   mvf_(fitter)
 {
 }
 
+//--------------------------------------------------------------------------------------------------
 bool MvfInterface::addTrack(const Track *trk, const int id, const float mass,
 			    MultiVertexFitter::vertexNumber jv)
 {

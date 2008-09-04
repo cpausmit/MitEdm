@@ -1,12 +1,12 @@
 //--------------------------------------------------------------------------------------------------
-// $Id $
+// $Id:$
 //
 // ProducerD2SS
 //
 // Commmon two body particle decay reconstruction (e.g J/psi), special implementations using this as
 // a base class exist for V and conversion.
 //
-// Authors:  C.Paus
+// Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
 #ifndef _PRODUCERS_ProducerD2SS_H_

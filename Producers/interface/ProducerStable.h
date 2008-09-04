@@ -1,11 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id:$
+// $Id: ProducerStable.h,v 1.2 2008/08/29 00:27:21 loizides Exp $
 //
 // ProducerStable
 //
 // Converting tracks into ProducerStablePart.
 //
-// Authors:  C.Paus
+// Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
 #ifndef _PRODUCERS_STABLE_H_
