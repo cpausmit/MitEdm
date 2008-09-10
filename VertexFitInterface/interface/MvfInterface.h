@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: MvfInterface.h,v 1.4 2008/08/29 00:27:22 loizides Exp $
+// $Id: MvfInterface.h,v 1.5 2008/09/04 13:55:28 loizides Exp $
 //
 // MvfInterface class header file
 //
@@ -8,8 +8,8 @@
 // Author: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MVFINTERFACE_H
-#define MVFINTERFACE_H
+#ifndef MITEDM_VERTEXFITINTERFACE_MVFINTERFACE_H
+#define MITEDM_VERTEXFITINTERFACE_MVFINTERFACE_H
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "MitVertex/Fit/interface/MultiVertexFitter.h"

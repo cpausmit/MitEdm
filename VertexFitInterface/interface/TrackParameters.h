@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id:$
+// $Id: TrackParameters.h,v 1.2 2008/08/29 00:27:22 loizides Exp $
 //
 // Description: class TrackParameters
 //
@@ -31,11 +31,11 @@
 // Author: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef _VERTEXFITINTERFACE_TRACKPARAMETERS_H_
-#define _VERTEXFITINTERFACE_TRACKPARAMETERS_H_
+#ifndef MITEDM_VERTEXFITINTERFACE_TRACKPARAMETERS_H
+#define MITEDM_VERTEXFITINTERFACE_TRACKPARAMETERS_H
 
-#include "TMatrixDSym.h"
-#include "TVectorD.h"
+#include <TMatrixDSym.h>
+#include <TVectorD.h>
 #include "DataFormats/TrackReco/interface/Track.h"
 
 namespace mitedm
