@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: Types.h,v 1.3 2008/07/31 19:20:11 bendavid Exp $
+// $Id: Types.h,v 1.4 2008/08/28 22:09:16 paus Exp $
 //
 // Types
 //
@@ -12,24 +12,13 @@
 #define MITEDM_TYPES_H
  
 #include <Rtypes.h>
-#include <Math/GenVector/LorentzVector.h>
-#include <Math/Point3Dfwd.h>
-#include <Math/SMatrix.h>
+#include "MitCommon/DataFormats/interface/Types.h"
 
 namespace mitedm
 {
-  typedef ::ROOT::Math::LorentzVector< ::ROOT::Math::PxPyPzE4D<double> >       FourVector;
-  typedef ::ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,
-                                             ROOT::Math::DefaultCoordinateSystemTag>
-                                                                               ThreeVector;
-  typedef ::ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<double>,
-                                             ROOT::Math::DefaultCoordinateSystemTag>
-                                                                               ThreeVectorEtaPhi;
-  typedef ::ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> >   ThreeSymMatrix;
-  typedef ::ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> >   FiveSymMatrix;
-  typedef ::ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> >   SevenSymMatrix;
-  typedef ::ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepStd<double,3,3> > ThreeMatrix;
-  typedef ::ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepStd<double,5,5> > FiveMatrix;
-  typedef ::ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepStd<double,7,7> > SevenMatrix;
+  using mithep::ThreeVector;
+  using mithep::FourVector;
+  using mithep::ThreeSymMatrix;
+  using mithep::SevenSymMatrix;
 }
 #endif

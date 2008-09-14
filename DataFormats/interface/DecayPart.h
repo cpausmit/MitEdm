@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.4 2008/08/28 22:09:16 paus Exp $
+// $Id: DecayPart.h,v 1.5 2008/08/29 00:27:21 loizides Exp $
 //
 // DecayPart
 //
@@ -15,9 +15,9 @@
 
 #include <iostream>
 #include <vector>
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Matrix/SymMatrix.h"
+//#include "CLHEP/Vector/LorentzVector.h"
+//#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Matrix/SymMatrix.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/DataFormats/interface/BasePart.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
@@ -161,11 +161,11 @@ namespace mitedm
     double                 cTauError_;
     double                 pt_;
     double                 ptError_;
-    FourVector             fourMomentum_;
+    FourVector     fourMomentum_;
     // Extended vertex fit info
-    ThreeVector            position_;
-    ThreeSymMatrix         error_;
-    SevenSymMatrix         bigError_;
+    ThreeVector    position_;
+    ThreeSymMatrix error_;
+    SevenSymMatrix bigError_;
     
     // Contents of the decay
     BasePartBaseRefVector children_;
