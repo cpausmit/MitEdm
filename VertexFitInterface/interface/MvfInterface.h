@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: MvfInterface.h,v 1.5 2008/09/04 13:55:28 loizides Exp $
+// $Id: MvfInterface.h,v 1.6 2008/09/10 03:28:38 loizides Exp $
 //
 // MvfInterface class header file
 //
@@ -12,7 +12,7 @@
 #define MITEDM_VERTEXFITINTERFACE_MVFINTERFACE_H
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "MitVertex/Fit/interface/MultiVertexFitter.h"
+#include "MitCommon/VertexFit/interface/MultiVertexFitter.h"
 
 namespace mitedm
 {  

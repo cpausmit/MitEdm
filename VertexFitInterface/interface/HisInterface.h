@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HisInterface.h,v 1.3 2008/09/04 13:55:28 loizides Exp $
+// $Id: HisInterface.h,v 1.4 2008/09/10 03:28:38 loizides Exp $
 //
 // HisInterface class header file
 //
@@ -12,7 +12,7 @@
 #define MITEDM_VERTEXFITINTERFACE_HISINTERFACE_H
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "MitVertex/Helix/interface/HelixIntersector.h"
+#include "MitCommon/MathTools/interface/HelixIntersector.h"
 
 namespace mitedm
 {  
