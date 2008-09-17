@@ -46,7 +46,7 @@ void ProducerStable::produce(Event &evt, const EventSetup &setup)
   for (TrackCollection::const_iterator it = iTrks.begin(); it != iTrks.end(); ++it) {
     const reco::TrackRef theRef(hTrks, it - iTrks.begin());
     StablePart *s = new StablePart(oPid_,theRef);
-    printf(" Track: %14.8f, %14.8f, %14.8f\n",it->pt(),it->phi(),it->eta());
+    //printf(" Track: %14.8f, %14.8f, %14.8f\n",it->pt(),it->phi(),it->eta());
     pS->push_back(*s);
     delete s;
   }
@@ -54,8 +54,8 @@ void ProducerStable::produce(Event &evt, const EventSetup &setup)
   // -----------------------------------------------------------------------------------------------
   // Write the collection even if it is empty
   // -----------------------------------------------------------------------------------------------
-  cout << " Stable::produce - " << pS->size() << " entries collection created -"
-       << " (Pid: " << oPid_ << ")\n";
+  //cout << " Stable::produce - " << pS->size() << " entries collection created -"
+  //     << " (Pid: " << oPid_ << ")\n";
   evt.put(pS);
 }
 
