@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.4 2008/09/04 13:55:28 loizides Exp $
+// $Id: ProducerConversions.cc,v 1.1 2008/09/17 12:49:48 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -23,7 +23,7 @@ ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
   iStables1_   (cfg.getUntrackedParameter<string>("iStables1","" )),
   iStables2_   (cfg.getUntrackedParameter<string>("iStables2","" )),
   convConstraint_ (cfg.getUntrackedParameter<bool>("convConstraint",false )),
-  convConstraint3D_ (cfg.getUntrackedParameter<bool>("convConstraint3D",false )),
+  convConstraint3D_ (cfg.getUntrackedParameter<bool>("convConstraint3D",true )),
   rhoMin_ (cfg.getUntrackedParameter<double>("rhoMin",0.0 ))
 {
   produces<DecayPartCol>();
@@ -90,6 +90,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         BasePartBaseRef ref2(baseRef2,j);
 	d->addChild(ref1);
 	d->addChild(ref2);
+        d->addChildMom(fit.getTrackP4(1));
+        d->addChildMom(fit.getTrackP4(2));
 	// Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)
 	d->setProb(fit.prob());
 	d->setChi2(fit.chisq());

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.5 2008/08/29 00:27:21 loizides Exp $
+// $Id: DecayPart.h,v 1.6 2008/09/14 15:00:29 loizides Exp $
 //
 // DecayPart
 //
@@ -45,10 +45,13 @@ namespace mitedm
   
     // Extend the particle contents
     void                addChild     (BasePartBaseRef partRef) { children_.push_back(partRef); }
+    void                addChildMom  (FourVector p4)           { childrenMom_.push_back(p4);   }
   
-    const BasePart*     getChild     (int i) const    { return children_.at(i).get(); }
+    const BasePart*     getChild      (int i) const { return children_.at(i).get(); }
     const BasePartBaseRef getChildRef (int i) const { return children_.at(i); }
-    int                 nChild       () const         { return children_.size();  }
+    const FourVector    &getChildMom  (int i) const { return childrenMom_.at(i);}
+    int                 nChildMom     ()      const { return childrenMom_.size(); }
+    int                 nChild        ()      const { return children_.size();  }
   
     virtual void        print        (std::ostream& os = std::cout) const;
   
@@ -169,6 +172,8 @@ namespace mitedm
     
     // Contents of the decay
     BasePartBaseRefVector children_;
+    //fitted momentum of children
+    std::vector<FourVector> childrenMom_;
   };
 }
 #endif
