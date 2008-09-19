@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: ProducerD2SS.cc,v 1.4 2008/09/04 13:55:28 loizides Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -83,6 +83,8 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
         BasePartBaseRef ref2(baseRef2,j);
 	d->addChild(ref1);
 	d->addChild(ref2);
+        d->addChildMom(fit.getTrackP4(1));
+        d->addChildMom(fit.getTrackP4(2));
 	// Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)
 	d->setProb(fit.prob());
 	d->setChi2(fit.chisq());
