@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.1 2008/09/17 12:49:48 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.2 2008/09/19 12:00:05 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -73,44 +73,48 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
 
       // Vertex fit now, possibly with conversion constraint
       MultiVertexFitter fit;
-      if (convConstraint3D_)
-        fit.conversion_3d(MultiVertexFitter::VERTEX_1);
-      else if (convConstraint_)
-        fit.conversion_2d(MultiVertexFitter::VERTEX_1);
       fit.init(3.8);                                    // Reset to the MC magnetic field of 4 Tesla
       MvfInterface fitInt(&fit);
       fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitter::VERTEX_1);
       fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitter::VERTEX_1);
+      if (convConstraint3D_) {
+        fit.conversion_3d(MultiVertexFitter::VERTEX_1);
+        //printf("applying 3d conversion constraint\n");
+      }
+      else if (convConstraint_) {
+        fit.conversion_2d(MultiVertexFitter::VERTEX_1);
+        //printf("applying 2d conversion constraint\n");
+      }
       if (fit.fit()) {
-	DecayPart *d = new DecayPart(oPid_,DecayPart::Fast);
+        DecayPart *d = new DecayPart(oPid_,DecayPart::Fast);
         
         RefToBaseProd<BasePart> baseRef1(hStables1);
         RefToBaseProd<BasePart> baseRef2(hStables2);
         BasePartBaseRef ref1(baseRef1,i);
         BasePartBaseRef ref2(baseRef2,j);
-	d->addChild(ref1);
-	d->addChild(ref2);
+        d->addChild(ref1);
+        d->addChild(ref2);
         d->addChildMom(fit.getTrackP4(1));
         d->addChildMom(fit.getTrackP4(2));
-	// Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)
-	d->setProb(fit.prob());
-	d->setChi2(fit.chisq());
-	d->setNdof(fit.ndof());
+        // Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)
+        d->setProb(fit.prob());
+        d->setChi2(fit.chisq());
+        d->setNdof(fit.ndof());
 
-	FourVector p4Fitted(0.,0.,0.,0.);
-	p4Fitted += fit.getTrackP4(1);
-	p4Fitted += fit.getTrackP4(2);
-	d->setFourMomentum(p4Fitted);
-	d->setPosition(fit.getVertex     (MultiVertexFitter::VERTEX_1));
-	d->setError   (fit.getErrorMatrix(MultiVertexFitter::VERTEX_1));
-	float mass, massErr;
-	const int trksIds[2] = { 1, 2 };
-	mass = fit.getMass(2,trksIds,massErr);
-	
+        FourVector p4Fitted(0.,0.,0.,0.);
+        p4Fitted += fit.getTrackP4(1);
+        p4Fitted += fit.getTrackP4(2);
+        d->setFourMomentum(p4Fitted);
+        d->setPosition(fit.getVertex     (MultiVertexFitter::VERTEX_1));
+        d->setError   (fit.getErrorMatrix(MultiVertexFitter::VERTEX_1));
+        float mass, massErr;
+        const int trksIds[2] = { 1, 2 };
+        mass = fit.getMass(2,trksIds,massErr);
+        
         if(0) {
           const reco::Track *p1 = s1.track();
           const reco::Track *p2 = s2.track();
-	
+        
           //// create the dimuon system
           FourVector mu1(p1->px(),p1->py(),p1->pz(),sqrt(p1->p()*p1->p()+0.105658357*0.105658357));
           FourVector mu2(p2->px(),p2->py(),p2->pz(),sqrt(p2->p()*p2->p()+0.105658357*0.105658357));
@@ -118,17 +122,17 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
 
           //// for convenience and economy
           double mass4Vec = sqrt(diMu.M2());
-	
+        
           printf(" Generated mass:   ....\n");
           printf(" Four vector mass: %14.6f\n",mass4Vec);
           printf(" Fitted mass:      %14.6f +- %14.6f\n",mass,massErr);
         }
 
-	d->setFittedMass     (mass);
-	d->setFittedMassError(massErr);
-	// Put the result into our collection
+        d->setFittedMass     (mass);
+        d->setFittedMassError(massErr);
+        // Put the result into our collection
         if (d->position().rho() > rhoMin_)
-	 pD->push_back(*d);
+         pD->push_back(*d);
         delete d;
       }
     }
