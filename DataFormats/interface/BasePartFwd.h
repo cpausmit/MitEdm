@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePartFwd.h,v 1.4 2008/08/29 00:27:21 loizides Exp $
+// $Id: BasePartFwd.h,v 1.5 2008/09/24 09:00:54 bendavid Exp $
 //
 // BasePartFwd
 //
@@ -18,6 +18,6 @@
 namespace mitedm {
   class BasePart;
   typedef edm::Ptr<mitedm::BasePart>       BasePartPtr;
-  typedef edm::PtrVector<mitedm::BasePart> BasePartPtrVector;
+  typedef std::vector<BasePartPtr>         BasePartPtrVector;
 }
 #endif

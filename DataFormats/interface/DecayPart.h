@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.7 2008/09/19 11:59:51 bendavid Exp $
+// $Id: DecayPart.h,v 1.8 2008/09/24 09:00:54 bendavid Exp $
 //
 // DecayPart
 //
@@ -47,8 +47,8 @@ namespace mitedm
     void                addChild     (BasePartPtr partPtr) { children_.push_back(partPtr); }
     void                addChildMom  (FourVector p4)           { childrenMom_.push_back(p4);   }
   
-    const BasePart*     getChild      (int i) const { return children_[i].get(); }
-    const BasePartPtr   getChildPtr   (int i) const { return children_[i]; }
+    const BasePart*     getChild      (int i) const { return children_.at(i).get(); }
+    const BasePartPtr   getChildPtr   (int i) const { return children_.at(i); }
     const FourVector    &getChildMom  (int i) const { return childrenMom_.at(i);}
     int                 nChildMom     ()      const { return childrenMom_.size(); }
     int                 nChild        ()      const { return children_.size();  }

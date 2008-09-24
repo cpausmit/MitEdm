@@ -1,4 +1,4 @@
-<!-- $Id: classes_def.xml,v 1.5 2008/07/31 13:29:35 bendavid Exp $ -->
+<!-- $Id: classes_def.xml,v 1.6 2008/09/24 09:00:54 bendavid Exp $ -->
 
 <lcgdict>
   <class name="mitedm::BasePart"/>
@@ -9,5 +9,5 @@
   <class name="edm::Wrapper<std::vector<mitedm::StablePart> >"/>
   <class name="edm::Wrapper<std::vector<mitedm::DecayPart> >"/>
   <class name="edm::Ptr<mitedm::BasePart>"/>
-  <class name="edm::PtrVector<mitedm::BasePart>"/>
+  <class name="std::vector<edm::Ptr<mitedm::BasePart> >"/>
 </lcgdict>
