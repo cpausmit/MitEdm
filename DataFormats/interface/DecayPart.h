@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.6 2008/09/14 15:00:29 loizides Exp $
+// $Id: DecayPart.h,v 1.7 2008/09/19 11:59:51 bendavid Exp $
 //
 // DecayPart
 //
@@ -44,11 +44,11 @@ namespace mitedm
     virtual double      charge       () const { return 0.; }
   
     // Extend the particle contents
-    void                addChild     (BasePartBaseRef partRef) { children_.push_back(partRef); }
+    void                addChild     (BasePartPtr partPtr) { children_.push_back(partPtr); }
     void                addChildMom  (FourVector p4)           { childrenMom_.push_back(p4);   }
   
-    const BasePart*     getChild      (int i) const { return children_.at(i).get(); }
-    const BasePartBaseRef getChildRef (int i) const { return children_.at(i); }
+    const BasePart*     getChild      (int i) const { return children_[i].get(); }
+    const BasePartPtr   getChildPtr   (int i) const { return children_[i]; }
     const FourVector    &getChildMom  (int i) const { return childrenMom_.at(i);}
     int                 nChildMom     ()      const { return childrenMom_.size(); }
     int                 nChild        ()      const { return children_.size();  }
@@ -171,7 +171,7 @@ namespace mitedm
     SevenSymMatrix bigError_;
     
     // Contents of the decay
-    BasePartBaseRefVector children_;
+    BasePartPtrVector children_;
     //fitted momentum of children
     std::vector<FourVector> childrenMom_;
   };

@@ -1,4 +1,4 @@
-<!-- $Id: classes_def.xml,v 1.4 2008/07/30 11:43:16 bendavid Exp $ -->
+<!-- $Id: classes_def.xml,v 1.5 2008/07/31 13:29:35 bendavid Exp $ -->
 
 <lcgdict>
   <class name="mitedm::BasePart"/>
@@ -8,8 +8,6 @@
   <class name="std::vector<mitedm::DecayPart>"/>
   <class name="edm::Wrapper<std::vector<mitedm::StablePart> >"/>
   <class name="edm::Wrapper<std::vector<mitedm::DecayPart> >"/>
-  <class name="edm::RefToBase<mitedm::BasePart>"/>
-  <class name="edm::RefToBaseVector<mitedm::BasePart>"/>
-    <field name="holder_" transient="true"/>
-  <class name="edm::reftobase::BaseVectorHolder<mitedm::BasePart>"/> 
+  <class name="edm::Ptr<mitedm::BasePart>"/>
+  <class name="edm::PtrVector<mitedm::BasePart>"/>
 </lcgdict>

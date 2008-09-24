@@ -1,4 +1,4 @@
-// $Id: DecayPart.cc,v 1.2 2008/07/29 22:52:55 bendavid Exp $
+// $Id: DecayPart.cc,v 1.3 2008/07/31 13:29:35 bendavid Exp $
 
 #include "MitEdm/DataFormats/interface/BasePartAction.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
@@ -40,7 +40,7 @@ void DecayPart::print(ostream &os) const
   os << " DecayPart::print - pid: " << pid_ << "  mass: " << mass()
      << "  decayType: " << decayType_ << endl
      <<  "  Decays to \n";
-  for (BasePartBaseRefVector::const_iterator ip=children_.begin(); ip!=children_.end(); ip++) {
+  for (BasePartPtrVector::const_iterator ip=children_.begin(); ip!=children_.end(); ip++) {
     os << "   "; (*ip)->print(os);    
   }
   os <<  "  -- end decays to -------\n";
@@ -58,7 +58,7 @@ void DecayPart::doAction(BasePartAction *action) const
   if (action->getActionType() == BasePartAction::TopDown)
     action->doAction(this);
   
-  for (BasePartBaseRefVector::const_iterator ip=children_.begin(); ip!=children_.end(); ip++) {
+  for (BasePartPtrVector::const_iterator ip=children_.begin(); ip!=children_.end(); ip++) {
     action->incLevel(); (ip->get())->doAction(action); action->decLevel();
   }
 

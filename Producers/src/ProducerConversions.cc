@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.2 2008/09/19 12:00:05 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.3 2008/09/24 08:35:00 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -88,12 +88,10 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
       if (fit.fit()) {
         DecayPart *d = new DecayPart(oPid_,DecayPart::Fast);
         
-        RefToBaseProd<BasePart> baseRef1(hStables1);
-        RefToBaseProd<BasePart> baseRef2(hStables2);
-        BasePartBaseRef ref1(baseRef1,i);
-        BasePartBaseRef ref2(baseRef2,j);
-        d->addChild(ref1);
-        d->addChild(ref2);
+        BasePartPtr ptr1(hStables1,i);
+        BasePartPtr ptr2(hStables2,j);
+        d->addChild(ptr1);
+        d->addChild(ptr2);
         d->addChildMom(fit.getTrackP4(1));
         d->addChildMom(fit.getTrackP4(2));
         // Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)

@@ -1,4 +1,4 @@
-// $Id: ProducerD2SS.cc,v 1.4 2008/09/04 13:55:28 loizides Exp $
+// $Id: ProducerD2SS.cc,v 1.5 2008/09/19 12:28:28 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -77,12 +77,10 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
       if (fit.fit()) {
 	DecayPart *d = new DecayPart(oPid_,DecayPart::Fast);
         
-        RefToBaseProd<BasePart> baseRef1(hStables1);
-        RefToBaseProd<BasePart> baseRef2(hStables2);
-        BasePartBaseRef ref1(baseRef1,i);
-        BasePartBaseRef ref2(baseRef2,j);
-	d->addChild(ref1);
-	d->addChild(ref2);
+        BasePartPtr ptr1(hStables1,i);
+        BasePartPtr ptr2(hStables2,j);
+	d->addChild(ptr1);
+	d->addChild(ptr2);
         d->addChildMom(fit.getTrackP4(1));
         d->addChildMom(fit.getTrackP4(2));
 	// Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)

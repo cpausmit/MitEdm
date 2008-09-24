@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePartFwd.h,v 1.3 2008/08/28 22:09:16 paus Exp $
+// $Id: BasePartFwd.h,v 1.4 2008/08/29 00:27:21 loizides Exp $
 //
 // BasePartFwd
 //
@@ -12,11 +12,12 @@
 #define MITEDM_BASEPARTFWD_H
 
 #include <vector>
-#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 
 namespace mitedm {
   class BasePart;
-  typedef edm::RefToBase<mitedm::BasePart>       BasePartBaseRef;
-  typedef edm::RefToBaseVector<mitedm::BasePart> BasePartBaseRefVector;
+  typedef edm::Ptr<mitedm::BasePart>       BasePartPtr;
+  typedef edm::PtrVector<mitedm::BasePart> BasePartPtrVector;
 }
 #endif
