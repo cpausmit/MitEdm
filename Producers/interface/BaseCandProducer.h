@@ -1,15 +1,15 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseCandidate.h,v 1.3 2008/08/29 00:27:21 loizides Exp $
+// $Id: BaseCandidate.h,v 1.4 2008/09/10 03:28:38 loizides Exp $
 //
-// BaseCandidate
+// BaseCandProducer
 //
-// Base class for all more specific candidate preparation.
+// Base class for all more specific candidate producers.
 //
-// Authors:  C.Paus
+// Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef _PRODUCERS_BASECANDIDATE_H_
-#define _PRODUCERS_BASECANDIDATE_H_
+#ifndef MITEDM_PRODUCERS_BASECANDPRODUCER_H
+#define MITEDM_PRODUCERS_BASECANDPRODUCER_H
 
 #include <vector>
 #include <iostream>
@@ -22,46 +22,45 @@
 
 namespace mitedm
 {
-  class BaseCandidate : public edm::EDProducer
+  class BaseCandProducer : public edm::EDProducer
   {
     public:
-      explicit BaseCandidate(const edm::ParameterSet&);
-      ~BaseCandidate() {}
+      explicit BaseCandProducer(const edm::ParameterSet&);
+      ~BaseCandProducer() {}
     
     protected:
-      virtual void beginJob(const edm::EventSetup&) { }
-      virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
-      virtual void endJob() {}
+      void beginJob(const edm::EventSetup&) {}
+      void produce(edm::Event&, const edm::EventSetup&) = 0;
+      void endJob() {}
 
       // generic accessors to make the code more simple
-      void         PrintErrorAndExit(const char *msg) const;
+      void PrintErrorAndExit(const char *msg) const;
       template <typename TYPE>
-      bool         GetProduct       (const std::string name, edm::Handle<TYPE> &product,
-                                     const edm::Event &event, bool ignore = true) const;
+      bool GetProduct(const std::string name, edm::Handle<TYPE> &product,
+                      const edm::Event &event, bool ignore = true) const;
 
       // Parameters always being used
-      int         oPid_;
+      int         oPid_; // pid of candidate particle
   };
   
   //------------------------------------------------------------------------------------------------
   template <typename TYPE>
-  inline bool BaseCandidate::GetProduct(const std::string edmName, edm::Handle<TYPE> &product,
+  inline bool BaseCandProducer::GetProduct(const std::string edmName, edm::Handle<TYPE> &product,
 					const edm::Event &evt, bool ignore) const
   {
-    //----------------------------------------------------------------------------------------------
     // Try to access data collection from EDM file. We check if we really get just one
     // product with the given name. If not we print an error and exit.
-    //----------------------------------------------------------------------------------------------
+
     try {
       evt.getByLabel(edm::InputTag(edmName),product);
       if (! product.isValid()) 
-	throw edm::Exception(edm::errors::Configuration, "BaseCandidate::GetProduct()\n")
+	throw edm::Exception(edm::errors::Configuration, "BaseCandProducer::GetProduct()\n")
 	  << "Cannot get collection with label " << edmName << std::endl;
     } catch (...) {
       if (ignore)
 	return false;
       else {
-	edm::LogError("BaseCandidate") << "Cannot get collection with label "
+	edm::LogError("BaseCandProducer") << "Cannot get collection with label "
 				       << edmName << std::endl;
 	PrintErrorAndExit(Form("Cannot get collection with label %s", edmName.c_str()));
       }

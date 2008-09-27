@@ -1,35 +1,33 @@
 //--------------------------------------------------------------------------------------------------
-// $Id:$
+// $Id: ProducerD2SS.h,v 1.3 2008/09/04 13:55:28 loizides Exp $
 //
 // ProducerD2SS
 //
-// Commmon two body particle decay reconstruction (e.g J/psi), special implementations using this as
-// a base class exist for V and conversion.
+// Commmon two body particle decay reconstruction (e.g J/psi), special implementations using 
+// this as a base class exist for V and conversion.
 //
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef _PRODUCERS_ProducerD2SS_H_
-#define _PRODUCERS_ProducerD2SS_H_
+#ifndef MITEDM_PRODUCERS_PRODUCERD2SS_H
+#define MITEDM_PRODUCERS_PRODUCERD2SS_H
 
-#include "MitEdm/Producers/interface/BaseCandidate.h"
+#include "MitEdm/Producers/interface/BaseCandProducer.h"
 
 namespace mitedm
 {
-  class ProducerD2SS : public BaseCandidate
+  class ProducerD2SS : public BaseCandProducer
   {
   public:
     explicit ProducerD2SS(const edm::ParameterSet&);
     ~ProducerD2SS();
     
   protected:
-    virtual void beginJob(const edm::EventSetup&);
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    void produce(edm::Event&, const edm::EventSetup&);
 
     // Parameters to steer the particularities of this instance
-    std::string iStables1_;
-    std::string iStables2_;
+    std::string iStables1_; //input label first stable particle
+    std::string iStables2_; //input label second stable particle
   };
 }
 #endif

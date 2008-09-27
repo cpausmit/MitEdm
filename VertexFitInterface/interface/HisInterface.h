@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HisInterface.h,v 1.4 2008/09/10 03:28:38 loizides Exp $
+// $Id: HisInterface.h,v 1.5 2008/09/17 04:03:50 loizides Exp $
 //
 // HisInterface class header file
 //
@@ -22,10 +22,10 @@ namespace mitedm
       HisInterface(const reco::Track *trk1, const reco::Track *trk2, const double bField = 3.8);
       ~HisInterface();
 
-      const mithep::HelixIntersector  *hISector() { return his_; }
+      const mithep::HelixIntersector *hISector() { return his_; }
   
     private:
-      mithep::HelixIntersector        *his_; // the helix intersector
+      mithep::HelixIntersector       *his_; // the helix intersector
   };
 }
 #endif

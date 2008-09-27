@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: StablePart.h,v 1.4 2008/08/28 22:09:16 paus Exp $
+// $Id: StablePart.h,v 1.5 2008/08/29 00:27:21 loizides Exp $
 //
 // StablePart
 //
@@ -10,12 +10,11 @@
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITEDM_STABLEPART_H
-#define MITEDM_STABLEPART_H
+#ifndef MITEDM_DATAFORMATS_STABLEPART_H
+#define MITEDM_DATAFORMATS_STABLEPART_H
 
 #include <iostream>
 #include <cmath>
-
 #include "MitEdm/DataFormats/interface/BasePart.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -25,23 +24,23 @@ namespace mitedm
   class BasePartAction;
   class StablePart : public BasePart
   {
-  public:
-    StablePart() {}
-    StablePart(int pid, const reco::TrackRef &trk) : BasePart(pid), track_(trk) {}
-    virtual ~StablePart() {}
+    public:
+      StablePart() {}
+      StablePart(int pid, const reco::TrackRef &trk) : BasePart(pid), track_(trk) {}
+      virtual ~StablePart() {}
     
-    // Override recursion helper method
-    virtual void          doAction(BasePartAction *Action) const;
-    // General printing method
-    virtual void          print   (std::ostream &os = std::cout) const;
+      // Override recursion helper method
+      void          doAction(BasePartAction *Action)    const;
+      // General printing method
+      void          print(std::ostream &os = std::cout) const;
 
-    // Accessors
-    const reco::Track    *track   () const { return track_.get(); }
-    const reco::TrackRef &trackRef() const { return track_; }
-    double                charge  () const { return track()->charge(); }
+      // Accessors
+      const reco::Track    *track()    const { return track_.get(); }
+      const reco::TrackRef &trackRef() const { return track_; }
+      double                charge()   const { return track()->charge(); }
 
-  private:
-    reco::TrackRef        track_;
+    private:
+      reco::TrackRef        track_;
   };
 }
 #endif

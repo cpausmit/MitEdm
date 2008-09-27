@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePartFwd.h,v 1.5 2008/09/24 09:00:54 bendavid Exp $
+// $Id: BasePartFwd.h,v 1.6 2008/09/24 09:47:22 bendavid Exp $
 //
 // BasePartFwd
 //
@@ -8,8 +8,8 @@
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITEDM_BASEPARTFWD_H
-#define MITEDM_BASEPARTFWD_H
+#ifndef MITEDM_DATAFORMATS_BASEPARTFWD_H
+#define MITEDM_DATAFORMATS_BASEPARTFWD_H
 
 #include <vector>
 #include "DataFormats/Common/interface/Ptr.h"

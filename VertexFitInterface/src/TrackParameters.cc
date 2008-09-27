@@ -1,16 +1,22 @@
+// $Id:$
+
+#include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
 #include "TMath.h"
 #include "MitEdm/DataFormats/interface/Types.h"
-#include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
+
 using namespace std;
 using namespace TMath;
 using namespace reco;
 using namespace mitedm;
 
+//--------------------------------------------------------------------------------------------------
 TrackParameters::TrackParameters(const Track* trk, const TrackConvention cv, double bField) :
   iConvention_(cv),
   bField_     (bField),
   fCurv_      (0.5 * 0.0029979 * bField_ * -1.0)
 {
+  // Constructor.
+
   pars_.ResizeTo(5);
   cMat_.ResizeTo(5,5);
   if (cv == iCms) {
@@ -30,11 +36,14 @@ TrackParameters::TrackParameters(const Track* trk, const TrackConvention cv, dou
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 TrackParameters::TrackParameters(const TrackParameters &trk) :
   iConvention_(trk.iConvention_),
   bField_     (trk.bField_),
   fCurv_      (trk.fCurv_)
 {
+  // Constructor.
+
   pars_.ResizeTo(5);
   cMat_.ResizeTo(5,5);
   for (int i=0; i<5; i++) {
@@ -44,9 +53,11 @@ TrackParameters::TrackParameters(const TrackParameters &trk) :
   }
 }
 
+//--------------------------------------------------------------------------------------------------
 TrackParameters TrackParameters::mvfTrack() const
 {
-  // Return a new set of track parameters in the required MVF convention
+  // Return a new set of track parameters in the required MVF convention.
+
   TrackParameters outTk;
   outTk.pars_.ResizeTo(5);
   outTk.cMat_.ResizeTo(5,5);
@@ -92,7 +103,8 @@ TrackParameters TrackParameters::mvfTrack() const
 
 TrackParameters TrackParameters::cmsTrack() const
 {
-  // Return a new set of track parameters in the required CMS convention
+  // Return a new set of track parameters in the required CMS convention.
+
   TrackParameters outTk;
   outTk.pars_.ResizeTo(5);
   outTk.cMat_.ResizeTo(5,5);
@@ -137,8 +149,11 @@ TrackParameters TrackParameters::cmsTrack() const
   return outTk;
 }
 
+//--------------------------------------------------------------------------------------------------
 void TrackParameters::print() const
 {
+  // Print track parameters.
+
   printf("\n==== Show track ====\n Track parameters with convention %1d.\n",int(iConvention_));
   for (int i=0; i<5; i++)
     printf(" Parameter [%1d]: %8.4f\n",i,pars_[i]);

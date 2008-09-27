@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: CollectionsEdm.h,v 1.2 2008/07/29 22:52:54 bendavid Exp $
+// $Id: CollectionsEdm.h,v 1.3 2008/07/31 13:29:35 bendavid Exp $
 //
 // Collections
 //
@@ -8,8 +8,8 @@
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef DATAFORMAT_COLLECTIONSEDM_H
-#define DATAFORMAT_COLLECTIONSEDM_H
+#ifndef MITEDM_DATAFORMATS_COLLECTIONS_H
+#define MITEDM_DATAFORMATS_COLLECTIONS_H
  
 #include <vector>
 #include "MitEdm/DataFormats/interface/BasePart.h"

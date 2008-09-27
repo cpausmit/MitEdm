@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerStable.h,v 1.2 2008/08/29 00:27:21 loizides Exp $
+// $Id: ProducerStable.h,v 1.3 2008/09/04 13:55:28 loizides Exp $
 //
 // ProducerStable
 //
@@ -8,25 +8,23 @@
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef _PRODUCERS_STABLE_H_
-#define _PRODUCERS_STABLE_H_
+#ifndef MITEDM_PRODUCERS_PRODUCERSTABLE_H
+#define MITEDM_PRODUCERS_PRODUCERSTABLE_H
 
-#include "MitEdm/Producers/interface/BaseCandidate.h"
+#include "MitEdm/Producers/interface/BaseCandProducer.h"
 
 namespace mitedm
 {
-  class ProducerStable : public BaseCandidate
+  class ProducerStable : public BaseCandProducer
   {
   public:
     explicit ProducerStable(const edm::ParameterSet&);
     ~ProducerStable();
     
   private:
-    virtual void beginJob(const edm::EventSetup&);
-    virtual void produce (edm::Event&, const edm::EventSetup&);
-    virtual void endJob  ();
+    void produce (edm::Event&, const edm::EventSetup&);
     
-    std::string iTracks_; 
+    std::string iTracks_; //input label of tracks
   };
 }
 #endif

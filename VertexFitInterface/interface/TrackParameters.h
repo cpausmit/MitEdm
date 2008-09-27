@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TrackParameters.h,v 1.2 2008/08/29 00:27:22 loizides Exp $
+// $Id: TrackParameters.h,v 1.3 2008/09/10 03:28:38 loizides Exp $
 //
 // Description: class TrackParameters
 //
@@ -40,41 +40,44 @@
 
 namespace mitedm
 {
-  // Define existing track parameter conventions
-  enum   TrackConvention { iCms, iMvf };
+  enum TrackConvention {   // Define existing track parameter conventions
+
+    iCms, 
+    iMvf 
+  };
 
   // Declare the track parameter class
   class TrackParameters
   {
   public:
     TrackParameters() {}
-    TrackParameters(const reco::Track     *trk, TrackConvention tcv = iCms, double bField = 3.8);
+    TrackParameters(const reco::Track *trk, TrackConvention tcv = iCms, double bField = 3.8);
     TrackParameters(const TrackParameters &trk);
     ~TrackParameters() {};
 
     // Access the specific contents
-    const TVectorD    *pars    ()             const { return &pars_; };
-    double             pars    (int i)        const { return pars_[i]; }; 
-    const TMatrixDSym *cMat    ()             const { return &cMat_; };
-    double             cMat    (int i, int j) const { return cMat_(i,j); };
+    const TVectorD    *pars()             const { return &pars_; };
+    double             pars(int i)        const { return pars_[i]; }; 
+    const TMatrixDSym *cMat()             const { return &cMat_; };
+    double             cMat(int i, int j) const { return cMat_(i,j); };
     
     // Access the different parametrizations independently of the local storage
     TrackParameters    cmsTrack() const;
     TrackParameters    mvfTrack() const;
     
-    void               setPars (int i, double v)         { pars_(i)    = v; }
-    void               setCMat (int i, int j, double v)  { cMat_(i,j)  = v; }
-    void               addCMat (int i, int j, double v)  { cMat_(i,j) += v; }
+    void               setPars(int i, double v)         { pars_(i)    = v; }
+    void               setCMat(int i, int j, double v)  { cMat_(i,j)  = v; }
+    void               addCMat(int i, int j, double v)  { cMat_(i,j) += v; }
 
     // Utilities
-    void               print   () const;
+    void               print()    const;
     
   private:
-    TrackConvention    iConvention_; // track parameter convention (def. CMS)
-    double             bField_;      // magnetic field in Tesla
-    double             fCurv_;       // combined curvature constant
-    TVectorD           pars_;        // track paramters (helix)
-    TMatrixDSym        cMat_;        // corresponding covariance matrix (sig_i * sig_j) 
+    TrackConvention    iConvention_; //track parameter convention (def. CMS)
+    double             bField_;      //magnetic field in Tesla
+    double             fCurv_;       //combined curvature constant
+    TVectorD           pars_;        //track paramters (helix)
+    TMatrixDSym        cMat_;        //corresponding covariance matrix (sig_i * sig_j) 
   };
 }
 #endif

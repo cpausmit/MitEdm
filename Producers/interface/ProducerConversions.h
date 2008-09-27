@@ -1,38 +1,34 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerConversions.h,v 1.3 2008/09/04 13:55:28 loizides Exp $
+// $Id: ProducerConversions.h,v 1.1 2008/09/17 12:49:47 bendavid Exp $
 //
 // ProducerConversions
 //
-// Conversion reconstruction using tracks and MultiVertexFitter
+// Conversion reconstruction using tracks and MultiVertexFitter.
 //
-//
-// Authors: C.Paus
+// Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef _PRODUCERS_PRODUCERCONVERSIONS_H_
-#define _PRODUCERS_PRODUCERCONVERSIONS_H_
+#ifndef MITEDM_PRODUCERS_PRODUCERCONVERSIONS_H
+#define MITEDM_PRODUCERS_PRODUCERCONVERSIONS_H
 
-#include "MitEdm/Producers/interface/BaseCandidate.h"
+#include "MitEdm/Producers/interface/BaseCandProducer.h"
 
 namespace mitedm
 {
-  class ProducerConversions : public BaseCandidate
+  class ProducerConversions : public BaseCandProducer
   {
-  public:
-    explicit ProducerConversions(const edm::ParameterSet&);
-    ~ProducerConversions();
+    public:
+      explicit ProducerConversions(const edm::ParameterSet&);
+      ~ProducerConversions();
     
-  protected:
-    virtual void beginJob(const edm::EventSetup&);
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
-
-    // Parameters to steer the particularities of this instance
-    std::string iStables1_;
-    std::string iStables2_;
-    bool convConstraint_;
-    bool convConstraint3D_;
-    double rhoMin_;
+    protected:
+      void produce(edm::Event&, const edm::EventSetup&);
+      
+      std::string iStables1_;        //input label first stable particle
+      std::string iStables2_;        //input label second stable particle
+      bool        convConstraint_;   //todo
+      bool        convConstraint3D_; //todo
+      double      rhoMin_;           //todo
   };
 }
 #endif

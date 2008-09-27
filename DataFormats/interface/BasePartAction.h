@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePartAction.h,v 1.1 2008/07/29 13:16:22 loizides Exp $
+// $Id: BasePartAction.h,v 1.2 2008/08/29 00:27:21 loizides Exp $
 //
 // BasePartAction
 //
@@ -19,8 +19,8 @@
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITEDM_BASEPARTACTION_H
-#define MITEDM_BASEPARTACTION_H
+#ifndef MITEDM_DATAFORMATS_BASEPARTACTION_H
+#define MITEDM_DATAFORMATS_BASEPARTACTION_H
 
 namespace mitedm
 {
@@ -30,36 +30,33 @@ namespace mitedm
 
   class BasePartAction
   {
-  public:
-    // Define the type of the action
-    enum         ActionType { BottomUp, TopDown, NonRecursive };
+    public:
+      enum ActionType { // type of the action
+        BottomUp, 
+        TopDown, 
+        NonRecursive 
+      };
 
-    // Constructor
-    BasePartAction(ActionType aType);
+      BasePartAction(ActionType aType);
+      virtual ~BasePartAction();
 
-    // Destructor
-    virtual ~BasePartAction();
+      // Handle generic particles
+      virtual void doAction(const BasePart* part);
+      // Handle decaying particles
+      virtual void doAction(const DecayPart* part) = 0;
+      // Handle stable particles
+      virtual void doAction(const StablePart* part) = 0;
 
-    // Handle Generic  Particles
-    virtual void doAction(const BasePart* part);
-
-    // Handle Decaying Particles
-    virtual void doAction(const DecayPart* part) = 0;
-
-    // Handle Stable   Particles
-    virtual void doAction(const StablePart* part) = 0;
-
-    // Recursion level
-    void         incLevel     ()       { level_++; }
-    void         decLevel     ()       { level_--; }
-    int          getLevel     () const { return level_; }
-    ActionType   getActionType() const { return actionType_; }
+      // Recursion level
+      void         incLevel()            { level_++; }
+      void         decLevel()            { level_--; }
+      int          getLevel()      const { return level_; }
+      ActionType   getActionType() const { return actionType_; }
 
   private:
-    // What type of action
-    ActionType   actionType_;
-    // Remember how deep we are in there
-    int          level_;
+    
+    ActionType   actionType_; //type of action
+    int          level_;      //remember how deep we are in there
   };
 }
 #endif

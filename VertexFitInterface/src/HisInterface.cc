@@ -1,9 +1,9 @@
-// $Id:$
+// $Id: HisInterface.cc,v 1.2 2008/09/04 13:55:29 loizides Exp $
 
+#include "MitEdm/VertexFitInterface/interface/HisInterface.h"
 #include <TMath.h>
 #include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
-#include "MitEdm/VertexFitInterface/interface/HisInterface.h"
 
 using namespace reco;
 using namespace mitedm;
@@ -13,6 +13,8 @@ using namespace mithep;
 HisInterface::HisInterface(const Track *trk1, const Track *trk2, const double bField) :
   his_(0)
 {
+  // Constructor.
+
   // Create the CMS track parameters
   TrackParameters cmsTrk1(trk1);
   TrackParameters cmsTrk2(trk2);
@@ -28,5 +30,7 @@ HisInterface::HisInterface(const Track *trk1, const Track *trk2, const double bF
 
 HisInterface::~HisInterface()
 {
+  // Destructor.
+
   delete his_;
 }
