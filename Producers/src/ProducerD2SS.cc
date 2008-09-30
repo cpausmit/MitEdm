@@ -1,4 +1,4 @@
-// $Id: ProducerD2SS.cc,v 1.6 2008/09/24 09:00:54 bendavid Exp $
+// $Id: ProducerD2SS.cc,v 1.7 2008/09/27 05:48:25 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerD2SS.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -8,6 +8,7 @@
 #include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
+#include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 
 using namespace std;
@@ -76,10 +77,13 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
         
         BasePartPtr ptr1(hStables1,i);
         BasePartPtr ptr2(hStables2,j);
-	d->addChild(ptr1);
-	d->addChild(ptr2);
-        d->addChildMom(fit.getTrackP4(1));
-        d->addChildMom(fit.getTrackP4(2));
+        
+        StableData c1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz(), ptr1);
+        StableData c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
+        
+	d->addStableChild(c1);
+	d->addStableChild(c2);
+
 	// Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)
 	d->setProb(fit.prob());
 	d->setChi2(fit.chisq());
@@ -95,25 +99,40 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 	const int trksIds[2] = { 1, 2 };
 	mass = fit.getMass(2,trksIds,massErr);
 	
-        if(0) {
-          const reco::Track *p1 = s1.track();
-          const reco::Track *p2 = s2.track();
-	
-          // create the dimuon system
-          FourVector mu1(p1->px(),p1->py(),p1->pz(),sqrt(p1->p()*p1->p()+0.105658357*0.105658357));
-          FourVector mu2(p2->px(),p2->py(),p2->pz(),sqrt(p2->p()*p2->p()+0.105658357*0.105658357));
-          FourVector diMu = mu1+mu2;
+        ThreeVector p3Fitted(p4Fitted.px(), p4Fitted.py(), p4Fitted.pz());
+        
+        //Get decay length in xy plane
+        float dl, dlErr;
+        dl = fit.getDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dlErr);
+               
+        //Get Z decay length               
+        float dlz, dlzErr;
+        dlz = fit.getZDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dlzErr);
+               
+        //get impact parameter               
+        float dxy, dxyErr;
+        dxy = fit.getImpactPar(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dxyErr);
 
-          // for convenience and economy
-          double mass4Vec = sqrt(diMu.M2());
-	
-          printf(" Generated mass:   ....\n");
-          printf(" Four vector mass: %14.6f\n",mass4Vec);
-          printf(" Fitted mass:      %14.6f +- %14.6f\n",mass,massErr);
-        }
-
-	d->setFittedMass     (mass);
-	d->setFittedMassError(massErr);
+        d->setFittedMass     (mass);
+        d->setFittedMassError(massErr);
+        
+        d->setLxy(dl);
+        d->setLxyError(dlErr);
+        d->setLxyToPv(dl);
+        d->setLxyToPvError(dlErr);
+        
+        d->setLz(dlz);
+        d->setLzError(dlzErr);
+        d->setLzToPv(dlz);
+        d->setLzToPvError(dlzErr);
+        
+        d->setDxy(dxy);
+        d->setDxyError(dxyErr);
+        d->setDxyToPv(dxy);
+        d->setDxyToPvError(dxyErr);
 	// Put the result into our collection
 	pD->push_back(*d);
         delete d;

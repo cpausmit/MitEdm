@@ -6,6 +6,7 @@
 #include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
+#include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 #include "MitEdm/VertexFitInterface/interface/HisInterface.h"
 #include "MitEdm/Producers/interface/ProducerV2SS.h"
@@ -14,6 +15,7 @@
 using namespace std;
 using namespace edm;
 using namespace mitedm;
+using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 ProducerV2SS::ProducerV2SS(const ParameterSet& cfg) :
@@ -137,31 +139,63 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 
 	DecayPart *d = new DecayPart(oPid_,DecayPart::Fast);
         BasePartPtr ptr1(hStables1,i);
-        BasePartPtr ptr2(hStables1,j);
+        BasePartPtr ptr2(hStables2,j);
 
-	d->addChild(ptr1);
-	d->addChild(ptr2);
+        StableData c1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz(), ptr1);
+        StableData c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
+        
+        d->addStableChild(c1);
+        d->addStableChild(c2);
 
-        d->addChildMom(fit.getTrackP4(1));
-        d->addChildMom(fit.getTrackP4(2));
-	// -----------------------------------------------------------------------------------------
-	// Update temporarily some fit quality (prob, chi2, nDoF)
-	d->setProb(fit.prob());
-	d->setChi2(fit.chisq());
-	d->setNdof(fit.ndof());
-	// -----------------------------------------------------------------------------------------
-	// Update temporarily some vertex quantities (mass, lxy, pt, fourMomentum, ...)
-	FourVector p4Fitted(0.,0.,0.,0.);
-	p4Fitted += fit.getTrackP4(1);
-	p4Fitted += fit.getTrackP4(2);
-	d->setFourMomentum(p4Fitted);
-	d->setPosition(fit.getVertex     (mithep::MultiVertexFitter::VERTEX_1));
-	d->setError   (fit.getErrorMatrix(mithep::MultiVertexFitter::VERTEX_1));
-	float mass, massErr;
-	const int trksIds[2] = { 1, 2 };
-	mass = fit.getMass(2,trksIds,massErr);
-	d->setFittedMass     (mass);
-	d->setFittedMassError(massErr);
+        // Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)
+        d->setProb(fit.prob());
+        d->setChi2(fit.chisq());
+        d->setNdof(fit.ndof());
+
+        FourVector p4Fitted(0.,0.,0.,0.);
+        p4Fitted += fit.getTrackP4(1);
+        p4Fitted += fit.getTrackP4(2);
+        d->setFourMomentum(p4Fitted);
+        d->setPosition(fit.getVertex(MultiVertexFitter::VERTEX_1));
+        d->setError(fit.getErrorMatrix(MultiVertexFitter::VERTEX_1));
+        float mass, massErr;
+        const int trksIds[2] = { 1, 2 };
+        mass = fit.getMass(2,trksIds,massErr);
+        
+        ThreeVector p3Fitted(p4Fitted.px(), p4Fitted.py(), p4Fitted.pz());
+        
+        //Get decay length in xy plane
+        float dl, dlErr;
+        dl = fit.getDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dlErr);
+               
+        //Get Z decay length               
+        float dlz, dlzErr;
+        dlz = fit.getZDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dlzErr);
+               
+        //get impact parameter               
+        float dxy, dxyErr;
+        dxy = fit.getImpactPar(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dxyErr);
+
+        d->setFittedMass     (mass);
+        d->setFittedMassError(massErr);
+        
+        d->setLxy(dl);
+        d->setLxyError(dlErr);
+        d->setLxyToPv(dl);
+        d->setLxyToPvError(dlErr);
+        
+        d->setLz(dlz);
+        d->setLzError(dlzErr);
+        d->setLzToPv(dlz);
+        d->setLzToPvError(dlzErr);
+        
+        d->setDxy(dxy);
+        d->setDxyError(dxyErr);
+        d->setDxyToPv(dxy);
+        d->setDxyToPvError(dxyErr);
 	// Put the result into our collection
 	pD->push_back(*d);
       }  //done processing fit
