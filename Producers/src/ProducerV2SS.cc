@@ -3,7 +3,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "MitEdm/DataFormats/interface/Types.h"
-#include "MitEdm/DataFormats/interface/CollectionsEdm.h"
+#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
