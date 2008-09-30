@@ -1,4 +1,4 @@
-// $Id: ProducerD2SS.cc,v 1.7 2008/09/27 05:48:25 loizides Exp $
+// $Id: ProducerD2SS.cc,v 1.8 2008/09/30 12:58:49 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerD2SS.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -141,8 +141,8 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
   }
 
   // Write the collection even if it is empty
-  cout << " ProducerD2SS::produce - " << pD->size() << " entries collection created -"
-       << " (Pid: " << oPid_ << ")\n";
+  //cout << " ProducerD2SS::produce - " << pD->size() << " entries collection created -"
+  //     << " (Pid: " << oPid_ << ")\n";
   evt.put(pD);
 }
 

@@ -209,8 +209,8 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   // -----------------------------------------------------------------------------------------------
   // Write the collection even if it is empty
   // -----------------------------------------------------------------------------------------------
-  cout << " V2SS::produce - " << pD->size() << " entries collection created -"
-       << " (Pid: " << oPid_ << ")\n";
+  //cout << " V2SS::produce - " << pD->size() << " entries collection created -"
+  //     << " (Pid: " << oPid_ << ")\n";
   evt.put(pD);
 }
 
