@@ -1,13 +1,16 @@
-// $Id: ProducerConversions.cc,v 1.4 2008/09/24 09:00:54 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.5 2008/09/27 05:48:25 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
+#include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 
 using namespace std;
@@ -21,6 +24,8 @@ ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
   BaseCandProducer(cfg),
   iStables1_(cfg.getUntrackedParameter<string>("iStables1","")),
   iStables2_(cfg.getUntrackedParameter<string>("iStables2","")),
+  iPVertexes_(cfg.getUntrackedParameter<string>("iPVertexes","offlinePrimaryVerticesWithBS")),
+  usePVertex_(cfg.getUntrackedParameter<bool>("usePVertex",true)),
   convConstraint_(cfg.getUntrackedParameter<bool>("convConstraint",false)),
   convConstraint3D_(cfg.getUntrackedParameter<bool>("convConstraint3D",true)),
   rhoMin_(cfg.getUntrackedParameter<double>("rhoMin",0.0))
@@ -52,9 +57,31 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     return;
   const StablePartCol *pS2 = hStables2.product();
 
+  const reco::Vertex *vertex = 0;
+  mitedm::VertexPtr vPtr;
+  if (usePVertex_) {
+    // Primary vertex collection
+    Handle<reco::VertexCollection> hVertexes;
+    if (!GetProduct(iPVertexes_, hVertexes, evt))
+      return;
+    const reco::VertexCollection *pV = hVertexes.product();
+  
+    //Choose the primary vertex with the largest number of tracks
+    UInt_t maxTracks=0;
+    for (UInt_t i=0; i<pV->size(); ++i) {
+      const reco::Vertex &v = pV->at(i);
+      UInt_t nTracks = v.tracksSize();
+      if (nTracks >= maxTracks) {
+        maxTracks = nTracks;
+        vertex = &v;
+        vPtr = mitedm::VertexPtr(hVertexes,i);
+      }
+    }
+  }
+  
   // Create the output collection
   auto_ptr<DecayPartCol> pD(new DecayPartCol());
-
+  
   // Simple double loop
   for (UInt_t i = 0; i<pS1->size(); ++i) {
     const StablePart &s1 =  pS1->at(i);
@@ -82,16 +109,35 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         fit.conversion_2d(MultiVertexFitter::VERTEX_1);
         //printf("applying 2d conversion constraint\n");
       }
-      if (fit.fit()) {
+      //initialize primary vertex parameters in the fitter
+      if (usePVertex_) {
+        float vErr[3][3];
+        for (UInt_t vi=0; vi<3; ++vi)
+          for (UInt_t vj=0; vj<3; ++vj)
+            vErr[vi][vj] = vertex->covariance(vi,vj);
+            
+        fit.setPrimaryVertex(vertex->x(),vertex->y(),vertex->z());
+        fit.setPrimaryVertexError(vErr);
+      }
+      
+      //only perform fit for oppositely-charged tracks
+      int trackCharge = s1.track()->charge() + s2.track()->charge();
+      int fitStatus = 0;
+      if (trackCharge==0)
+        fitStatus = fit.fit();
+        
+      if (fitStatus) {
         DecayPart *d = new DecayPart(oPid_,DecayPart::Fast);
         
         BasePartPtr ptr1(hStables1,i);
         BasePartPtr ptr2(hStables2,j);
-        d->addChild(ptr1);
-        d->addChild(ptr2);
-        d->addChildMom(fit.getTrackP4(1));
-        d->addChildMom(fit.getTrackP4(2));
-
+        
+        StableData c1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz(), ptr1);
+        StableData c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
+        
+        d->addStableChild(c1);
+        d->addStableChild(c2);
+        
         // Update temporarily some of the quantities (prob, chi2, nDoF, mass, lxy, pt, fourMomentum)
         d->setProb(fit.prob());
         d->setChi2(fit.chisq());
@@ -107,26 +153,45 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         const int trksIds[2] = { 1, 2 };
         mass = fit.getMass(2,trksIds,massErr);
         
-        if(0) {
-          const reco::Track *p1 = s1.track();
-          const reco::Track *p2 = s2.track();
-          // create the dimuon system
-          FourVector mu1(p1->px(),p1->py(),p1->pz(),sqrt(p1->p()*p1->p()+0.105658357*0.105658357));
-          FourVector mu2(p2->px(),p2->py(),p2->pz(),sqrt(p2->p()*p2->p()+0.105658357*0.105658357));
-          FourVector diMu = mu1+mu2;
-
-          // for convenience and economy
-          double mass4Vec = sqrt(diMu.M2());
+        ThreeVector p3Fitted(p4Fitted.px(), p4Fitted.py(), p4Fitted.pz());
         
-          printf(" Generated mass:   ....\n");
-          printf(" Four vector mass: %14.6f\n",mass4Vec);
-          printf(" Fitted mass:      %14.6f +- %14.6f\n",mass,massErr);
-        }
+        //Get decay length in xy plane
+        float dl, dlErr;
+        dl = fit.getDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dlErr);
+               
+        //Get Z decay length               
+        float dlz, dlzErr;
+        dlz = fit.getZDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dlzErr);
+               
+        //get impact parameter               
+        float dxy, dxyErr;
+        dxy = fit.getImpactPar(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+               p3Fitted, dxyErr);
 
-	d->setFittedMass(mass);
-	d->setFittedMassError(massErr);
-
-	// Put the result into our collection
+        d->setFittedMass     (mass);
+        d->setFittedMassError(massErr);
+        
+        d->setLxy(dl);
+        d->setLxyError(dlErr);
+        d->setLxyToPv(dl);
+        d->setLxyToPvError(dlErr);
+        
+        d->setLz(dlz);
+        d->setLzError(dlzErr);
+        d->setLzToPv(dlz);
+        d->setLzToPvError(dlzErr);
+        
+        d->setDxy(dxy);
+        d->setDxyError(dxyErr);
+        d->setDxyToPv(dxy);
+        d->setDxyToPvError(dxyErr);
+        
+        if (usePVertex_)
+          d->setPrimaryVertex(vPtr);
+        
+        // Put the result into our collection
         if (d->position().rho() > rhoMin_)
          pD->push_back(*d);
 

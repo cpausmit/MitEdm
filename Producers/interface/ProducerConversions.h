@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerConversions.h,v 1.1 2008/09/17 12:49:47 bendavid Exp $
+// $Id: ProducerConversions.h,v 1.2 2008/09/27 05:48:25 loizides Exp $
 //
 // ProducerConversions
 //
@@ -26,9 +26,11 @@ namespace mitedm
       
       std::string iStables1_;        //input label first stable particle
       std::string iStables2_;        //input label second stable particle
-      bool        convConstraint_;   //todo
-      bool        convConstraint3D_; //todo
-      double      rhoMin_;           //todo
+      std::string iPVertexes_;       //input label for primary vertex collection
+      bool        usePVertex_;       //compute decay parameters with respect to primary vertex
+      bool        convConstraint_;   //use 2d conversion constraint for fit
+      bool        convConstraint3D_; //use 3d conversion constraint for fit
+      double      rhoMin_;           //minimum conversion radius
   };
 }
 #endif
