@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: Types.h,v 1.5 2008/09/14 15:00:29 loizides Exp $
+// $Id: Types.h,v 1.6 2008/09/27 05:48:24 loizides Exp $
 //
 // Types
 //
@@ -13,12 +13,17 @@
  
 #include <Rtypes.h>
 #include "MitCommon/DataFormats/interface/Types.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 namespace mitedm
 {
   using mithep::ThreeVector;
+  using mithep::ThreeVector32;
   using mithep::FourVector;
+  using mithep::FourVector32;
   using mithep::ThreeSymMatrix;
   using mithep::SevenSymMatrix;
+  
+  typedef edm::Ptr<reco::Vertex> VertexPtr;
 }
 #endif
