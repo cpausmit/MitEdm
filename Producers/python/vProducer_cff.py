@@ -1,11 +1,29 @@
 import FWCore.ParameterSet.Config as cms
 
-v2ss = cms.EDProducer("ProducerV2SS",
-                      iStables1 = cms.untracked.string('PisStable'),
-                      iStables2 = cms.untracked.string('PisStable'),
-                      oPid = cms.untracked.int32(310),
-                      minRadius = cms.untracked.double(0.1),
-                      minMass = cms.untracked.double(0.350),
-                      maxMass = cms.untracked.double(0.650),
-                      maxZDistance = cms.untracked.double(1.0)
-                      )
+import MitEdm.Producers.stableParts_cfi
+
+PisStable = MitEdm.Producers.stableParts_cfi.stableParts.clone()
+
+from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+
+ProtonPropagator = TrackingTools.MaterialEffects.RungeKuttaTrackerPropagator_cfi.RungeKuttaTrackerPropagator.clone()
+ProtonPropagator.ComponentName = cms.string('ProtonPropagator')
+ProtonPropagator.Mass = cms.double(0.93827)
+
+TrackRefitter.Propagator = cms.string('ProtonPropagator')
+
+ProtonsStable = MitEdm.Producers.stableParts_cfi.stableParts.clone()
+ProtonsStable.iTracks = cms.untracked.string('TrackRefitter')
+ProtonsStable.oPid = cms.untracked.int32(2212)
+
+import MitEdm.Producers.v2ss_cfi
+Ksh2PiPi = MitEdm.Producers.v2ss_cfi.v2ss.clone()
+
+Lambda2ProtPi = MitEdm.Producers.v2ss_cfi.v2ss.clone()
+Lambda2ProtPi.iStables2 = cms.untracked.string('ProtonsStable')
+Lambda2ProtPi.oPid= cms.untracked.int32(3122)
+Lambda2ProtPi.minMass = cms.untracked.double(1.0)
+Lambda2ProtPi.maxMass = cms.untracked.double(1.3)
+
+
+vProducer = cms.Sequence(PisStable*TrackRefitter*ProtonsStable*Ksh2PiPi*Lambda2ProtPi)
