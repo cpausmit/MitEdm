@@ -17,4 +17,4 @@ Lambda2ProtPi.minMass = cms.untracked.double(1.0)
 Lambda2ProtPi.maxMass = cms.untracked.double(1.3)
 
 
-vProducer = cms.Sequence(PisStable*TrackRefitter*ProtonsStable*Ksh2PiPi*Lambda2ProtPi)
+vProducer = cms.Sequence(PisStable*ProtonsStable*Ksh2PiPi*Lambda2ProtPi)
