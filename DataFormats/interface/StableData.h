@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePart.h,v 1.3 2008/08/29 00:27:21 loizides Exp $
+// $Id: StableData.h,v 1.1 2008/09/30 12:57:42 bendavid Exp $
 //
 // StableData
 //
@@ -8,8 +8,8 @@
 // Authors: C.Paus, J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITEDM_STABLEDATA_H
-#define MITEDM_STABLEDATA_H
+#ifndef MITEDM_DATAFORMATS_STABLEDATA_H
+#define MITEDM_DATAFORMATS_STABLEDATA_H
 
 #include "MitEdm/DataFormats/interface/DaughterData.h"
 
@@ -27,11 +27,10 @@ namespace mitedm
       ~StableData() {}
     
       const ThreeVector32   &p3() const { return p3_; }
-      double           mass() const { return originalPart_.get()->mass(); }
+      double               mass() const { return originalPart_.get()->mass(); }
       
     protected:
       ThreeVector32   p3_;
   };
 }
-
 #endif

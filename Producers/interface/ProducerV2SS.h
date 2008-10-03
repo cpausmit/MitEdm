@@ -1,11 +1,11 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerV2SS.h,v 1.4 2008/09/27 05:48:25 loizides Exp $
+// $Id: ProducerV2SS.h,v 1.5 2008/09/30 08:51:29 mrudolph Exp $
 //
 // ProducerV2SS
 //
 // V particle reconstruction (long lived particle, decaying to two stables)
 //
-// Authors: C.Paus, M Rudolph
+// Authors: C.Paus, M.Rudolph
 //--------------------------------------------------------------------------------------------------
 
 #ifndef MITEDM_PRODUCERS_PRODUCERV2SS_H
@@ -22,9 +22,7 @@ namespace mitedm
     ~ProducerV2SS();
     
   protected:
-    virtual void beginJob(const edm::EventSetup&);
     virtual void produce (edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
 
     double rhoMin_;
     double massMin_;

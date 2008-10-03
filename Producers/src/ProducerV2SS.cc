@@ -1,3 +1,5 @@
+// $Id:$
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -33,23 +35,11 @@ ProducerV2SS::~ProducerV2SS()
 }
 
 //--------------------------------------------------------------------------------------------------
-void ProducerV2SS::beginJob(const EventSetup &setup)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
 void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 {
-  // -----------------------------------------------------------------------------------------------
   // Create the output collection
-  // -----------------------------------------------------------------------------------------------
   auto_ptr<DecayPartCol> pD(new DecayPartCol());
 
-
-
-  // -----------------------------------------------------------------------------------------------
-  // Get to the input
-  // -----------------------------------------------------------------------------------------------
   // First input collection
   Handle<StablePartCol> hStables1;
   Handle<StablePartCol> hStables2;
@@ -58,26 +48,25 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     evt.put(pD);
     return;  
   }
+  const StablePartCol *pS1 = hStables1.product();
 
+  // Second input collection
   if(!GetProduct(iStables2_, hStables2, evt)) {
     cout << "Couldn't get in collection in Producer V2SS" << endl;
     evt.put(pD);
     return;  
   }
-
-  const StablePartCol *pS1 = hStables1.product();
-  // Second input collection
-
   const StablePartCol *pS2 = hStables2.product();
-
-
 
   // -----------------------------------------------------------------------------------------------
   // Simple double loop
   // -----------------------------------------------------------------------------------------------
-  //cout << "Starting V finder loop" << endl;
+  if (0)
+    cout << "Starting V finder loop" << endl;
 
-  //sX_y: X= pion or proton collection.  i, j = 2 loop particles. ex.: s1_i and s2_i are same particle as pion and proton
+  //sX_y: X= pion or proton collection.  
+  //i, j = 2 loop particles. 
+  //ex.: s1_i and s2_i are same particle as pion and proton
   for (UInt_t i=0; i<pS1->size(); ++i) {
     const StablePart &s1 =  pS1->at(i);
    
@@ -93,7 +82,6 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
       if(s1.charge() + s2.charge() != 0) continue;
 
       //Do fast helix fit to check if there's any hope
-
       const reco::Track * t1 = s1.track();
       const reco::Track * t2 = s2.track();
       HisInterface            hisInt(t1,t2);
@@ -127,8 +115,9 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 
       // -------------------------------------------------------------------------------------------
       // Do vertex fit for all pairs
+      // -------------------------------------------------------------------------------------------
       mithep::MultiVertexFitter fit;
-      fit.init(3.8);                                    // Reset to the MC magnetic field of 4 Tesla
+      fit.init(3.8); // Reset to the MC magnetic field of 3.8 Tesla
       fit.setChisqMax(100);
       MvfInterface fitInt(&fit);
       fitInt.addTrack(s1.track(),1,s1.mass(),mithep::MultiVertexFitter::VERTEX_1);
@@ -199,23 +188,16 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 	// Put the result into our collection
 	pD->push_back(*d);
       }  //done processing fit
-      
-      
-
-
-    }//end j loop
+    } //end j loop
   } //end i loop
 
   // -----------------------------------------------------------------------------------------------
   // Write the collection even if it is empty
   // -----------------------------------------------------------------------------------------------
-  //cout << " V2SS::produce - " << pD->size() << " entries collection created -"
-  //     << " (Pid: " << oPid_ << ")\n";
+  if (0)
+    cout << " V2SS::produce - " << pD->size() << " entries collection created -"
+         << " (Pid: " << oPid_ << ")\n";
   evt.put(pD);
-}
-
-//--------------------------------------------------------------------------------------------------
-void ProducerV2SS::endJob() {
 }
 
 //define this as a plug-in

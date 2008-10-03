@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 mvfConversions = cms.EDProducer("ProducerConversions",

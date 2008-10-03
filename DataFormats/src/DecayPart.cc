@@ -1,4 +1,4 @@
-// $Id: DecayPart.cc,v 1.4 2008/09/24 09:00:54 bendavid Exp $
+// $Id: DecayPart.cc,v 1.5 2008/09/30 12:57:43 bendavid Exp $
 
 #include "MitEdm/DataFormats/interface/BasePartAction.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
@@ -117,7 +117,9 @@ void DecayPart::doAction(BasePartAction *action) const
     action->doAction(this);
   
   for (int i=0; i<nChild(); ++i) {
-    action->incLevel(); getDaughterPtr(i)->doAction(action); action->decLevel();
+    action->incLevel(); 
+    getDaughterPtr(i)->doAction(action); 
+    action->decLevel();
   }
 
   if (action->getActionType() == BasePartAction::BottomUp)

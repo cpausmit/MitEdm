@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 v2ss = cms.EDProducer("ProducerV2SS",

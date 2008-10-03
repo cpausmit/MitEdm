@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.10 2008/09/27 05:48:24 loizides Exp $
+// $Id: DecayPart.h,v 1.11 2008/09/30 12:57:42 bendavid Exp $
 //
 // DecayPart
 //
@@ -178,7 +178,6 @@ namespace mitedm
     VertexPtr      primaryVertex_;
     
     // Contents of the decay
-    //BasePartPtrVector children_;
     std::vector<StableData> stableChildren_;
     std::vector<DecayData>  decayChildren_;
   };

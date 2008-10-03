@@ -1,15 +1,15 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePartFwd.h,v 1.6 2008/09/24 09:47:22 bendavid Exp $
+// $Id: StablePartFwd.h,v 1.1 2008/09/30 12:57:42 bendavid Exp $
 //
 // BasePartFwd
 //
-// Edm reference typedefs for BasePart
+// Edm reference typedefs for BasePart.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
 
-#ifndef MITEDM_STABLEPARTFWD_H
-#define MITEDM_STABLEPARTFWD_H
+#ifndef MITEDM_DATAFORMATS_STABLEPARTFWD_H
+#define MITEDM_DATAFORMATS_STABLEPARTFWD_H
 
 #include "DataFormats/Common/interface/Ptr.h"
 
