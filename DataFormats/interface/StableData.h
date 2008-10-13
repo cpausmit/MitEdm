@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: StableData.h,v 1.1 2008/09/30 12:57:42 bendavid Exp $
+// $Id: StableData.h,v 1.2 2008/10/03 23:53:47 loizides Exp $
 //
 // StableData
 //
@@ -26,11 +26,14 @@ namespace mitedm
         
       ~StableData() {}
     
-      const ThreeVector32   &p3() const { return p3_; }
-      double               mass() const { return originalPart_.get()->mass(); }
+      const reco::HitPattern &Hits()    const { return hits_; }
+      void                    SetHits(const reco::HitPattern &hits) { hits_=hits; }
+      const ThreeVector32    &p3()      const { return p3_; }
+      double                  mass()    const { return originalPart_.get()->mass(); }
       
     protected:
-      ThreeVector32   p3_;
+      ThreeVector32    p3_;
+      reco::HitPattern hits_;
   };
 }
 #endif
