@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.5 2008/09/27 05:48:25 loizides Exp $
+// $Id: ProducerConversions.cc,v 1.6 2008/09/30 12:59:14 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -6,6 +6,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "MitEdm/Producers/interface/HitDropperRecord.h"
+#include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
@@ -57,6 +59,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     return;
   const StablePartCol *pS2 = hStables2.product();
 
+  ThreeVector pvPos;
   const reco::Vertex *vertex = 0;
   mitedm::VertexPtr vPtr;
   if (usePVertex_) {
@@ -77,7 +80,17 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         vPtr = mitedm::VertexPtr(hVertexes,i);
       }
     }
+    pvPos.SetXYZ(vertex->x(),
+                 vertex->y(),
+                 vertex->z());
   }
+  else
+    pvPos.SetXYZ(0.0,0.0,0.0);
+  
+  //get hit dropper
+  ESHandle<HitDropper> hDropper;
+  setup.get<HitDropperRecord>().get("HitDropper",hDropper);
+  const HitDropper *dropper = hDropper.product();
   
   // Create the output collection
   auto_ptr<DecayPartCol> pD(new DecayPartCol());
@@ -130,10 +143,18 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         DecayPart *d = new DecayPart(oPid_,DecayPart::Fast);
         
         BasePartPtr ptr1(hStables1,i);
-        BasePartPtr ptr2(hStables2,j);
+        BasePartPtr ptr2(hStables2,j);       
         
         StableData c1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz(), ptr1);
         StableData c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
+        
+        const ThreeVector vtxPos = fit.getVertex(MultiVertexFitter::VERTEX_1);
+        //build corrected HitPattern for StableData, removing hits before the fit vertex
+        reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, pvPos);
+        reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, pvPos);
+        
+        c1.SetHits(hits1);
+        c2.SetHits(hits2);
         
         d->addStableChild(c1);
         d->addStableChild(c2);

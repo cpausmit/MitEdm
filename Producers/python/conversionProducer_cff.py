@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
+
+from MitEdm.Producers.HitDropper_cfi import *
+
 from MitEdm.Producers.stableParts_cfi import *
 
 from MitEdm.Producers.conversions_cfi import *
