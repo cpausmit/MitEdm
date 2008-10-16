@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropper.h,v 1.1 2008/10/13 10:39:23 bendavid Exp $
+// $Id: HitDropper.h,v 1.2 2008/10/16 16:44:52 bendavid Exp $
 //
 // HitDropper
 //
@@ -40,7 +40,7 @@ namespace mitedm
                                       const ThreeVector &trkMom,
                                       Double_t lxyError,
                                       Double_t lzError,
-                                      Double_t sigmaTolerance=2.0) const;
+                                      Double_t sigmaTolerance=3.0) const;
        Bool_t                        IsBarrel(const GeomDet *det) const;
        Bool_t                        IsDisk(const GeomDet *det) const;
           
