@@ -1,11 +1,13 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.6 2008/09/30 12:59:33 bendavid Exp $
+# $Id: BuildFile,v 1.7 2008/10/13 10:39:23 bendavid Exp $
 
 <use name=root>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
 <use name=TrackingTools/TransientTrack>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/Record>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
