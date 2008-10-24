@@ -1,10 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerD2SS.h,v 1.3 2008/09/04 13:55:28 loizides Exp $
+// $Id: ProducerD2SS.h,v 1.4 2008/09/27 05:48:25 loizides Exp $
 //
 // ProducerD2SS
 //
-// Commmon two body particle decay reconstruction (e.g J/psi), special implementations using 
-// this as a base class exist for V and conversion.
+// Commmon two body particle decay reconstruction (e.g J/psi -> mu mu), special implementations
+// using this as a base class exist for V and conversion.
 //
 // Authors: C.Paus
 //--------------------------------------------------------------------------------------------------
@@ -26,8 +26,8 @@ namespace mitedm
     void produce(edm::Event&, const edm::EventSetup&);
 
     // Parameters to steer the particularities of this instance
-    std::string iStables1_; //input label first stable particle
-    std::string iStables2_; //input label second stable particle
+    std::string iStables1_; // input label first stable particle
+    std::string iStables2_; // input label second stable particle
   };
 }
 #endif

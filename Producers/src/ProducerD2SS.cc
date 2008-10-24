@@ -1,4 +1,4 @@
-// $Id: ProducerD2SS.cc,v 1.10 2008/10/03 23:53:53 loizides Exp $
+// $Id: ProducerD2SS.cc,v 1.11 2008/10/16 16:45:34 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerD2SS.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -25,21 +25,20 @@ ProducerD2SS::ProducerD2SS(const ParameterSet& cfg) :
   iStables1_(cfg.getUntrackedParameter<string>("iStables1","")),
   iStables2_(cfg.getUntrackedParameter<string>("iStables2",""))
 {
-  // Constructor.
-
+  // Constructor
   produces<DecayPartCol>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ProducerD2SS::~ProducerD2SS()
 {
-  // Destructor.
+  // Destructor
 }
 
 //--------------------------------------------------------------------------------------------------
 void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 {
-  //Produce the DecayPartCol.
+  // Produce the DecayPartCol for a topology: D -> S S
 
   // First input collection
   Handle<StablePartCol> hStables1;
@@ -52,7 +51,7 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
     return;
   const StablePartCol *pS2 = hStables2.product();
 
-  //get hit dropper
+  // Get hit dropper
   ESHandle<HitDropper> hDropper;
   setup.get<HitDropperRecord>().get("HitDropper",hDropper);
   const HitDropper *dropper = hDropper.product();
@@ -99,17 +98,17 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 	
         ThreeVector p3Fitted(p4Fitted.px(), p4Fitted.py(), p4Fitted.pz());
         
-        //Get decay length in xy plane
+        // Get decay length in xy plane
         float dl, dlErr;
         dl = fit.getDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
                p3Fitted, dlErr);
                
-        //Get Z decay length               
+        // Get Z decay length               
         float dlz, dlzErr;
         dlz = fit.getZDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
                p3Fitted, dlzErr);
                
-        //get impact parameter               
+        // Get impact parameter               
         float dxy, dxyErr;
         dxy = fit.getImpactPar(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
                p3Fitted, dxyErr);
@@ -121,10 +120,12 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
         StableData c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
         
         const ThreeVector vtxPos = fit.getVertex(MultiVertexFitter::VERTEX_1);
-        const ThreeVector trkMom1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz());
-        const ThreeVector trkMom2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz());
+        const ThreeVector trkMom1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(),
+				  fit.getTrackP4(1).pz());
+        const ThreeVector trkMom2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(),
+				  fit.getTrackP4(2).pz());
         
-        //build corrected HitPattern for StableData, removing hits before the fit vertex
+        // Build corrected HitPattern for StableData, removing hits before the fit vertex
         reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
         reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
         
@@ -165,5 +166,5 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
   evt.put(pD);
 }
 
-//define this as a plug-in
+// Define this as a plug-in
 DEFINE_FWK_MODULE(ProducerD2SS);
