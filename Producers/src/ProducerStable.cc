@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: ProducerStable.cc,v 1.4 2008/09/27 05:48:25 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerStable.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -35,8 +35,10 @@ void ProducerStable::produce(Event &evt, const EventSetup &setup)
 
   // Get the track input collection
   Handle<TrackCollection> hTrks;
-  if (!GetProduct(iTracks_, hTrks, evt))
+  if (!GetProduct(iTracks_, hTrks, evt)) {
+    printf("Track Collection not found in ProducerStable\n");
     return;
+  }
   const TrackCollection iTrks = *(hTrks.product());  
   
   // Create the output collection

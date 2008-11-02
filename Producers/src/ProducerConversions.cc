@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.7 2008/10/13 10:39:24 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.8 2008/10/16 16:45:34 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -50,13 +50,17 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
 
   // First input collection
   Handle<StablePartCol> hStables1;
-  if (!GetProduct(iStables1_, hStables1, evt))
+  if (!GetProduct(iStables1_, hStables1, evt)) {
+    printf("Stable collection 1 not found in ProducerConversions\n");
     return;  
+  }
   const StablePartCol *pS1 = hStables1.product();
   // Second input collection
   Handle<StablePartCol> hStables2;
-  if (!GetProduct(iStables2_, hStables2, evt))
+  if (!GetProduct(iStables2_, hStables2, evt)) {
+    printf("Stable collection 2 not found in ProducerConversions\n");
     return;
+  }
   const StablePartCol *pS2 = hStables2.product();
 
   const reco::Vertex *vertex = 0;
