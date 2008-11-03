@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.8 2008/10/16 16:45:34 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.9 2008/11/02 13:56:14 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -188,6 +188,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         
         c1.SetHits(hits1);
         c2.SetHits(hits2);
+        c1.SetHitsFilled();
+        c2.SetHitsFilled();
         
         d->addStableChild(c1);
         d->addStableChild(c2);

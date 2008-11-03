@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.7 2008/10/03 23:53:53 loizides Exp $
+// $Id: ProducerV2SS.cc,v 1.8 2008/10/16 16:45:34 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -182,6 +182,8 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         
         c1.SetHits(hits1);
         c2.SetHits(hits2);
+        c1.SetHitsFilled();
+        c2.SetHitsFilled();
         
         d->addStableChild(c1);
         d->addStableChild(c2);               
