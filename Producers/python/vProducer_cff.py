@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: vProducer_cff.py,v 1.4 2008/10/03 23:53:51 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,8 +30,8 @@ Ksh2PiPi = MitEdm.Producers.v2ss_cfi.v2ss.clone()
 Lambda2ProtPi = MitEdm.Producers.v2ss_cfi.v2ss.clone()
 Lambda2ProtPi.iStables2 = cms.untracked.string('ProtonsStable')
 Lambda2ProtPi.oPid= cms.untracked.int32(3122)
-Lambda2ProtPi.minMass = cms.untracked.double(1.0)
-Lambda2ProtPi.maxMass = cms.untracked.double(1.3)
+Lambda2ProtPi.minMass = cms.untracked.double(1.05)
+Lambda2ProtPi.maxMass = cms.untracked.double(1.18)
 
 FillKsh = cms.EDAnalyzer("FillMitTree",
     defactive = cms.untracked.bool(False),
