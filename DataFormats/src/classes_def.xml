@@ -1,4 +1,4 @@
-<!-- $Id: classes_def.xml,v 1.7 2008/09/24 09:47:22 bendavid Exp $ -->
+<!-- $Id: classes_def.xml,v 1.8 2008/09/30 12:57:43 bendavid Exp $ -->
 
 <lcgdict>
   <class name="mitedm::BasePart"/>
@@ -15,4 +15,9 @@
   <class name="mitedm::DecayData"/>  
   <class name="std::vector<mitedm::StableData>"/>
   <class name="std::vector<mitedm::DecayData>"/>  
+  <class name="mitedm::TrackAssociation"/>
+  <class name="edm::Wrapper<mitedm::TrackAssociation>"/>
+  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Track>,edm::RefToBaseProd<reco::Track> >"/>
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > >"/>
 </lcgdict>
