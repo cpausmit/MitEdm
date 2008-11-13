@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: MvfInterface.h,v 1.7 2008/09/17 04:03:50 loizides Exp $
+// $Id: MvfInterface.h,v 1.8 2008/09/27 05:48:26 loizides Exp $
 //
 // MvfInterface class header file
 //
@@ -13,22 +13,34 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "MitCommon/VertexFit/interface/MultiVertexFitter.h"
+#include "MitCommon/VertexFit/interface/MultiVertexFitterC.h"
+#include "MitCommon/VertexFit/interface/MultiVertexFitterD.h"
 
 namespace mitedm
 {  
   class MvfInterface
   {
     public:
-      MvfInterface(mithep::MultiVertexFitter *fitter);
+      MvfInterface(mithep::MultiVertexFitter  *fitter);
+      MvfInterface(mithep::MultiVertexFitterC *fitter);
+      MvfInterface(mithep::MultiVertexFitterD *fitter);
       ~MvfInterface() {}
 
       bool addTrack(const reco::Track *trk, const int id, const float mass,
                     mithep::MultiVertexFitter::vertexNumber jv);
+      bool addTrack(const reco::Track *trk, const int id, const float mass,
+                    mithep::MultiVertexFitterC::vertexNumber jv);
+      bool addTrack(const reco::Track *trk, const int id, const float mass,
+                    mithep::MultiVertexFitterD::vertexNumber jv);
 
-      mithep::MultiVertexFitter *fitter() { return mvf_;}
+      mithep::MultiVertexFitter  *fitter () { return mvf_;}
+      mithep::MultiVertexFitterC *fitterC() { return mvfC_;}
+      mithep::MultiVertexFitterD *fitterD() { return mvfD_;}
   
     private:
-      mithep::MultiVertexFitter *mvf_; //the multi vertex fitter
+      mithep::MultiVertexFitter  *mvf_;  //the multi vertex fitter
+      mithep::MultiVertexFitterC *mvfC_; //the multi vertex fitter
+      mithep::MultiVertexFitterD *mvfD_; //the multi vertex fitter
   };
 }
 #endif
