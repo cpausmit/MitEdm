@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.8 2008/10/16 16:45:34 bendavid Exp $
+// $Id: ProducerV2SS.cc,v 1.9 2008/11/03 16:03:21 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -13,7 +13,6 @@
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 #include "MitEdm/VertexFitInterface/interface/HisInterface.h"
 #include "MitEdm/Producers/interface/ProducerV2SS.h"
-#include "MitCommon/VertexFit/interface/MultiVertexFitter.h"
 
 using namespace std;
 using namespace edm;
@@ -23,10 +22,10 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 ProducerV2SS::ProducerV2SS(const ParameterSet& cfg) :
   ProducerD2SS(cfg),
-  rhoMin_(cfg.getUntrackedParameter<double>("minRadius",0.0)),
-  massMin_(cfg.getUntrackedParameter<double>("minMass",0.0)),
-  massMax_(cfg.getUntrackedParameter<double>("maxMass",3.0)),
-  dZMax_(cfg.getUntrackedParameter<double>("maxZDistance",5.0))
+  rhoMin_     (cfg.getUntrackedParameter<double>("minRadius",   0.0)),
+  massMin_    (cfg.getUntrackedParameter<double>("minMass",     0.0)),
+  massMax_    (cfg.getUntrackedParameter<double>("maxMass",     3.0)),
+  dZMax_      (cfg.getUntrackedParameter<double>("maxZDistance",5.0))
 {
 }
 
@@ -122,12 +121,12 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
       // -------------------------------------------------------------------------------------------
       // Do vertex fit for all pairs
       // -------------------------------------------------------------------------------------------
-      mithep::MultiVertexFitter fit;
+      mithep::MultiVertexFitterD fit;
       fit.init(3.8); // Reset to the MC magnetic field of 3.8 Tesla
       fit.setChisqMax(100);
       MvfInterface fitInt(&fit);
-      fitInt.addTrack(s1.track(),1,s1.mass(),mithep::MultiVertexFitter::VERTEX_1);
-      fitInt.addTrack(s2.track(),2,s2.mass(),mithep::MultiVertexFitter::VERTEX_1);
+      fitInt.addTrack(s1.track(),1,s1.mass(),mithep::MultiVertexFitterD::VERTEX_1);
+      fitInt.addTrack(s2.track(),2,s2.mass(),mithep::MultiVertexFitterD::VERTEX_1);
 
 
       if (fit.fit()){
@@ -143,8 +142,8 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         p4Fitted += fit.getTrackP4(1);
         p4Fitted += fit.getTrackP4(2);
         d->setFourMomentum(p4Fitted);
-        d->setPosition(fit.getVertex(MultiVertexFitter::VERTEX_1));
-        d->setError(fit.getErrorMatrix(MultiVertexFitter::VERTEX_1));
+        d->setPosition    (fit.getVertex     (MultiVertexFitterD::VERTEX_1));
+        d->setError       (fit.getErrorMatrix(MultiVertexFitterD::VERTEX_1));
         float mass, massErr;
         const int trksIds[2] = { 1, 2 };
         mass = fit.getMass(2,trksIds,massErr);
@@ -153,28 +152,30 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         
         //Get decay length in xy plane
         float dl, dlErr;
-        dl = fit.getDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
-               p3Fitted, dlErr);
+        dl = fit.getDecayLength  (MultiVertexFitterD::PRIMARY_VERTEX, MultiVertexFitterD::VERTEX_1,
+				  p3Fitted, dlErr);
                
         //Get Z decay length               
         float dlz, dlzErr;
-        dlz = fit.getZDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
-               p3Fitted, dlzErr);
+        dlz = fit.getZDecayLength(MultiVertexFitterD::PRIMARY_VERTEX, MultiVertexFitterD::VERTEX_1,
+				  p3Fitted, dlzErr);
                
         //get impact parameter               
         float dxy, dxyErr;
-        dxy = fit.getImpactPar(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
-               p3Fitted, dxyErr);
+        dxy = fit.getImpactPar   (MultiVertexFitterD::PRIMARY_VERTEX, MultiVertexFitterD::VERTEX_1,
+				  p3Fitted, dxyErr);
 
         BasePartPtr ptr1(hStables1,i);
         BasePartPtr ptr2(hStables2,j);       
         
-        StableData c1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz(), ptr1);
-        StableData c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
+        StableData  c1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz(), ptr1);
+        StableData  c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
         
-        const ThreeVector vtxPos = fit.getVertex(MultiVertexFitter::VERTEX_1);
-        const ThreeVector trkMom1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz());
-        const ThreeVector trkMom2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz());
+        const ThreeVector vtxPos = fit.getVertex(MultiVertexFitterD::VERTEX_1);
+        const ThreeVector trkMom1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(),
+				  fit.getTrackP4(1).pz());
+        const ThreeVector trkMom2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(),
+				  fit.getTrackP4(2).pz());
         
         //build corrected HitPattern for StableData, removing hits before the fit vertex
         reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
@@ -185,26 +186,23 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         c1.SetHitsFilled();
         c2.SetHitsFilled();
         
-        d->addStableChild(c1);
-        d->addStableChild(c2);               
-               
-        d->setFittedMass     (mass);
+        d->addStableChild    (c1);
+        d->addStableChild    (c2);               
+	d->setFittedMass     (mass);
         d->setFittedMassError(massErr);
-        
-        d->setLxy(dl);
-        d->setLxyError(dlErr);
-        d->setLxyToPv(dl);
-        d->setLxyToPvError(dlErr);
-        
-        d->setLz(dlz);
-        d->setLzError(dlzErr);
-        d->setLzToPv(dlz);
-        d->setLzToPvError(dlzErr);
-        
-        d->setDxy(dxy);
-        d->setDxyError(dxyErr);
-        d->setDxyToPv(dxy);
-        d->setDxyToPvError(dxyErr);
+        d->setLxy            (dl);
+        d->setLxyError       (dlErr);
+        d->setLxyToPv        (dl);
+        d->setLxyToPvError   (dlErr);
+        d->setLz             (dlz);
+        d->setLzError        (dlzErr);
+        d->setLzToPv         (dlz);
+        d->setLzToPvError    (dlzErr);
+        d->setDxy            (dxy);
+        d->setDxyError       (dxyErr);
+        d->setDxyToPv        (dxy);
+        d->setDxyToPvError   (dxyErr);
+
 	// Put the result into our collection
 	pD->push_back(*d);
       }  //done processing fit

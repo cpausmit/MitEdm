@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.9 2008/11/02 13:56:14 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.10 2008/11/03 16:03:21 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -23,14 +23,14 @@ using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
-  BaseCandProducer(cfg),
-  iStables1_(cfg.getUntrackedParameter<string>("iStables1","")),
-  iStables2_(cfg.getUntrackedParameter<string>("iStables2","")),
-  iPVertexes_(cfg.getUntrackedParameter<string>("iPVertexes","offlinePrimaryVerticesWithBS")),
-  usePVertex_(cfg.getUntrackedParameter<bool>("usePVertex",true)),
-  convConstraint_(cfg.getUntrackedParameter<bool>("convConstraint",false)),
-  convConstraint3D_(cfg.getUntrackedParameter<bool>("convConstraint3D",true)),
-  rhoMin_(cfg.getUntrackedParameter<double>("rhoMin",0.0))
+  BaseCandProducer (cfg),
+  iStables1_       (cfg.getUntrackedParameter<string>("iStables1","")),
+  iStables2_       (cfg.getUntrackedParameter<string>("iStables2","")),
+  iPVertexes_      (cfg.getUntrackedParameter<string>("iPVertexes","offlinePrimaryVerticesWithBS")),
+  usePVertex_      (cfg.getUntrackedParameter<bool>  ("usePVertex",true)),
+  convConstraint_  (cfg.getUntrackedParameter<bool>  ("convConstraint",false)),
+  convConstraint3D_(cfg.getUntrackedParameter<bool>  ("convConstraint3D",true)),
+  rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0))
 {
   // Constructor.
 
@@ -85,7 +85,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     }
   }
   
-  //get hit dropper
+  // Get hit dropper
   ESHandle<HitDropper> hDropper;
   setup.get<HitDropperRecord>().get("HitDropper",hDropper);
   const HitDropper *dropper = hDropper.product();
@@ -131,7 +131,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         fit.setPrimaryVertexError(vErr);
       }
       
-      //only perform fit for oppositely-charged tracks
+      // Only perform fit for oppositely-charged tracks
       int trackCharge = s1.track()->charge() + s2.track()->charge();
       int fitStatus = 0;
       if (trackCharge==0)
@@ -157,17 +157,17 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         
         ThreeVector p3Fitted(p4Fitted.px(), p4Fitted.py(), p4Fitted.pz());
         
-        //Get decay length in xy plane
+        // Get decay length in xy plane
         float dl, dlErr;
         dl = fit.getDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
                p3Fitted, dlErr);
                
-        //Get Z decay length               
+        // Get Z decay length               
         float dlz, dlzErr;
         dlz = fit.getZDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
                p3Fitted, dlzErr);
                
-        //get impact parameter               
+        // Get impact parameter               
         float dxy, dxyErr;
         dxy = fit.getImpactPar(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
                p3Fitted, dxyErr);
@@ -182,7 +182,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         const ThreeVector trkMom1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz());
         const ThreeVector trkMom2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz());
         
-        //build corrected HitPattern for StableData, removing hits before the fit vertex
+        // Build corrected HitPattern for StableData, removing hits before the fit vertex
         reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
         reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
         
