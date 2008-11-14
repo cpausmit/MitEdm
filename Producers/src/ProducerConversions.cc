@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.10 2008/11/03 16:03:21 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.11 2008/11/13 17:08:31 paus Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -107,17 +107,17 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
       const StablePart &s2 = pS2->at(j);
 
       // Vertex fit now, possibly with conversion constraint
-      MultiVertexFitter fit;
+      MultiVertexFitterD fit;
       fit.init(3.8); // Reset to the MC magnetic field of 3.8 Tesla
       MvfInterface fitInt(&fit);
-      fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitter::VERTEX_1);
-      fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitter::VERTEX_1);
+      fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitterD::VERTEX_1);
+      fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitterD::VERTEX_1);
       if (convConstraint3D_) {
-        fit.conversion_3d(MultiVertexFitter::VERTEX_1);
+        fit.conversion_3d(MultiVertexFitterD::VERTEX_1);
         //printf("applying 3d conversion constraint\n");
       }
       else if (convConstraint_) {
-        fit.conversion_2d(MultiVertexFitter::VERTEX_1);
+        fit.conversion_2d(MultiVertexFitterD::VERTEX_1);
         //printf("applying 2d conversion constraint\n");
       }
       //initialize primary vertex parameters in the fitter
@@ -149,8 +149,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         p4Fitted += fit.getTrackP4(1);
         p4Fitted += fit.getTrackP4(2);
         d->setFourMomentum(p4Fitted);
-        d->setPosition(fit.getVertex     (MultiVertexFitter::VERTEX_1));
-        d->setError   (fit.getErrorMatrix(MultiVertexFitter::VERTEX_1));
+        d->setPosition(fit.getVertex     (MultiVertexFitterD::VERTEX_1));
+        d->setError   (fit.getErrorMatrix(MultiVertexFitterD::VERTEX_1));
         float mass, massErr;
         const int trksIds[2] = { 1, 2 };
         mass = fit.getMass(2,trksIds,massErr);
@@ -159,17 +159,17 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         
         // Get decay length in xy plane
         float dl, dlErr;
-        dl = fit.getDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+        dl = fit.getDecayLength(MultiVertexFitterD::PRIMARY_VERTEX, MultiVertexFitterD::VERTEX_1,
                p3Fitted, dlErr);
                
         // Get Z decay length               
         float dlz, dlzErr;
-        dlz = fit.getZDecayLength(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+        dlz = fit.getZDecayLength(MultiVertexFitterD::PRIMARY_VERTEX, MultiVertexFitterD::VERTEX_1,
                p3Fitted, dlzErr);
                
         // Get impact parameter               
         float dxy, dxyErr;
-        dxy = fit.getImpactPar(MultiVertexFitter::PRIMARY_VERTEX, MultiVertexFitter::VERTEX_1,
+        dxy = fit.getImpactPar(MultiVertexFitterD::PRIMARY_VERTEX, MultiVertexFitterD::VERTEX_1,
                p3Fitted, dxyErr);
 
         BasePartPtr ptr1(hStables1,i);
@@ -178,7 +178,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         StableData c1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz(), ptr1);
         StableData c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
         
-        const ThreeVector vtxPos = fit.getVertex(MultiVertexFitter::VERTEX_1);
+        const ThreeVector vtxPos = fit.getVertex(MultiVertexFitterD::VERTEX_1);
         const ThreeVector trkMom1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz());
         const ThreeVector trkMom2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz());
         
