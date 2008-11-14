@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.11 2008/11/13 17:08:31 paus Exp $
+// $Id: ProducerConversions.cc,v 1.12 2008/11/14 13:32:48 paus Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -14,6 +14,7 @@
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
+#include "MitEdm/VertexFitInterface/interface/HisInterface.h"
 
 using namespace std;
 using namespace edm;
@@ -106,36 +107,52 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
 
-      // Vertex fit now, possibly with conversion constraint
-      MultiVertexFitterD fit;
-      fit.init(3.8); // Reset to the MC magnetic field of 3.8 Tesla
-      MvfInterface fitInt(&fit);
-      fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitterD::VERTEX_1);
-      fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitterD::VERTEX_1);
-      if (convConstraint3D_) {
-        fit.conversion_3d(MultiVertexFitterD::VERTEX_1);
-        //printf("applying 3d conversion constraint\n");
-      }
-      else if (convConstraint_) {
-        fit.conversion_2d(MultiVertexFitterD::VERTEX_1);
-        //printf("applying 2d conversion constraint\n");
-      }
-      //initialize primary vertex parameters in the fitter
-      if (usePVertex_) {
-        float vErr[3][3];
-        for (UInt_t vi=0; vi<3; ++vi)
-          for (UInt_t vj=0; vj<3; ++vj)
-            vErr[vi][vj] = vertex->covariance(vi,vj);
-            
-        fit.setPrimaryVertex(vertex->x(),vertex->y(),vertex->z());
-        fit.setPrimaryVertexError(vErr);
-      }
+            //Do fast helix fit to check if there's any hope
+      const reco::Track * t1 = s1.track();
+      const reco::Track * t2 = s2.track();
       
-      // Only perform fit for oppositely-charged tracks
-      int trackCharge = s1.track()->charge() + s2.track()->charge();
+      int trackCharge = t1->charge() + t2->charge();
+      double dR0 = 0.0;
+      
+      if (trackCharge==0) { 
+        HisInterface            hisInt(t1,t2);
+        const mithep::HelixIntersector *his = hisInt.hISector();
+        dR0 = sqrt(his->IntersectionI(0).Location().X()*his->IntersectionI(0).Location().X()+
+                  his->IntersectionI(0).Location().Y()*his->IntersectionI(0).Location().Y());
+      }
+
+                 
       int fitStatus = 0;
-      if (trackCharge==0)
-        fitStatus = fit.fit();
+      MultiVertexFitterD fit;      
+      if (trackCharge==0 && dR0 > rhoMin_) {
+      
+        // Vertex fit now, possibly with conversion constraint
+  
+        fit.init(3.8); // Reset to the MC magnetic field of 3.8 Tesla
+        MvfInterface fitInt(&fit);
+        fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitterD::VERTEX_1);
+        fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitterD::VERTEX_1);
+        if (convConstraint3D_) {
+          fit.conversion_3d(MultiVertexFitterD::VERTEX_1);
+          //printf("applying 3d conversion constraint\n");
+        }
+        else if (convConstraint_) {
+          fit.conversion_2d(MultiVertexFitterD::VERTEX_1);
+          //printf("applying 2d conversion constraint\n");
+        }
+        //initialize primary vertex parameters in the fitter
+        if (usePVertex_) {
+          float vErr[3][3];
+          for (UInt_t vi=0; vi<3; ++vi)
+            for (UInt_t vj=0; vj<3; ++vj)
+              vErr[vi][vj] = vertex->covariance(vi,vj);
+              
+          fit.setPrimaryVertex(vertex->x(),vertex->y(),vertex->z());
+          fit.setPrimaryVertexError(vErr);
+        }
+        
+        fitStatus = fit.fit();     
+      }
         
       if (fitStatus) {
         DecayPart *d = new DecayPart(oPid_,DecayPart::Fast);
@@ -217,8 +234,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
           d->setPrimaryVertex(vPtr);
         
         // Put the result into our collection
-        if (d->position().rho() > rhoMin_)
-         pD->push_back(*d);
+        pD->push_back(*d);
 
         delete d;
       }
