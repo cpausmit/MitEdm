@@ -1,0 +1,17 @@
+# -*- Makefile -*-
+# $Id: BuildFile,v 1.8 2008/10/16 16:44:52 bendavid Exp $
+
+<use name=root>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/Record>
+<use name=DataFormats/Common>
+<use name=DataFormats/TrackReco>
+#<flags CXXFLAGS="-g">
+<flags EDM_PLUGIN=1>
+<export>
+  <lib name=MitEdmTrackerElectrons>
+</export>
