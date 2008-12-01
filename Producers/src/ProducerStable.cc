@@ -1,4 +1,4 @@
-// $Id: ProducerStable.cc,v 1.4 2008/09/27 05:48:25 loizides Exp $
+// $Id: ProducerStable.cc,v 1.5 2008/11/02 13:56:14 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerStable.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -34,20 +34,20 @@ void ProducerStable::produce(Event &evt, const EventSetup &setup)
   // Produce our StablePartCol.
 
   // Get the track input collection
-  Handle<TrackCollection> hTrks;
+  Handle<View<reco::Track> > hTrks;
   if (!GetProduct(iTracks_, hTrks, evt)) {
     printf("Track Collection not found in ProducerStable\n");
     return;
   }
-  const TrackCollection iTrks = *(hTrks.product());  
+  const View<reco::Track> iTrks = *(hTrks.product());  
   
   // Create the output collection
   auto_ptr<StablePartCol> pS(new StablePartCol());
 
   // Simple conversion of tracks to stable particles
-  for (TrackCollection::const_iterator it = iTrks.begin(); it != iTrks.end(); ++it) {
-    const reco::TrackRef theRef(hTrks, it - iTrks.begin());
-    StablePart *s = new StablePart(oPid_,theRef);
+  for (View<reco::Track>::const_iterator it = iTrks.begin(); it != iTrks.end(); ++it) {
+    const mitedm::TrackPtr thePtr = iTrks.ptrAt(it - iTrks.begin());
+    StablePart *s = new StablePart(oPid_,thePtr);
     if (0)
       printf(" Track: %14.8f, %14.8f, %14.8f\n",it->pt(),it->phi(),it->eta());
     pS->push_back(*s);

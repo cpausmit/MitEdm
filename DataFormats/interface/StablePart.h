@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: StablePart.h,v 1.5 2008/08/29 00:27:21 loizides Exp $
+// $Id: StablePart.h,v 1.6 2008/09/27 05:48:24 loizides Exp $
 //
 // StablePart
 //
@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <cmath>
+#include "MitEdm/DataFormats/interface/Types.h"
 #include "MitEdm/DataFormats/interface/BasePart.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -26,7 +27,7 @@ namespace mitedm
   {
     public:
       StablePart() {}
-      StablePart(int pid, const reco::TrackRef &trk) : BasePart(pid), track_(trk) {}
+      StablePart(int pid, const mitedm::TrackPtr &trk) : BasePart(pid), track_(trk) {}
       virtual ~StablePart() {}
     
       // Override recursion helper method
@@ -35,12 +36,12 @@ namespace mitedm
       void          print(std::ostream &os = std::cout) const;
 
       // Accessors
-      const reco::Track    *track()    const { return track_.get(); }
-      const reco::TrackRef &trackRef() const { return track_; }
-      double                charge()   const { return track()->charge(); }
+      const reco::Track      *track()    const { return track_.get(); }
+      const mitedm::TrackPtr &trackPtr() const { return track_; }
+      double                  charge()   const { return track()->charge(); }
 
     private:
-      reco::TrackRef        track_;
+      mitedm::TrackPtr        track_;
   };
 }
 #endif
