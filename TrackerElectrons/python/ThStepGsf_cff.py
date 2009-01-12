@@ -34,17 +34,32 @@ thCkfTrajectoryFilterGsf.filterPset.maxLostHits = 0
 thCkfTrajectoryFilterGsf.filterPset.minimumNumberOfHits = 3
 thCkfTrajectoryFilterGsf.filterPset.minPt = 0.3
 
+# #TRAJECTORY BUILDER
+# thCkfTrajectoryBuilderGsf = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+# import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+# thCkfTrajectoryBuilderGsf.ComponentName = 'thCkfTrajectoryBuilderGsf'
+# thCkfTrajectoryBuilderGsf.MeasurementTrackerName = 'thMeasurementTrackerGsf'
+# thCkfTrajectoryBuilderGsf.trajectoryFilterName = 'thCkfTrajectoryFilterGsf'
+# 
+# 
+# #TRACK CANDIDATES
+# thTrackCandidatesGsf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+# import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+# thTrackCandidatesGsf.SeedProducer = 'thPLSeedsGsf'
+# thTrackCandidatesGsf.TrajectoryBuilder = 'thCkfTrajectoryBuilderGsf'
+# thTrackCandidatesGsf.doSeedingRegionRebuilding = True
+# thTrackCandidatesGsf.useHitsSplitting = True
+
+import RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff
 #TRAJECTORY BUILDER
-thCkfTrajectoryBuilderGsf = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+thCkfTrajectoryBuilderGsf = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.TrajectoryBuilderForPixelMatchGsfElectrons.clone()
 thCkfTrajectoryBuilderGsf.ComponentName = 'thCkfTrajectoryBuilderGsf'
 thCkfTrajectoryBuilderGsf.MeasurementTrackerName = 'thMeasurementTrackerGsf'
 thCkfTrajectoryBuilderGsf.trajectoryFilterName = 'thCkfTrajectoryFilterGsf'
 
 
 #TRACK CANDIDATES
-thTrackCandidatesGsf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+thTrackCandidatesGsf = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.egammaCkfTrackCandidates.clone()
 thTrackCandidatesGsf.SeedProducer = 'thPLSeedsGsf'
 thTrackCandidatesGsf.TrajectoryBuilder = 'thCkfTrajectoryBuilderGsf'
 thTrackCandidatesGsf.doSeedingRegionRebuilding = True

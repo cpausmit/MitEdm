@@ -1,9 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
+import RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff
+
+TrajectoryBuilderForGeneralGsfTracks = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.TrajectoryBuilderForPixelMatchGsfElectrons.clone()
+TrajectoryBuilderForGeneralGsfTracks.ComponentName = 'TrajectoryBuilderForGeneralGsfTracks'
+TrajectoryBuilderForGeneralGsfTracks.trajectoryFilterName = 'newTrajectoryFilter'
+# TrajectoryBuilderForGeneralGsfTracks.trajectoryFilterName = 'TrajectoryFilterForGeneralGsfTracks'
+
+# TrajectoryFilterForGeneralGsfTracks = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.TrajectoryFilterForPixelMatchGsfElectrons.clone()
+# TrajectoryFilterForGeneralGsfTracks.ComponentName = 'TrajectoryFilterForGeneralGsfTracks'
+# TrajectoryFilterForGeneralGsfTracks.filterPset.minPt = 0.0
+# TrajectoryFilterForGeneralGsfTracks.filterPset.minPt.nSigmaMinPt = 0.0
+
+newTrackCandidateMakerGsf = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.egammaCkfTrackCandidates.clone()
+newTrackCandidateMakerGsf.TrajectoryBuilder = 'TrajectoryBuilderForGeneralGsfTracks'
+newTrackCandidateMakerGsf.SeedProducer = 'newCombinedSeeds'
+
+
 #normal iterative tracking procedure reimplemented using gsf fits for all tracks
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
 preFilterFirstStepTracksGsf = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
-preFilterFirstStepTracksGsf.src = 'newTrackCandidateMaker'
+preFilterFirstStepTracksGsf.src = 'newTrackCandidateMakerGsf'
 preFilterFirstStepTracksGsf.TrajectoryInEvent = True
 
 from MitEdm.TrackerElectrons.iterativeTkGsf_cff import *
@@ -68,7 +85,7 @@ eidLikelihoodExtGsf.src = cms.InputTag("globalGeneralGsfElectrons")
 
 generalGsfElectronId = cms.Sequence(eidRobustLooseGsf*eidRobustTightGsf*eidLooseGsf*eidTightGsf*eidNeuralNetGsf*eidLikelihoodExtGsf)
 
-generalGsfTracking = cms.Sequence(preFilterFirstStepTracksGsf*iterTrackingGsf*trackCollectionMergingGsf*
+generalGsfTracking = cms.Sequence(newTrackCandidateMakerGsf*preFilterFirstStepTracksGsf*iterTrackingGsf*trackCollectionMergingGsf*
                                   gsfMcMatch*generalGsfTrackAssociator*
                                   globalGeneralGsfElectrons*generalGsfElectronsIso*generalGsfElectronId)
 

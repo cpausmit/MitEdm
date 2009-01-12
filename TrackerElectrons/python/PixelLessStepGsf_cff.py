@@ -48,17 +48,30 @@ fourthCkfTrajectoryFilterGsf.filterPset.maxLostHits = 0
 fourthCkfTrajectoryFilterGsf.filterPset.minimumNumberOfHits = 5
 fourthCkfTrajectoryFilterGsf.filterPset.minPt = 0.3
 
+# #TRAJECTORY BUILDER
+# fourthCkfTrajectoryBuilderGsf = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+# import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+# fourthCkfTrajectoryBuilderGsf.ComponentName = 'fourthCkfTrajectoryBuilderGsf'
+# fourthCkfTrajectoryBuilderGsf.MeasurementTrackerName = 'fourthMeasurementTrackerGsf'
+# fourthCkfTrajectoryBuilderGsf.trajectoryFilterName = 'fourthCkfTrajectoryFilterGsf'
+# 
+# 
+# #TRACK CANDIDATES
+# fourthTrackCandidatesGsf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+# import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+# fourthTrackCandidatesGsf.SeedProducer = 'fourthPLSeedsGsf'
+# fourthTrackCandidatesGsf.TrajectoryBuilder = 'fourthCkfTrajectoryBuilderGsf'
+
+import RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff
 #TRAJECTORY BUILDER
-fourthCkfTrajectoryBuilderGsf = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+fourthCkfTrajectoryBuilderGsf = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.TrajectoryBuilderForPixelMatchGsfElectrons.clone()
 fourthCkfTrajectoryBuilderGsf.ComponentName = 'fourthCkfTrajectoryBuilderGsf'
 fourthCkfTrajectoryBuilderGsf.MeasurementTrackerName = 'fourthMeasurementTrackerGsf'
 fourthCkfTrajectoryBuilderGsf.trajectoryFilterName = 'fourthCkfTrajectoryFilterGsf'
 
 
 #TRACK CANDIDATES
-fourthTrackCandidatesGsf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+fourthTrackCandidatesGsf = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.egammaCkfTrackCandidates.clone()
 fourthTrackCandidatesGsf.SeedProducer = 'fourthPLSeedsGsf'
 fourthTrackCandidatesGsf.TrajectoryBuilder = 'fourthCkfTrajectoryBuilderGsf'
 
