@@ -1,4 +1,4 @@
-// $Id: HitDropper.cc,v 1.1 2008/10/13 10:39:23 bendavid Exp $
+// $Id: HitDropper.cc,v 1.2 2008/10/16 16:44:52 bendavid Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -25,7 +25,9 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
   int nHits = 0;
   for (uint hi=0; hi<tTrack->recHitsSize(); ++hi) {
     const TrackingRecHit *hit = tTrack->recHit(hi).get();
-    const GeomDet *det = trackerGeo_->idToDet(hit->geographicalId());
+    DetId geoId = hit->geographicalId();
+    if(geoId == uint32_t(0)) continue;
+    const GeomDet *det = trackerGeo_->idToDet(geoId);
   
     HelixArbitraryPlaneCrossing crossing(HelixPlaneCrossing::PositionType(vtxTSCP.theState().position()),
                                          HelixPlaneCrossing::DirectionType(vtxTSCP.theState().momentum()),
@@ -77,7 +79,9 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
   int nHits = 0;
   for (uint hi=0; hi<track->recHitsSize(); ++hi) {
     const TrackingRecHit *hit = track->recHit(hi).get();
-    const GeomDet *det = trackerGeo_->idToDet(hit->geographicalId());
+    DetId geoId = hit->geographicalId();
+    if(geoId == uint32_t(0)) continue;
+    const GeomDet *det = trackerGeo_->idToDet(geoId);
     
     //calculate intersection of straight line with plane
     const StraightLinePlaneCrossing::PositionType crossPosition = crossing.position(det->surface()).second;
