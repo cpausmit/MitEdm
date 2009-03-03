@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerV2SS.h,v 1.5 2008/09/30 08:51:29 mrudolph Exp $
+// $Id: ProducerV2SS.h,v 1.6 2008/10/03 23:53:50 loizides Exp $
 //
 // ProducerV2SS
 //
@@ -28,6 +28,7 @@ namespace mitedm
     double massMin_;
     double massMax_;
     double dZMax_;
+    bool   useHitDropper_;
   };
 }
 #endif

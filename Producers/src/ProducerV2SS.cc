@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.9 2008/11/03 16:03:21 bendavid Exp $
+// $Id: ProducerV2SS.cc,v 1.10 2008/11/13 17:08:31 paus Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -25,7 +25,8 @@ ProducerV2SS::ProducerV2SS(const ParameterSet& cfg) :
   rhoMin_     (cfg.getUntrackedParameter<double>("minRadius",   0.0)),
   massMin_    (cfg.getUntrackedParameter<double>("minMass",     0.0)),
   massMax_    (cfg.getUntrackedParameter<double>("maxMass",     3.0)),
-  dZMax_      (cfg.getUntrackedParameter<double>("maxZDistance",5.0))
+  dZMax_      (cfg.getUntrackedParameter<double>("maxZDistance",5.0)),
+  useHitDropper_(cfg.getUntrackedParameter<bool>("useHitDropper",true))
 {
 }
 
@@ -60,8 +61,11 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   
   //get hit dropper
   ESHandle<HitDropper> hDropper;
-  setup.get<HitDropperRecord>().get("HitDropper",hDropper);
-  const HitDropper *dropper = hDropper.product();
+  const HitDropper *dropper = 0;
+  if (useHitDropper_) {
+    setup.get<HitDropperRecord>().get("HitDropper",hDropper);
+    dropper = hDropper.product();
+  }
 
   // -----------------------------------------------------------------------------------------------
   // Simple double loop
@@ -178,13 +182,15 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 				  fit.getTrackP4(2).pz());
         
         //build corrected HitPattern for StableData, removing hits before the fit vertex
-        reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
-        reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
-        
-        c1.SetHits(hits1);
-        c2.SetHits(hits2);
-        c1.SetHitsFilled();
-        c2.SetHitsFilled();
+        if (useHitDropper_) {
+          reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
+          reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
+          
+          c1.SetHits(hits1);
+          c2.SetHits(hits2);
+          c1.SetHitsFilled();
+          c2.SetHitsFilled();
+        }
         
         d->addStableChild    (c1);
         d->addStableChild    (c2);               
