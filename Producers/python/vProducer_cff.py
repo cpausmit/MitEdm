@@ -1,4 +1,4 @@
-# $Id: vProducer_cff.py,v 1.4 2008/10/03 23:53:51 loizides Exp $
+# $Id: vProducer_cff.py,v 1.5 2008/11/03 13:44:42 mrudolph Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,7 +8,7 @@ from Configuration.StandardSequences.Services_cff import *
 from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.MagneticField_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = "IDEAL_V9::All"
+GlobalTag.globaltag = "IDEAL_V11::All"
 
 PisStable = MitEdm.Producers.stableParts_cfi.stableParts.clone()
 
