@@ -1,4 +1,4 @@
-# $Id: vProducer_cff.py,v 1.5 2008/11/03 13:44:42 mrudolph Exp $
+# $Id: vProducer_cff.py,v 1.6 2009/03/11 18:13:51 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ GlobalTag.globaltag = "IDEAL_V11::All"
 
 PisStable = MitEdm.Producers.stableParts_cfi.stableParts.clone()
 
-from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
 
 ProtonPropagator = TrackingTools.MaterialEffects.RungeKuttaTrackerPropagator_cfi.RungeKuttaTrackerPropagator.clone()
 ProtonPropagator.ComponentName = cms.string('ProtonPropagator')
