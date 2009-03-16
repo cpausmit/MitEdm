@@ -1,4 +1,4 @@
-# $Id: vProducerNoRefit_cff.py,v 1.4 2009/03/03 21:31:08 bendavid Exp $
+# $Id: vProducerNoRefit_cff.py,v 1.5 2009/03/16 08:30:51 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,8 +21,6 @@ Lambda2ProtPi.maxMass = cms.untracked.double(1.3)
 Lambda2ProtPi.useHitDropper = cms.untracked.bool(False)
 
 FillKsh = cms.EDAnalyzer("FillMitTree",
-    defactive = cms.untracked.bool(False),
-
     fillerOrder = cms.untracked.vstring('StableParts',
                                         'DecayParts'),
 
@@ -36,27 +34,25 @@ FillKsh = cms.EDAnalyzer("FillMitTree",
     ),
 
     DecayParts = cms.untracked.PSet(
-        active       = cms.untracked.bool(True),
-        mitName      = cms.untracked.string('Ksh2PiPi'),
-        edmName      = cms.untracked.string('Ksh2PiPi'),
+        active = cms.untracked.bool(True),
+        mitName = cms.untracked.string('Ksh2PiPi'),
+        edmName = cms.untracked.string('Ksh2PiPi'),
         basePartMaps = cms.untracked.vstring('PisStableMapName'),
         fillerType   = cms.untracked.string('FillerDecayParts')
     )
 )
 
 FillLambda = cms.EDAnalyzer("FillMitTree",
-    defactive = cms.untracked.bool(False),
-
     fillerOrder = cms.untracked.vstring('StableParts',
                                         'DecayParts'),
 
     StableParts = cms.untracked.PSet(
-        active       = cms.untracked.bool(True),
-        mitName      = cms.untracked.string('ProtonsStable'),
-        edmName      = cms.untracked.string('ProtonsStable'),
-        trackMapName = cms.untracked.string('TracksMapName'),
-        basePartMap  = cms.untracked.string('ProtonsStableMapName'),
-        fillerType   = cms.untracked.string('FillerStableParts')
+        active      = cms.untracked.bool(True),
+        mitName     = cms.untracked.string('ProtonsStable'),
+        edmName     = cms.untracked.string('ProtonsStable'),
+        trackMapName= cms.untracked.string('TracksMapName'),
+        basePartMap = cms.untracked.string('ProtonsStableMapName'),
+        fillerType  = cms.untracked.string('FillerStableParts')
     ),
 
     DecayParts = cms.untracked.PSet(

@@ -1,4 +1,4 @@
-# $Id: vProducer_cff.py,v 1.7 2009/03/13 21:00:54 loizides Exp $
+# $Id: conversionProducerGsf_cff.py,v 1.2 2009/03/16 08:30:51 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,8 +20,6 @@ mvfConversionsGsf.iStables2 = 'stablePartsGsf'
 conversionProducerGsf = cms.Sequence(stablePartsGsf*mvfConversionsGsf)
 
 conversionFillerGsf = cms.EDAnalyzer("FillMitTree",
-    defactive = cms.untracked.bool(False),
-
     fillerOrder = cms.untracked.vstring('StableParts',
                                         'DecayParts'),
     

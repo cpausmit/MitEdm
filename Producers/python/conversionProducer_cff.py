@@ -1,4 +1,4 @@
-# $Id: vProducer_cff.py,v 1.7 2009/03/13 21:00:54 loizides Exp $
+# $Id: conversionProducer_cff.py,v 1.6 2009/03/16 08:30:51 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -15,8 +15,6 @@ mvfConversions.rhoMin = 0.9
 conversionProducer = cms.Sequence(stableParts*mvfConversions)
 
 conversionFiller = cms.EDAnalyzer("FillMitTree",
-    defactive = cms.untracked.bool(False),
-    
     fillerOrder = cms.untracked.vstring('StableParts',
                                         'DecayParts'),
 
