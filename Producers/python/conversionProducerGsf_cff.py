@@ -1,3 +1,5 @@
+# $Id: vProducer_cff.py,v 1.7 2009/03/13 21:00:54 loizides Exp $
+
 import FWCore.ParameterSet.Config as cms
 
 from MitEdm.Producers.HitDropper_cfi import *
@@ -19,13 +21,17 @@ conversionProducerGsf = cms.Sequence(stablePartsGsf*mvfConversionsGsf)
 
 conversionFillerGsf = cms.EDAnalyzer("FillMitTree",
     defactive = cms.untracked.bool(False),
+
+    fillerOrder = cms.untracked.vstring('StableParts',
+                                        'DecayParts'),
     
     StableParts = cms.untracked.PSet(
       active       = cms.untracked.bool(True),
       mitName      = cms.untracked.string('ElectronsStableGsf'),
       edmName      = cms.untracked.string('stablePartsGsf'),
       trackMapName = cms.untracked.string('GeneralGsfTracksMapName'),
-      basePartMap  = cms.untracked.string('ElectronsStableGsfMapName')
+      basePartMap  = cms.untracked.string('ElectronsStableGsfMapName'),
+      fillerType   = cms.untracked.string('FillerStableParts')
     ),
 
     DecayParts = cms.untracked.PSet(
@@ -33,6 +39,7 @@ conversionFillerGsf = cms.EDAnalyzer("FillMitTree",
       mitName      = cms.untracked.string('MvfConversionsGsf'),
       edmName      = cms.untracked.string('mvfConversionsGsf'),
       vertexMap    = cms.untracked.string('PrimaryVertexBSMap'),
-      basePartMaps = cms.untracked.vstring('ElectronsStableGsfMapName')
+      basePartMaps = cms.untracked.vstring('ElectronsStableGsfMapName'),
+      fillerType   = cms.untracked.string('FillerDecayParts')
     )
 )
