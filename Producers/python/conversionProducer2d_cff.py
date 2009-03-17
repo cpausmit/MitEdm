@@ -1,4 +1,4 @@
-# $Id: conversionProducer2d_cff.py,v 1.2 2009/03/16 08:30:51 loizides Exp $
+# $Id: conversionProducer2d_cff.py,v 1.3 2009/03/16 22:32:44 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -17,7 +17,7 @@ mvfConversions2d.convConstraint = True
 conversionProducer2d = cms.Sequence(mvfConversions2d)
 
 conversionFiller2d = cms.EDAnalyzer("FillMitTree",
-    fillerOrder = cms.untracked.vstring('DecayParts'),
+    fillers = cms.untracked.vstring('DecayParts'),
 
     DecayParts = cms.untracked.PSet(
       active       = cms.untracked.bool(True),

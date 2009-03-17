@@ -1,4 +1,4 @@
-# $Id: vProducer_cff.py,v 1.7 2009/03/13 21:00:54 loizides Exp $
+# $Id: conversionProducerUnconstrained_cff.py,v 1.2 2009/03/16 08:30:51 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -16,9 +16,7 @@ mvfConversionsUnconstrained.convConstraint3D = False
 conversionProducerUnconstrained = cms.Sequence(mvfConversionsUnconstrained)
 
 conversionFillerUnconstrained = cms.EDAnalyzer("FillMitTree",
-    defactive = cms.untracked.bool(False),
-
-    fillerOrder = cms.untracked.vstring('DecayParts'),
+    fillers = cms.untracked.vstring('DecayParts'),
 
     DecayParts = cms.untracked.PSet(
       active       = cms.untracked.bool(True),

@@ -1,4 +1,4 @@
-# $Id: vProducerNoRefit_cff.py,v 1.5 2009/03/16 08:30:51 loizides Exp $
+# $Id: vProducerNoRefit_cff.py,v 1.6 2009/03/16 22:32:45 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,8 +21,8 @@ Lambda2ProtPi.maxMass = cms.untracked.double(1.3)
 Lambda2ProtPi.useHitDropper = cms.untracked.bool(False)
 
 FillKsh = cms.EDAnalyzer("FillMitTree",
-    fillerOrder = cms.untracked.vstring('StableParts',
-                                        'DecayParts'),
+    fillers = cms.untracked.vstring('StableParts',
+                                    'DecayParts'),
 
     StableParts = cms.untracked.PSet(
         active       = cms.untracked.bool(True),
@@ -43,8 +43,8 @@ FillKsh = cms.EDAnalyzer("FillMitTree",
 )
 
 FillLambda = cms.EDAnalyzer("FillMitTree",
-    fillerOrder = cms.untracked.vstring('StableParts',
-                                        'DecayParts'),
+    fillers = cms.untracked.vstring('StableParts',
+                                    'DecayParts'),
 
     StableParts = cms.untracked.PSet(
         active      = cms.untracked.bool(True),
