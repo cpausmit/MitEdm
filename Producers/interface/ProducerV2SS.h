@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerV2SS.h,v 1.6 2008/10/03 23:53:50 loizides Exp $
+// $Id: ProducerV2SS.h,v 1.7 2009/03/03 21:31:08 bendavid Exp $
 //
 // ProducerV2SS
 //
@@ -24,11 +24,11 @@ namespace mitedm
   protected:
     virtual void produce (edm::Event&, const edm::EventSetup&);
 
-    double rhoMin_;
-    double massMin_;
-    double massMax_;
-    double dZMax_;
-    bool   useHitDropper_;
+    double rhoMin_;         //minimum conversion radius
+    double massMin_;        //minimum mass
+    double massMax_;        //maximum mass
+    double dZMax_;          //maximum dZ0
+    bool   useHitDropper_;  //=true if hit dropper is to be used
   };
 }
 #endif

@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropperESProducer.h,v 1.1 2008/09/27 05:48:25 loizides Exp $
+// $Id: HitDropperESProducer.h,v 1.1 2008/10/13 10:39:23 bendavid Exp $
 //
 // HitDropperESProducer
 //
-// Produces HitDropper helper class for dropping hits from tracks after vertex fit
+// Produces HitDropper helper class for dropping hits from tracks after vertex fit.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -27,9 +27,8 @@ namespace mitedm {
     virtual ~HitDropperESProducer(); 
     boost::shared_ptr<HitDropper> produce(const HitDropperRecord &);
   private:
-    boost::shared_ptr<HitDropper> _dropper;
-    edm::ParameterSet pset_;
+    boost::shared_ptr<HitDropper> _dropper; //hit dropper
+    edm::ParameterSet              pset_;   //pset
   };
-
 }
 #endif

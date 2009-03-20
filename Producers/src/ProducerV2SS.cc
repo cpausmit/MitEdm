@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.10 2008/11/13 17:08:31 paus Exp $
+// $Id: ProducerV2SS.cc,v 1.11 2009/03/03 21:31:08 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -28,17 +28,20 @@ ProducerV2SS::ProducerV2SS(const ParameterSet& cfg) :
   dZMax_      (cfg.getUntrackedParameter<double>("maxZDistance",5.0)),
   useHitDropper_(cfg.getUntrackedParameter<bool>("useHitDropper",true))
 {
+  // Constructor.
 }
 
 //--------------------------------------------------------------------------------------------------
 ProducerV2SS::~ProducerV2SS()
 {
+  // Destructor.
 }
 
 //--------------------------------------------------------------------------------------------------
 void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 {
-  // Create the output collection
+  // Produce the output collection.
+
   auto_ptr<DecayPartCol> pD(new DecayPartCol());
 
   // First input collection
@@ -90,7 +93,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 
       if(s1.charge() + s2.charge() != 0) continue;
 
-      //Do fast helix fit to check if there's any hope
+      // do fast helix fit to check if there's any hope
       const reco::Track * t1 = s1.track();
       const reco::Track * t2 = s2.track();
       HisInterface            hisInt(t1,t2);
@@ -119,7 +122,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 
       double mass0 = sqrt(sum.M2());
 
-      //Basic cuts on helix intersection
+      // Basic cuts on helix intersection
       if(mass0 > massMax_ || mass0<massMin_ || fabs(dZ0) > dZMax_ || dR0 < rhoMin_) continue;
 
       // -------------------------------------------------------------------------------------------
@@ -183,8 +186,16 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         
         //build corrected HitPattern for StableData, removing hits before the fit vertex
         if (useHitDropper_) {
-          reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
-          reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
+          reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), 
+                                                          vtxPos, 
+                                                          trkMom1, 
+                                                          dlErr, 
+                                                          dlzErr);
+          reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), 
+                                                          vtxPos, 
+                                                          trkMom2, 
+                                                          dlErr, 
+                                                          dlzErr);
           
           c1.SetHits(hits1);
           c2.SetHits(hits2);
@@ -209,7 +220,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         d->setDxyToPv        (dxy);
         d->setDxyToPvError   (dxyErr);
 
-	// Put the result into our collection
+	// put the result into our collection
 	pD->push_back(*d);
       }  //done processing fit
     } //end j loop
@@ -224,6 +235,5 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   evt.put(pD);
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(ProducerV2SS);
-

@@ -1,4 +1,4 @@
-// $Id: HitDropperESProducer.cc,v 1.1 2008/10/13 10:39:23 bendavid Exp $
+// $Id: HitDropperESProducer.cc,v 1.2 2008/10/16 16:44:52 bendavid Exp $
 
 #include "MitEdm/Producers/interface/HitDropperESProducer.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
@@ -18,17 +18,27 @@
 using namespace mitedm;
 using namespace edm;
 
-HitDropperESProducer::HitDropperESProducer(const edm::ParameterSet & p) 
+//--------------------------------------------------------------------------------------------------
+HitDropperESProducer::HitDropperESProducer(const edm::ParameterSet &p) 
 {
+  // Constructor.
+
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
   setWhatProduced(this,myname);
 }
 
-HitDropperESProducer::~HitDropperESProducer() {}
+//--------------------------------------------------------------------------------------------------
+HitDropperESProducer::~HitDropperESProducer() 
+{
+  // Destructor.
+}
 
+//--------------------------------------------------------------------------------------------------
 boost::shared_ptr<HitDropper> 
-HitDropperESProducer::produce(const HitDropperRecord & iRecord){ 
+HitDropperESProducer::produce(const HitDropperRecord &iRecord)
+{ 
+  // Create hit dropper object.
 
   //get tracker geometry
   edm::ESHandle<TrackerGeometry> hTracker;
@@ -46,8 +56,7 @@ HitDropperESProducer::produce(const HitDropperRecord & iRecord){
   const GeometricSearchTracker *trackerSearch = hTrackerSearch.product();
   
   _dropper  = boost::shared_ptr<HitDropper>(
-        new HitDropper(trackerGeo, builder, trackerSearch));
+    new HitDropper(trackerGeo, builder, trackerSearch));
         
   return _dropper;
-
 }

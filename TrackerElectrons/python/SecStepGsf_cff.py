@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: SecStepGsf_cff.py,v 1.3 2009/03/20 17:18:39 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,9 +20,7 @@ secStripRecHitsGsf = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConver
 secPixelRecHitsGsf.src = cms.InputTag("secClustersGsf")
 secStripRecHitsGsf.ClusterProducer = 'secClustersGsf'
 
-
 # seeding
-
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 seclayertripletsGsf = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone()
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi
@@ -34,7 +32,6 @@ seclayertripletsGsf.FPix.HitProducer = 'secPixelRecHitsGsf'
 secTripletsGsf.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
 secTripletsGsf.OrderedHitsFactoryPSet.SeedingLayers = 'SecLayerTripletsGsf'
 secTripletsGsf.RegionFactoryPSet.RegionPSet.ptMin = 0.3
-
 
 # building 
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
@@ -65,7 +62,6 @@ secTrackCandidatesGsf.SeedProducer = 'secTripletsGsf'
 secTrackCandidatesGsf.TrajectoryBuilder = 'secCkfTrajectoryBuilderGsf'
 secTrackCandidatesGsf.doSeedingRegionRebuilding = True
 secTrackCandidatesGsf.useHitsSplitting = True
-
 
 # fitting
 import TrackingTools.GsfTracking.GsfElectronFit_cfi

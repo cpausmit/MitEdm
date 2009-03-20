@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.12 2008/11/14 13:32:48 paus Exp $
+// $Id: ProducerConversions.cc,v 1.13 2008/11/14 16:25:43 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -196,8 +196,12 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         StableData c2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz(), ptr2);
         
         const ThreeVector vtxPos = fit.getVertex(MultiVertexFitterD::VERTEX_1);
-        const ThreeVector trkMom1(fit.getTrackP4(1).px(),fit.getTrackP4(1).py(), fit.getTrackP4(1).pz());
-        const ThreeVector trkMom2(fit.getTrackP4(2).px(),fit.getTrackP4(2).py(), fit.getTrackP4(2).pz());
+        const ThreeVector trkMom1(fit.getTrackP4(1).px(),
+                                  fit.getTrackP4(1).py(), 
+                                  fit.getTrackP4(1).pz());
+        const ThreeVector trkMom2(fit.getTrackP4(2).px(),
+                                  fit.getTrackP4(2).py(), 
+                                  fit.getTrackP4(2).pz());
         
         // Build corrected HitPattern for StableData, removing hits before the fit vertex
         reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);

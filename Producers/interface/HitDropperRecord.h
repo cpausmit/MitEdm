@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropperRecord.h,v 1.1 2008/10/13 10:39:23 bendavid Exp $
+// $Id: HitDropperRecord.h,v 1.2 2008/10/16 16:44:52 bendavid Exp $
 //
 // HitDropperRecord
 //
-// Event record for HitDropper class
+// Event record for HitDropper class.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@
 
 namespace mitedm {
   class HitDropperRecord : public edm::eventsetup::DependentRecordImplementation<HitDropperRecord,
-    boost::mpl::vector<TrackerDigiGeometryRecord, TransientTrackRecord,
-                        TrackerRecoGeometryRecord> > {};
+                           boost::mpl::vector<TrackerDigiGeometryRecord, TransientTrackRecord,
+                           TrackerRecoGeometryRecord> > {};
 }
 #endif

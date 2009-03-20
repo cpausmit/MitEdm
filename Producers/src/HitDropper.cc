@@ -1,4 +1,4 @@
-// $Id: HitDropper.cc,v 1.2 2008/10/16 16:44:52 bendavid Exp $
+// $Id: HitDropper.cc,v 1.3 2009/02/06 16:08:44 mrudolph Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -11,12 +11,12 @@ using namespace mitedm;
 
 //--------------------------------------------------------------------------------------------------
 reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
-                                      const ThreeVector &vtxPos) const
+                                           const ThreeVector &vtxPos) const
 {
-  //return reco::HitPattern structure for the given track with all hits occuring before vtxPos
-  //on the track (relative to the primary vertex if given) removed
-  //This version of the function uses an iterative helix-plane intersector and does not (yet)
-  //take into account the uncertainties in vertex position
+  // Return reco::HitPattern structure for the given track with all hits occuring before vtxPos
+  // on the track (relative to the primary vertex if given) removed.
+  // This version of the function uses an iterative helix-plane intersector and does not (yet)
+  // take into account the uncertainties in vertex position.
 
   const GlobalPoint vtxPoint(vtxPos.x(),vtxPos.y(),vtxPos.z());
   const TrajectoryStateClosestToPoint vtxTSCP = tTrack->trajectoryStateClosestToPoint(vtxPoint);
@@ -47,9 +47,9 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
 
 //--------------------------------------------------------------------------------------------------
 reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
-                                      const ThreeVector &vtxPos) const
+                                           const ThreeVector &vtxPos) const
 {
-  //build the transient track and then return the corrected HitPattern
+  // Build the transient track and then return the corrected HitPattern.
 
   reco::TransientTrack tTrack = builder_->build(track);
   return CorrectedHits(&tTrack, vtxPos);
@@ -57,18 +57,17 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
 
 //--------------------------------------------------------------------------------------------------
 reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
-                                      const ThreeVector &vtxPos,
-                                      const ThreeVector &trkMom,
-                                      Double_t lxyError,
-                                      Double_t lzError,
-                                      Double_t sigmaTolerance) const
+                                           const ThreeVector &vtxPos,
+                                           const ThreeVector &trkMom,
+                                           Double_t lxyError,
+                                           Double_t lzError,
+                                           Double_t sigmaTolerance) const
 {
-
-  //return reco::HitPattern structure for the given track with all hits occuring before vtxPos
-  //on the track (relative to the primary vertex if given) removed
-  //This version of the function determines this completely analytically, and taking the
-  //vertex position uncertainty into account, which might be important for particles which decay
-  //within a tracker layer
+  // Return reco::HitPattern structure for the given track with all hits occuring before vtxPos
+  // on the track (relative to the primary vertex if given) removed.
+  // This version of the function determines this completely analytically, and taking the
+  // vertex position uncertainty into account, which might be important for particles which decay
+  // within a tracker layer.
 
   const StraightLinePlaneCrossing::PositionType vtxPosition(vtxPos);
   const StraightLinePlaneCrossing::DirectionType trkMomentum(trkMom);
@@ -112,7 +111,5 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
       nHits++;
     } 
   }
-  
   return hitPattern;
-  
 }

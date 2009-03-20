@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseCandidate.h,v 1.4 2008/09/10 03:28:38 loizides Exp $
+// $Id: BaseCandProducer.h,v 1.1 2008/09/27 05:48:25 loizides Exp $
 //
 // BaseCandProducer
 //
@@ -46,7 +46,7 @@ namespace mitedm
   //------------------------------------------------------------------------------------------------
   template <typename TYPE>
   inline bool BaseCandProducer::GetProduct(const std::string edmName, edm::Handle<TYPE> &product,
-					const edm::Event &evt, bool ignore) const
+                                           const edm::Event &evt, bool ignore) const
   {
     // Try to access data collection from EDM file. We check if we really get just one
     // product with the given name. If not we print an error and exit.
