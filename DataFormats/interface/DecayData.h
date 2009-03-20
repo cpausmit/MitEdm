@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayData.h,v 1.1 2008/09/30 12:57:42 bendavid Exp $
+// $Id: DecayData.h,v 1.2 2008/10/03 23:53:46 loizides Exp $
 //
 // DecayData
 //
@@ -28,8 +28,8 @@ namespace mitedm
         lz_(0),
         lzErr_(0) {}
 
-      DecayData(FourVector32 &p4, float massErr, float lxy, float lxyErr, float dxy,
-                                  float dxyErr, float lz, float lzErr,
+      DecayData(FourVector32 &p4, double massErr, double lxy, double lxyErr, double dxy,
+                                  double dxyErr, double lz, double lzErr,
                                   BasePartPtr decay) :
         DaughterData(decay),
         p4_(p4),
@@ -44,24 +44,23 @@ namespace mitedm
       ~DecayData() {}
         
       const FourVector32 &p4()      const { return p4_; }
-      float               massErr() const { return massErr_; }
-      float               lxy()     const { return lxy_; }
-      float               lxyErr()  const { return lxyErr_; }
-      float               dxy()     const { return dxy_; }
-      float               dxyErr()  const { return dxyErr_; }
-      float               lz()      const { return lz_; }
-      float               lzErr()   const { return lzErr_; }
+      double              massErr() const { return massErr_; }
+      double              lxy()     const { return lxy_; }
+      double              lxyErr()  const { return lxyErr_; }
+      double              dxy()     const { return dxy_; }
+      double              dxyErr()  const { return dxyErr_; }
+      double              lz()      const { return lz_; }
+      double              lzErr()   const { return lzErr_; }
         
     protected:
-      FourVector32    p4_;
-      float           massErr_;
-      float           lxy_;
-      float           lxyErr_;
-      float           dxy_;
-      float           dxyErr_;
-      float           lz_;
-      float           lzErr_;
+      FourVector32        p4_;      //momentum at vertex
+      double              massErr_; //error on mass from fit
+      double              lxy_;     //lxy from fit
+      double              lxyErr_;  //lxy error from fit
+      double              dxy_;     //dxy from fit
+      double              dxyErr_;  //dxy error from fit
+      double              lz_;      //lz from fit
+      double              lzErr_;   //lz error from fit
   };
 }
-
 #endif

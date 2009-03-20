@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TrackParameters.h,v 1.3 2008/09/10 03:28:38 loizides Exp $
+// $Id: TrackParameters.h,v 1.4 2008/09/27 05:48:26 loizides Exp $
 //
 // Description: class TrackParameters
 //
@@ -41,7 +41,6 @@
 namespace mitedm
 {
   enum TrackConvention {   // Define existing track parameter conventions
-
     iCms, 
     iMvf 
   };

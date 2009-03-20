@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: StablePart.h,v 1.6 2008/09/27 05:48:24 loizides Exp $
+// $Id: StablePart.h,v 1.7 2008/12/01 17:25:58 bendavid Exp $
 //
 // StablePart
 //
@@ -36,12 +36,12 @@ namespace mitedm
       void          print(std::ostream &os = std::cout) const;
 
       // Accessors
-      const reco::Track      *track()    const { return track_.get(); }
-      const mitedm::TrackPtr &trackPtr() const { return track_; }
+      const reco::Track      *track()    const { return track_.get();      }
+      const mitedm::TrackPtr &trackPtr() const { return track_;            }
       double                  charge()   const { return track()->charge(); }
 
     private:
-      mitedm::TrackPtr        track_;
+      mitedm::TrackPtr        track_; //ptr to track
   };
 }
 #endif

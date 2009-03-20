@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: BasePartAction.cc,v 1.1 2008/07/29 13:16:22 loizides Exp $
 
 #include "MitEdm/DataFormats/interface/BasePartAction.h"
 #include "MitEdm/DataFormats/interface/BasePart.h"
@@ -9,25 +9,21 @@
 using namespace mitedm;
 
 //------------------------------------------------------------------------------
-// Constructor
-//------------------------------------------------------------------------------
 BasePartAction::BasePartAction(ActionType AType) :
   actionType_(AType),
   level_     (0)
 {
+  // Constructor
 }
 
-//------------------------------------------------------------------------------
-// Destructor
 //------------------------------------------------------------------------------
 BasePartAction::~BasePartAction()
 {
+  // Destructor
 }
 
 //------------------------------------------------------------------------------
-// Handle Generic Particles
-//------------------------------------------------------------------------------
 void BasePartAction::doAction(const BasePart *part)
 {
-  // Just override me
+  // Handle generic particles. Just override this.
 }

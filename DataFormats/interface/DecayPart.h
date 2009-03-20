@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.11 2008/09/30 12:57:42 bendavid Exp $
+// $Id: DecayPart.h,v 1.12 2008/10/03 23:53:46 loizides Exp $
 //
 // DecayPart
 //
@@ -43,17 +43,17 @@ namespace mitedm
     virtual double      charge       () const { return 0.; }
   
     // Extend the particle contents
-    void                addDecayChild  (DecayData &decay) { decayChildren_.push_back(decay); }
+    void                addDecayChild  (DecayData &decay)   { decayChildren_.push_back(decay);   }
     void                addStableChild (StableData &stable) { stableChildren_.push_back(stable); }
   
-    const BasePartPtr   getDaughterPtr(int i) const { return getDaughterData(i).originalPtr(); }
+    const BasePartPtr   getDaughterPtr(int i)  const { return getDaughterData(i).originalPtr(); } 
     
     const DaughterData &getDaughterData(int i) const;
-    const DecayData    &getDecayData  (int i) const { return decayChildren_.at(i); }
-    const StableData   &getStableData (int i) const { return stableChildren_.at(i); }
-    int                 nDecayChild   ()      const { return decayChildren_.size(); }
-    int                 nStableChild  ()      const { return stableChildren_.size(); }
-    int                 nChild        ()      const { return nStableChild() + nDecayChild();  }
+    const DecayData    &getDecayData  (int i)  const { return decayChildren_.at(i);           }
+    const StableData   &getStableData (int i)  const { return stableChildren_.at(i);          }
+    int                 nDecayChild   ()       const { return decayChildren_.size();          }
+    int                 nStableChild  ()       const { return stableChildren_.size();         }
+    int                 nChild        ()       const { return nStableChild() + nDecayChild(); }
   
     virtual void        print        (std::ostream& os = std::cout) const;
   
@@ -144,42 +144,42 @@ namespace mitedm
     
   private:
     // Decay type (either fast of slow)
-    DecayType              decayType_;
+    DecayType              decayType_;        //type of decay
     // Fit quality
-    double                 prob_;
-    double                 chi2_;
-    int                    ndof_;
+    double                 prob_;             //fit probability
+    double                 chi2_;             //chi2 value
+    int                    ndof_;             //degrees of freedom
     // Base vertex fit info
-    double                 fittedMass_;
-    double                 fittedMassError_;
-    double                 normalizedMass_;
-    double                 lxy_;
-    double                 lxyError_;
-    double                 lxyToPv_;
-    double                 lxyToPvError_;
-    double                 dxy_;
-    double                 dxyError_;
-    double                 dxyToPv_;
-    double                 dxyToPvError_;
-    double                 lz_;
-    double                 lzError_;
-    double                 lzToPv_;
-    double                 lzToPvError_;
-    double                 cTau_;
-    double                 cTauError_;
-    double                 pt_;
-    double                 ptError_;
-    FourVector     fourMomentum_;
+    double                 fittedMass_;       //mass from fit
+    double                 fittedMassError_;  //mass error from fit
+    double                 normalizedMass_;   //normalized mass
+    double                 lxy_;              //lxy
+    double                 lxyError_;         //lxy error
+    double                 lxyToPv_;          //lxy wrt primary vertex
+    double                 lxyToPvError_;     //error on  lxy wrt primary vertex
+    double                 dxy_;              //dxy
+    double                 dxyError_;         //dxy error
+    double                 dxyToPv_;          //dxy wrt primary vertex
+    double                 dxyToPvError_;     //error on dxy wrt primary vertex
+    double                 lz_;               //lz
+    double                 lzError_;          //lz error
+    double                 lzToPv_;           //lz wrt primary vertex
+    double                 lzToPvError_;      //error on lz wrt primary vertex
+    double                 cTau_;             //ctau
+    double                 cTauError_;        //error on ctau
+    double                 pt_;               //pt
+    double                 ptError_;          //error on pt
+    FourVector             fourMomentum_;     //momentum at vertex
     // Extended vertex fit info
-    ThreeVector    position_;
-    ThreeSymMatrix error_;
-    SevenSymMatrix bigError_;
-    
-    VertexPtr      primaryVertex_;
+    ThreeVector            position_;         //vertex position
+    ThreeSymMatrix         error_;            //error matrix
+    SevenSymMatrix         bigError_;         //error matrix
+     
+    VertexPtr              primaryVertex_;    //primary vertex
     
     // Contents of the decay
-    std::vector<StableData> stableChildren_;
-    std::vector<DecayData>  decayChildren_;
+    std::vector<StableData> stableChildren_;  //stable daughter
+    std::vector<DecayData>  decayChildren_;   //decay children
   };
 }
 

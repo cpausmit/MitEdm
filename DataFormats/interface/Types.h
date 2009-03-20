@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: Types.h,v 1.7 2008/09/30 12:57:42 bendavid Exp $
+// $Id: Types.h,v 1.8 2008/11/04 19:23:58 bendavid Exp $
 //
 // Types
 //
@@ -28,6 +28,8 @@ namespace mitedm
   
   typedef edm::Ptr<reco::Vertex> VertexPtr;
   typedef edm::Ptr<reco::Track>  TrackPtr;
-  typedef edm::AssociationMap<edm::OneToManyWithQuality<edm::View<reco::Track>, edm::View<reco::Track>, double > > TrackAssociation;
+  typedef edm::AssociationMap<edm::OneToManyWithQuality<edm::View<reco::Track>, 
+                                                        edm::View<reco::Track>, 
+                                                        double > > TrackAssociation;
 }
 #endif

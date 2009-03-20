@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePartFwd.h,v 1.6 2008/09/24 09:47:22 bendavid Exp $
+// $Id: BasePartFwd.h,v 1.7 2008/09/27 05:48:24 loizides Exp $
 //
 // BasePartFwd
 //
-// Edm reference typedefs for BasePart
+// Edm reference typedefs for BasePart.
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------

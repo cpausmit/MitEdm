@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: StableData.h,v 1.3 2008/10/13 10:36:41 bendavid Exp $
+// $Id: StableData.h,v 1.4 2008/11/03 16:03:20 bendavid Exp $
 //
 // StableData
 //
@@ -19,7 +19,7 @@ namespace mitedm
   {
     public:
       StableData() : p3_(0,0,0), hitsFilled_(false) {}
-      StableData(float px, float py, float pz, BasePartPtr stable) :
+      StableData(double px, double py, double pz, BasePartPtr stable) :
         DaughterData(stable),
         p3_(px,py,pz),
         hitsFilled_(false)
@@ -27,17 +27,17 @@ namespace mitedm
         
       ~StableData() {}
     
-      const reco::HitPattern &Hits()    const { return hits_; }
-      bool                    HitsFilled() const { return hitsFilled_; }
-      void                    SetHits(const reco::HitPattern &hits) { hits_=hits; }
-      void                    SetHitsFilled(bool filled=true) { hitsFilled_=filled; }
-      const ThreeVector32    &p3()      const { return p3_; }
-      double                  mass()    const { return originalPart_.get()->mass(); }
+      const reco::HitPattern &Hits()       const { return hits_;                          }
+      bool                    HitsFilled() const { return hitsFilled_;                    }
+      void                    SetHits(const reco::HitPattern &hits) { hits_=hits;         }
+      void                    SetHitsFilled(bool filled=true)       { hitsFilled_=filled; }
+      const ThreeVector32    &p3()         const { return p3_;                            }
+      double                  mass()       const { return originalPart_.get()->mass();    }
       
     protected:
-      ThreeVector32    p3_;
-      reco::HitPattern hits_;
-      bool             hitsFilled_;
+      ThreeVector32    p3_;          //vertex position
+      reco::HitPattern hits_;        //hit pattern
+      bool             hitsFilled_;  //=true if hits are filled
   };
 }
 #endif

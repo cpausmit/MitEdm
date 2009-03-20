@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BasePart.h,v 1.3 2008/08/29 00:27:21 loizides Exp $
+// $Id: BasePart.h,v 1.4 2008/09/27 05:48:24 loizides Exp $
 //
 // BasePart
 //
@@ -40,7 +40,7 @@ namespace mitedm
     virtual const BasePart *getChild(int i)    const { return 0; }
     
   protected: 
-    int                     pid_;
+    int                     pid_; //assumed pid
   };
 }
 
