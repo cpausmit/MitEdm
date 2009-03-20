@@ -1,4 +1,4 @@
-# $Id: conversionProducer2d_cff.py,v 1.3 2009/03/16 22:32:44 bendavid Exp $
+# $Id: conversionProducer2d_cff.py,v 1.4 2009/03/17 14:26:24 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,7 +10,7 @@ from MitEdm.Producers.conversions_cfi import *
 
 mvfConversions2d = mvfConversions.clone()
 
-mvfConversions2d.rhoMin = 1.0
+mvfConversions2d.rhoMin = 0.9
 mvfConversions2d.convConstraint3D = False
 mvfConversions2d.convConstraint = True
 
