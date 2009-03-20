@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 #
@@ -43,5 +45,3 @@ ctfrsTrackListMergerGsf = cms.EDFilter("SimpleTrackListMergerGsf",
     promoteTrackQuality = cms.bool(False),
     newQuality = cms.string('confirmed')
 )
-
-

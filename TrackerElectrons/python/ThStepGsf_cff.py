@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
@@ -7,8 +9,6 @@ import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
 thStripRecHitsGsf = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
 thPixelRecHitsGsf.src = 'thClustersGsf'
 thStripRecHitsGsf.ClusterProducer = 'thClustersGsf'
-
-
 
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
 #SEEDS
@@ -71,7 +71,6 @@ thWithMaterialTracksGsf = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobal
 thWithMaterialTracksGsf.src = 'thTrackCandidatesGsf'
 thWithMaterialTracksGsf.clusterRemovalInfo = cms.InputTag('thClustersGsf')
 thWithMaterialTracksGsf.TrajectoryInEvent = True
-
 
 
 #HIT REMOVAL

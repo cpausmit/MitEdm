@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 import RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff

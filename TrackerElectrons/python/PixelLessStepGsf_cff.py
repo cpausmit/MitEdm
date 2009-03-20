@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 #HIT REMOVAL
@@ -11,7 +13,6 @@ fourthClustersGsf = cms.EDFilter("TrackClusterRemover",
     stripClusters = cms.InputTag("thClustersGsf")
 )
 
-
 #TRACKER HITS
 import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
@@ -19,9 +20,6 @@ fourthPixelRecHitsGsf = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPix
 fourthStripRecHitsGsf = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
 fourthPixelRecHitsGsf.src = 'fourthClustersGsf'
 fourthStripRecHitsGsf.ClusterProducer = 'fourthClustersGsf'
-
-
-
 
 #SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
@@ -31,7 +29,6 @@ fourthPLSeedsGsf.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairsGsf'
 fourthPLSeedsGsf.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 fourthPLSeedsGsf.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 fourthPLSeedsGsf.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-
 
 #TRAJECTORY MEASUREMENT
 fourthMeasurementTrackerGsf = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
