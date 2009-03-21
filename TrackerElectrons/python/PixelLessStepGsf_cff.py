@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: PixelLessStepGsf_cff.py,v 1.3 2009/03/20 17:18:39 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -123,7 +123,7 @@ fourthlayerpairsGsf = cms.ESProducer("PixelLessLayerPairsESProducer",
 #pixellessStep.dz_par2 = ( 1.0, 4.0 )
 
 fourthStepGsf = cms.Sequence(fourthClustersGsf*
-                          fourthPixelRecHitsGsf*fourthStripRecHitsGsf*
-                          fourthPLSeedsGsf*
-                          fourthTrackCandidatesGsf*
-                          fourthWithMaterialTracksGsf)
+                             fourthPixelRecHitsGsf*fourthStripRecHitsGsf*
+                             fourthPLSeedsGsf*
+                             fourthTrackCandidatesGsf*
+                             fourthWithMaterialTracksGsf)

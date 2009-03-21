@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: generalGsfTracking_cfi.py,v 1.3 2009/03/20 17:18:39 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -17,7 +17,6 @@ TrajectoryBuilderForGeneralGsfTracks.trajectoryFilterName = 'newTrajectoryFilter
 newTrackCandidateMakerGsf = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.egammaCkfTrackCandidates.clone()
 newTrackCandidateMakerGsf.TrajectoryBuilder = 'TrajectoryBuilderForGeneralGsfTracks'
 newTrackCandidateMakerGsf.SeedProducer = 'newCombinedSeeds'
-
 
 #normal iterative tracking procedure reimplemented using gsf fits for all tracks
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
@@ -90,5 +89,3 @@ generalGsfElectronId = cms.Sequence(eidRobustLooseGsf*eidRobustTightGsf*eidLoose
 generalGsfTracking = cms.Sequence(newTrackCandidateMakerGsf*preFilterFirstStepTracksGsf*iterTrackingGsf*trackCollectionMergingGsf*
                                   gsfMcMatch*generalGsfTrackAssociator*
                                   globalGeneralGsfElectrons*generalGsfElectronsIso*generalGsfElectronId)
-
-

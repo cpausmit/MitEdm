@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: MergeTrackCollectionsGsf_cff.py,v 1.2 2009/03/20 17:18:39 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -30,5 +30,5 @@ generalTracksGsf.promoteTrackQuality = True
 #generalTracks.promoteTrackQuality = True
 
 trackCollectionMergingGsf = cms.Sequence(merge2nd3rdTracksGsf*
-                                      iterTracksGsf*
-                                      generalTracksGsf)
+                                         iterTracksGsf*
+                                         generalTracksGsf)

@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: ThStepGsf_cff.py,v 1.3 2009/03/20 17:18:39 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -147,8 +147,8 @@ thlayerpairsGsf = cms.ESProducer("MixedLayerPairsESProducer",
 #thStep.TrackProducer2 = 'thStepTrk'
 
 thirdStepGsf = cms.Sequence(thClustersGsf*
-                         thPixelRecHitsGsf*thStripRecHitsGsf*
-                         thPLSeedsGsf*
-                         thTrackCandidatesGsf*
-                         thWithMaterialTracksGsf
-                         )
+                            thPixelRecHitsGsf*thStripRecHitsGsf*
+                            thPLSeedsGsf*
+                            thTrackCandidatesGsf*
+                            thWithMaterialTracksGsf
+                           )
