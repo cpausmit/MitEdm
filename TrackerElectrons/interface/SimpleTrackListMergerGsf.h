@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: SimpleTrackListMergerGsf.h,v 1.1 2008/12/01 18:30:15 bendavid Exp $
+// $Id: SimpleTrackListMergerGsf.h,v 1.2 2009/03/20 17:13:34 loizides Exp $
 //
 // SimpleTrackListMergerGsf
 //
@@ -16,7 +16,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -40,18 +39,18 @@ namespace mitedm
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
-    edm::ParameterSet                            conf_;
-    std::auto_ptr<reco::GsfTrackCollection>      outputTrks;
-    std::auto_ptr<reco::TrackExtraCollection>    outputTrkExtras;
-    std::auto_ptr<reco::GsfTrackExtraCollection> outputGsfTrkExtras;
-    std::auto_ptr< TrackingRecHitCollection>     outputTrkHits;
-    std::auto_ptr< std::vector<Trajectory> >     outputTrajs;
-    reco::GsfTrackRefProd                        refTrks;
-    reco::TrackExtraRefProd                      refTrkExtras;
-    reco::GsfTrackExtraRefProd                   refGsfTrkExtras;
-    TrackingRecHitRefProd                        refTrkHits;
-    edm::RefProd< std::vector<Trajectory> >      refTrajs;
-    std::vector<reco::GsfTrackRef>               trackRefs;
+    edm::ParameterSet                            conf_;               //configuration
+    std::auto_ptr<reco::GsfTrackCollection>      outputTrks_;         //output tracks
+    std::auto_ptr<reco::TrackExtraCollection>    outputTrkExtras_;    //output track extras
+    std::auto_ptr<reco::GsfTrackExtraCollection> outputGsfTrkExtras_; //output gsf tracks
+    std::auto_ptr<TrackingRecHitCollection>      outputTrkHits_;      //output track hits
+    std::auto_ptr<std::vector<Trajectory> >      outputTrajs_;        //output trajectories
+    reco::GsfTrackRefProd                        refTrks_;            //ref tracks
+    reco::TrackExtraRefProd                      refTrkExtras_;       //ref track extras
+    reco::GsfTrackExtraRefProd                   refGsfTrkExtras_;    //ref gsf track extras
+    TrackingRecHitRefProd                        refTrkHits_;         //ref track hits
+    edm::RefProd< std::vector<Trajectory> >      refTrajs_;           //ref trajectories
+    std::vector<reco::GsfTrackRef>               trackRefs_;          //ref gsf tracks
   };
 }
 #endif

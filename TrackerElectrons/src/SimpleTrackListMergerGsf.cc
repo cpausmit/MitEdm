@@ -1,22 +1,18 @@
-// $Id: SimpleTrackListMergerGsf.cc,v 1.1 2008/12/01 18:30:16 bendavid Exp $
+// $Id: SimpleTrackListMergerGsf.cc,v 1.2 2009/03/20 17:13:34 loizides Exp $
 
 #include <memory>
 #include <string>
 #include <iostream>
 #include <cmath>
 #include <vector>
-
 #include "MitEdm/TrackerElectrons/interface/SimpleTrackListMergerGsf.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -36,12 +32,17 @@ SimpleTrackListMergerGsf::SimpleTrackListMergerGsf(edm::ParameterSet const &conf
   produces<std::vector<Trajectory> >();
 }
 
-// Virtual destructor needed.
-SimpleTrackListMergerGsf::~SimpleTrackListMergerGsf() { }  
+//--------------------------------------------------------------------------------------------------
+SimpleTrackListMergerGsf::~SimpleTrackListMergerGsf() 
+{ 
+  // Virtual destructor needed.
+}  
 
-// Functions that gets called by framework every event
+//--------------------------------------------------------------------------------------------------
 void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
 {
+  // Functions that gets called by framework every event.
+
   // retrieve producer name of input GsfTrackCollection(s)
   std::string trackProducer1 = conf_.getParameter<std::string>("TrackProducer1");
   std::string trackProducer2 = conf_.getParameter<std::string>("TrackProducer2");
@@ -110,18 +111,17 @@ void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
   const reco::GsfTrackCollection tC2 = *TC2;
   
   // Step B: create empty output collection
-  outputTrks = std::auto_ptr<reco::GsfTrackCollection>(new reco::GsfTrackCollection);
-  refTrks = e.getRefBeforePut<reco::GsfTrackCollection>();      
+  outputTrks_ = std::auto_ptr<reco::GsfTrackCollection>(new reco::GsfTrackCollection);
+  refTrks_    = e.getRefBeforePut<reco::GsfTrackCollection>();      
   
-  outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
-  outputGsfTrkExtras = 
+  outputTrkExtras_    = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+  outputGsfTrkExtras_ = 
     std::auto_ptr<reco::GsfTrackExtraCollection>(new reco::GsfTrackExtraCollection);
-  refTrkExtras    = e.getRefBeforePut<reco::TrackExtraCollection>();
-  refGsfTrkExtras = e.getRefBeforePut<reco::GsfTrackExtraCollection>();
-  outputTrkHits   = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
-  refTrkHits      = e.getRefBeforePut<TrackingRecHitCollection>();
-  outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
-
+  refTrkExtras_       = e.getRefBeforePut<reco::TrackExtraCollection>();
+  refGsfTrkExtras_    = e.getRefBeforePut<reco::GsfTrackExtraCollection>();
+  outputTrkHits_      = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+  refTrkHits_         = e.getRefBeforePut<TrackingRecHitCollection>();
+  outputTrajs_        =  std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
 
   //
   //  quality cuts first
@@ -451,7 +451,7 @@ void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
   //
   //  output selected tracks - if any
   //
-  trackRefs.resize(tC1.size()+tC2.size());
+  trackRefs_.resize(tC1.size()+tC2.size());
   size_t current = 0;
   
   if (0<tC1.size()) {
@@ -459,41 +459,41 @@ void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
     for (reco::GsfTrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); 
          ++track, ++current, ++i){
       if (!selected1[i]) {
-	trackRefs[current] = reco::GsfTrackRef();
+	trackRefs_[current] = reco::GsfTrackRef();
 	continue;
       }
       const reco::GsfTrack & theTrack = * track;
       //fill the GsfTrackCollection
-      outputTrks->push_back(reco::GsfTrack(theTrack));
+      outputTrks_->push_back(reco::GsfTrack(theTrack));
       if (selected1[i]>1 && promoteQuality){
-	outputTrks->back().setQualityMask(selected1[i]-10);
-	outputTrks->back().setQuality(qualityToSet);
+	outputTrks_->back().setQualityMask(selected1[i]-10);
+	outputTrks_->back().setQuality(qualityToSet);
       }
       // Fill TrackExtra collection
-      outputTrkExtras->push_back(reco::TrackExtra( 
+      outputTrkExtras_->push_back(reco::TrackExtra( 
 		    theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
                     theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
                     theTrack.outerStateCovariance(), theTrack.outerDetId(),
                     theTrack.innerStateCovariance(), theTrack.innerDetId(),
                     theTrack.seedDirection(), theTrack.seedRef()));
-      outputTrks->back().setExtra(reco::TrackExtraRef(refTrkExtras, outputTrkExtras->size() - 1));
+      outputTrks_->back().setExtra(reco::TrackExtraRef(refTrkExtras_, outputTrkExtras_->size() - 1));
 
       // Fill GsfTrackExtra collection
-      outputGsfTrkExtras->push_back(*theTrack.gsfExtra());
-      outputTrks->back().setGsfExtra(reco::GsfTrackExtraRef(refGsfTrkExtras, 
-                                                            outputGsfTrkExtras->size() - 1));
+      outputGsfTrkExtras_->push_back(*theTrack.gsfExtra());
+      outputTrks_->back().setGsfExtra(reco::GsfTrackExtraRef(refGsfTrkExtras_, 
+                                                             outputGsfTrkExtras_->size() - 1));
 
-      reco::TrackExtra & tx = outputTrkExtras->back();
+      reco::TrackExtra & tx = outputTrkExtras_->back();
       // fill TrackingRecHits
       std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
       unsigned nh1 = iHits.size();
       for (unsigned ih=0; ih<nh1; ++ih) { 
 	const TrackingRecHit* hit = iHits[ih];
 	//for(trackingRecHit_iterator hit = itB; hit != itE; ++hit) {
-	outputTrkHits->push_back(hit->clone());
-	tx.add(TrackingRecHitRef(refTrkHits, outputTrkHits->size() - 1));
+	outputTrkHits_->push_back(hit->clone());
+	tx.add(TrackingRecHitRef(refTrkHits_, outputTrkHits_->size() - 1));
       }
-      trackRefs[current] = reco::GsfTrackRef(refTrks, outputTrks->size() - 1);
+      trackRefs_[current] = reco::GsfTrackRef(refTrks_, outputTrks_->size() - 1);
 
     } //end faux loop over tracks
   } //end more than 0 track
@@ -502,12 +502,12 @@ void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
   edm::Handle< std::vector<Trajectory> > hTraj1;
   e.getByLabel(trackProducer1, hTraj1);
  
-  outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
-  refTrajs    = e.getRefBeforePut< std::vector<Trajectory> >();
+  outputTrajs_ = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
+  refTrajs_    = e.getRefBeforePut< std::vector<Trajectory> >();
 
   for (size_t i = 0, n = hTraj1->size(); i < n; ++i) {
     edm::Ref< std::vector<Trajectory> > trajRef(hTraj1, i);
-    outputTrajs->push_back(Trajectory(*trajRef));
+    outputTrajs_->push_back(Trajectory(*trajRef));
   }
 
   if (0<tC2.size()) {
@@ -515,40 +515,40 @@ void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
     for (reco::GsfTrackCollection::const_iterator track=tC2.begin(); track!=tC2.end();
 	 ++track, ++current, ++i){
       if (!selected2[i]){
-	trackRefs[current] = reco::GsfTrackRef();
+	trackRefs_[current] = reco::GsfTrackRef();
 	continue;
       }
       const reco::GsfTrack & theTrack = * track;
       //fill the GsfTrackCollection
-      outputTrks->push_back(reco::GsfTrack(theTrack));
+      outputTrks_->push_back(reco::GsfTrack(theTrack));
       if (selected2[i]>1 && promoteQuality){
-	outputTrks->back().setQualityMask(selected2[i]-10);
-	outputTrks->back().setQuality(qualityToSet);
+	outputTrks_->back().setQualityMask(selected2[i]-10);
+	outputTrks_->back().setQuality(qualityToSet);
       }
       // Fill TrackExtra collection
-      outputTrkExtras->push_back(reco::TrackExtra(
+      outputTrkExtras_->push_back(reco::TrackExtra(
 		    theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
                     theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
                     theTrack.outerStateCovariance(), theTrack.outerDetId(),
                     theTrack.innerStateCovariance(), theTrack.innerDetId(),
                     theTrack.seedDirection(), theTrack.seedRef()));
-      outputTrks->back().setExtra(reco::TrackExtraRef(refTrkExtras, outputTrkExtras->size() - 1));
+      outputTrks_->back().setExtra(reco::TrackExtraRef(refTrkExtras_, outputTrkExtras_->size() - 1));
 
       // Fill GsfTrackExtra collection
-      outputGsfTrkExtras->push_back(*theTrack.gsfExtra());
-      outputTrks->back().setGsfExtra(reco::GsfTrackExtraRef(refGsfTrkExtras, 
-                                                            outputGsfTrkExtras->size() - 1));
+      outputGsfTrkExtras_->push_back(*theTrack.gsfExtra());
+      outputTrks_->back().setGsfExtra(reco::GsfTrackExtraRef(refGsfTrkExtras_, 
+                                                            outputGsfTrkExtras_->size() - 1));
       
-      reco::TrackExtra & tx = outputTrkExtras->back();
+      reco::TrackExtra &tx = outputTrkExtras_->back();
       // fill TrackingRecHits
-      std::vector<const TrackingRecHit*>& jHits = rh2[track]; 
+      std::vector<const TrackingRecHit*> &jHits = rh2[track]; 
       unsigned nh2 = jHits.size();
       for (unsigned jh=0; jh<nh2; ++jh) { 
 	const TrackingRecHit* hit = jHits[jh];
-	outputTrkHits->push_back(hit->clone());
-	tx.add(TrackingRecHitRef(refTrkHits, outputTrkHits->size() - 1));
+	outputTrkHits_->push_back(hit->clone());
+	tx.add(TrackingRecHitRef(refTrkHits_, outputTrkHits_->size() - 1));
       }
-      trackRefs[current] = reco::GsfTrackRef(refTrks, outputTrks->size() - 1);
+      trackRefs_[current] = reco::GsfTrackRef(refTrks_, outputTrks_->size() - 1);
 
     } //end faux loop over tracks
    } //end more than 0 track
@@ -559,14 +559,14 @@ void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
 
   for (size_t i = 0, n = hTraj2->size(); i < n; ++i) {
     edm::Ref< std::vector<Trajectory> > trajRef(hTraj2, i);
-    outputTrajs->push_back(Trajectory(*trajRef));
+    outputTrajs_->push_back(Trajectory(*trajRef));
   }
    
-  e.put(outputTrks);
-  e.put(outputTrkExtras);
-  e.put(outputGsfTrkExtras);
-  e.put(outputTrkHits);
-  e.put(outputTrajs);
+  e.put(outputTrks_);
+  e.put(outputTrkExtras_);
+  e.put(outputGsfTrkExtras_);
+  e.put(outputTrkHits_);
+  e.put(outputTrajs_);
 } //end produce
 
 // Define this as a plug-in
