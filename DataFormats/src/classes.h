@@ -1,13 +1,10 @@
-// $Id: classes.h,v 1.5 2008/07/31 13:29:35 bendavid Exp $
+// $Id: classes.h,v 1.6 2008/11/04 19:25:55 bendavid Exp $
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "MitEdm/DataFormats/interface/BasePart.h"
 #include "MitEdm/DataFormats/interface/BasePartFwd.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
-#include "DataFormats/Common/interface/BaseVectorHolder.h"
 
 namespace
 {

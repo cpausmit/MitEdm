@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.8 2008/10/16 16:44:52 bendavid Exp $
+# $Id: BuildFile,v 1.1 2008/12/01 18:30:15 bendavid Exp $
 
 <use name=root>
 <use name=FWCore/Framework>
@@ -10,6 +10,7 @@
 <use name=RecoTracker/Record>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/GsfTrackReco>
 #<flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
 <export>
