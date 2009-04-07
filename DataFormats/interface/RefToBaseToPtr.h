@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseCandProducer.h,v 1.1 2008/09/27 05:48:25 loizides Exp $
+// $Id: RefToBaseToPtr.h,v 1.2 2009/03/20 18:01:48 loizides Exp $
 //
 // A function template for conversion from RefToBase to Ptr. 
 //
