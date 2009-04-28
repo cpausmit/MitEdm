@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.11 2009/03/03 21:31:08 bendavid Exp $
+// $Id: ProducerV2SS.cc,v 1.12 2009/03/20 18:01:48 loizides Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -222,6 +222,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 
 	// put the result into our collection
 	pD->push_back(*d);
+        delete d;
       }  //done processing fit
     } //end j loop
   } //end i loop
