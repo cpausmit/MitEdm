@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: CollectionsEdm.h,v 1.3 2008/07/31 13:29:35 bendavid Exp $
+// $Id: Collections.h,v 1.1 2008/09/27 05:48:24 loizides Exp $
 //
 // Collections
 //
@@ -18,7 +18,7 @@
 
 namespace mitedm
 {
-  typedef std::vector<BasePart*>        PartColl;
+  typedef std::vector<BasePart*>        PartCol;
   typedef std::vector<StablePart>       StablePartCol;
   typedef std::vector<DecayPart>        DecayPartCol;
 }
