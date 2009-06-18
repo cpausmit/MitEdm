@@ -1,10 +1,10 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.1 2008/12/01 18:30:15 bendavid Exp $
+# $Id: BuildFile,v 1.2 2009/04/06 15:19:38 loizides Exp $
 
 <use name=root>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=TrackingTools/TransientTrack>
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/Record>
