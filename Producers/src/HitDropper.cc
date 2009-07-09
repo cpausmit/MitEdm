@@ -1,10 +1,11 @@
-// $Id: HitDropper.cc,v 1.3 2009/02/06 16:08:44 mrudolph Exp $
+// $Id: HitDropper.cc,v 1.4 2009/03/20 18:01:48 loizides Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLineBarrelCylinderCrossing.h"
 
 using namespace edm;
 using namespace mitedm;
@@ -112,4 +113,85 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
     } 
   }
   return hitPattern;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
+                                           const ThreeVector &vtxPos,
+                                           const ThreeVector &trkMom,
+                                           Double_t lxyError,
+                                           Double_t lzError,
+                                           Double_t sigmaTolerance) const
+{
+  // Return reco::HitPattern structure for the given track with all hits occuring before vtxPos
+  // on the track (relative to the primary vertex if given) removed.
+  // This version of the function determines this completely analytically, and taking the
+  // vertex position uncertainty into account, which might be important for particles which decay
+  // within a tracker layer.
+
+  //This function is not working yet
+  
+  return reco::HitPattern();
+  
+  if (0) {
+  
+    const StraightLinePlaneCrossing::PositionType vtxPosition(vtxPos);
+    const StraightLinePlaneCrossing::DirectionType trkMomentum(trkMom);
+    
+    const GlobalPoint cVtxPosition(vtxPos.x(), vtxPos.y(), vtxPos.z());
+    const GlobalVector cVtxMomentum(trkMom.x(), trkMom.y(), trkMom.z());
+    
+    StraightLinePlaneCrossing planeCrossing(vtxPosition,trkMomentum,anyDirection);
+    StraightLineBarrelCylinderCrossing cylinderCrossing(cVtxPosition,cVtxMomentum,anyDirection);
+    
+    reco::HitPattern hitPattern;
+    int nHits = 0;
+    const reco::HitPattern &inhits = track->hitPattern();
+    for (Int_t hi=0; hi<inhits.numberOfHits(); hi++) {
+      uint32_t hit = inhits.getHitPattern(hi);
+      uint32_t layerid = inhits.getLayer(hit);
+      const DetLayer *det = trackerGeoSearch_->detLayer(layerid);
+      
+      //calculate intersection of straight line with plane
+  //     const StraightLinePlaneCrossing::PositionType crossPosition = crossing.position(det->surface()).second;
+  //     const ThreeVector crossPos(crossPosition.x(), crossPosition.y(), crossPosition.z());
+  //     const ThreeVector delta = crossPos - vtxPos;
+      
+      Double_t lengthOverSigma = 0;
+      
+      //calculate distance between vertex and approximate hit position, projected into
+      //the appropriate plane/axis and compared to the uncertainty in vertex position
+      //in that plane/axis
+      if (det->location()==GeomDetEnumerators::barrel) {
+        const BarrelDetLayer *barrelDet = static_cast<const BarrelDetLayer*>(det);
+        double pathLength = cylinderCrossing.pathLength(barrelDet->specificSurface()).second;
+        const GlobalPoint crossPosition = cylinderCrossing.position(pathLength);
+        const ThreeVector crossPos(crossPosition.x(), crossPosition.y(), crossPosition.z());
+        const ThreeVector delta = crossPos - vtxPos;
+        const ThreeVector trkMomXY(trkMom.x(), trkMom.y(), 0.0);
+        Double_t deltaXY = delta.Dot(trkMomXY)/trkMomXY.R();
+        lengthOverSigma = deltaXY/lxyError;
+      }
+      else if (det->location()==GeomDetEnumerators::endcap) {
+        const ForwardDetLayer *forwardDet = static_cast<const ForwardDetLayer*>(det);
+        const StraightLinePlaneCrossing::PositionType crossPosition = planeCrossing.position(forwardDet->specificSurface()).second;
+        const ThreeVector crossPos(crossPosition.x(), crossPosition.y(), crossPosition.z());
+        const ThreeVector delta = crossPos - vtxPos;
+        Double_t deltaZ = delta.z()*trkMom.z()/fabs(trkMom.z());
+        lengthOverSigma = deltaZ/lzError;
+      }
+      else
+        throw edm::Exception(edm::errors::Configuration, "HitDropper::CorrectedHits\n")
+          << "Error! Detector element not in a valid barrel or disk layer." << std::endl; 
+      
+      //add the hit only if it is after the vertex, allowing for some uncertainty in the vertex position
+      if ( lengthOverSigma>(-sigmaTolerance) ) {
+        //hitPattern.set(*hit,nHits);
+        nHits++;
+      } 
+    }
+    return hitPattern;
+  }
+  
 }
