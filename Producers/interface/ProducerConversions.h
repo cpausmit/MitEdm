@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerConversions.h,v 1.2 2008/09/27 05:48:25 loizides Exp $
+// $Id: ProducerConversions.h,v 1.3 2008/09/30 12:59:14 bendavid Exp $
 //
 // ProducerConversions
 //
@@ -31,6 +31,7 @@ namespace mitedm
       bool        convConstraint_;   //use 2d conversion constraint for fit
       bool        convConstraint3D_; //use 3d conversion constraint for fit
       double      rhoMin_;           //minimum conversion radius
+      bool   useHitDropper_;  //=true if hit dropper is to be used
   };
 }
 #endif

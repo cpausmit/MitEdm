@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.13 2008/11/14 16:25:43 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.14 2009/03/20 18:01:48 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -31,7 +31,8 @@ ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
   usePVertex_      (cfg.getUntrackedParameter<bool>  ("usePVertex",true)),
   convConstraint_  (cfg.getUntrackedParameter<bool>  ("convConstraint",false)),
   convConstraint3D_(cfg.getUntrackedParameter<bool>  ("convConstraint3D",true)),
-  rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0))
+  rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0)),
+  useHitDropper_(cfg.getUntrackedParameter<bool>("useHitDropper",true))
 {
   // Constructor.
 
@@ -204,13 +205,15 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
                                   fit.getTrackP4(2).pz());
         
         // Build corrected HitPattern for StableData, removing hits before the fit vertex
-        reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
-        reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
-        
-        c1.SetHits(hits1);
-        c2.SetHits(hits2);
-        c1.SetHitsFilled();
-        c2.SetHitsFilled();
+        if (useHitDropper_) {
+          reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
+          reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
+          
+          c1.SetHits(hits1);
+          c2.SetHits(hits2);
+          c1.SetHitsFilled();
+          c2.SetHitsFilled();
+        }
         
         d->addStableChild(c1);
         d->addStableChild(c2);
