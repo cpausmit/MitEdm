@@ -1,4 +1,4 @@
-// $Id: HitDropper.cc,v 1.4 2009/03/20 18:01:48 loizides Exp $
+// $Id: HitDropper.cc,v 1.5 2009/07/09 17:15:58 bendavid Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -151,7 +151,12 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
     for (Int_t hi=0; hi<inhits.numberOfHits(); hi++) {
       uint32_t hit = inhits.getHitPattern(hi);
       uint32_t layerid = inhits.getLayer(hit);
-      const DetLayer *det = trackerGeoSearch_->detLayer(layerid);
+      //if(layerid == uint32_t(0)) continue;
+      //const GeomDet *detg = trackerGeo_->idToDet(layerid);
+      //if (!detg) continue;
+      //const DetLayer *det = detg->layer();
+      const DetLayer *det = trackerGeoSearch_->detLayer(DetId(layerid));
+      if (!det) continue;
       
       //calculate intersection of straight line with plane
   //     const StraightLinePlaneCrossing::PositionType crossPosition = crossing.position(det->surface()).second;
@@ -187,7 +192,10 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
       
       //add the hit only if it is after the vertex, allowing for some uncertainty in the vertex position
       if ( lengthOverSigma>(-sigmaTolerance) ) {
-        //hitPattern.set(*hit,nHits);
+        TrackingRecHit::Type hitType = static_cast<TrackingRecHit::Type>(inhits.getHitType(hit));
+        InvalidTrackingRecHit dummyhit(layerid, hitType);
+        hitPattern.set(dummyhit,nHits);
+        printf("inhit = %i, outhit = %i\n",hit,hitPattern.getHitPattern(nHits));
         nHits++;
       } 
     }
