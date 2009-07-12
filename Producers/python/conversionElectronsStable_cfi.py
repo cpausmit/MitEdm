@@ -1,4 +1,4 @@
-# $Id: stableParts_cfi.py,v 1.3 2009/03/21 12:46:57 loizides Exp $
+# $Id: conversionElectronsStable_cfi.py,v 1.1 2009/07/02 15:14:52 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -17,6 +17,35 @@ ckfOutInElectronsStable = cms.EDProducer("ProducerStable",
     oPid    = cms.untracked.int32(11)
 )
 
+gsfElectronsStable = cms.EDProducer("ProducerStable",
+    iTracks = cms.untracked.string('electronGsfTracks'),
+    oPid    = cms.untracked.int32(11)
+)
+
+import MitEdm.Producers.stablePartMerger_cfi
+
+mergedConversionsStable = MitEdm.Producers.stablePartMerger_cfi.stablePartMerger.clone(
+  StableProducer1 = 'ckfInOutElectronsStable',
+  StableProducer2 = 'ckfOutInElectronsStable',
+)
+
+mergedConversionsGeneralStable = MitEdm.Producers.stablePartMerger_cfi.stablePartMerger.clone(
+  StableProducer1 = 'mergedConversionsStable',
+  StableProducer2 = 'generalElectronsStable',
+)
+
+mergedElectronsStable = MitEdm.Producers.stablePartMerger_cfi.stablePartMerger.clone(
+  StableProducer1 = 'mergedConversionsGeneralStable',
+  StableProducer2 = 'gsfElectronsStable',
+  preferCollection = 2,
+)
+
 conversionElectronsStable = cms.Sequence(generalElectronsStable*
                                          ckfInOutElectronsStable*
-                                         ckfOutInElectronsStable)
+                                         ckfOutInElectronsStable
+                                         )
+
+mvfConversionElectronsStable = cms.Sequence(gsfElectronsStable*
+                                            mergedConversionsStable*
+                                            mergedConversionsGeneralStable*
+                                            mergedElectronsStable)
