@@ -1,4 +1,4 @@
-// $Id: HitDropperESProducer.cc,v 1.2 2008/10/16 16:44:52 bendavid Exp $
+// $Id: HitDropperESProducer.cc,v 1.3 2009/03/20 18:01:48 loizides Exp $
 
 #include "MitEdm/Producers/interface/HitDropperESProducer.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
@@ -8,10 +8,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include <string>
 #include <memory>
 
@@ -35,8 +32,7 @@ HitDropperESProducer::~HitDropperESProducer()
 }
 
 //--------------------------------------------------------------------------------------------------
-boost::shared_ptr<HitDropper> 
-HitDropperESProducer::produce(const HitDropperRecord &iRecord)
+boost::shared_ptr<HitDropper> HitDropperESProducer::produce(const HitDropperRecord &iRecord)
 { 
   // Create hit dropper object.
 
@@ -55,8 +51,6 @@ HitDropperESProducer::produce(const HitDropperRecord &iRecord)
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(hTrackerSearch);
   const GeometricSearchTracker *trackerSearch = hTrackerSearch.product();
   
-  _dropper  = boost::shared_ptr<HitDropper>(
-    new HitDropper(trackerGeo, builder, trackerSearch));
-        
-  return _dropper;
+  dropper_ = boost::shared_ptr<HitDropper>(new HitDropper(trackerGeo, builder, trackerSearch));
+  return dropper_;
 }

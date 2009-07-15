@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropperESProducer.h,v 1.1 2008/10/13 10:39:23 bendavid Exp $
+// $Id: HitDropperESProducer.h,v 1.2 2009/03/20 18:01:48 loizides Exp $
 //
 // HitDropperESProducer
 //
@@ -21,14 +21,17 @@
 #include <boost/shared_ptr.hpp>
 
 namespace mitedm {
-  class  HitDropperESProducer: public edm::ESProducer{
-  public:
-    HitDropperESProducer(const edm::ParameterSet & p);
-    virtual ~HitDropperESProducer(); 
-    boost::shared_ptr<HitDropper> produce(const HitDropperRecord &);
-  private:
-    boost::shared_ptr<HitDropper> _dropper; //hit dropper
-    edm::ParameterSet              pset_;   //pset
+  class  HitDropperESProducer: public edm::ESProducer 
+  {
+    public:
+      HitDropperESProducer(const edm::ParameterSet &p);
+      ~HitDropperESProducer(); 
+
+      boost::shared_ptr<HitDropper> produce(const HitDropperRecord &iRecord);
+
+    private:
+      boost::shared_ptr<HitDropper>  dropper_; //hit dropper
+      edm::ParameterSet              pset_;   //pset
   };
 }
 #endif

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropper.h,v 1.4 2009/03/20 18:01:48 loizides Exp $
+// $Id: HitDropper.h,v 1.5 2009/07/09 17:15:57 bendavid Exp $
 //
 // HitDropper
 //
@@ -24,11 +24,11 @@ namespace mitedm
   class HitDropper
   {
     public:
-       HitDropper(const TrackerGeometry *geo, const TransientTrackBuilder *builder,
-                  const GeometricSearchTracker *search) :
-         trackerGeo_(geo),
-         builder_(builder),
-         trackerGeoSearch_(search) {}
+      HitDropper(const TrackerGeometry *geo, const TransientTrackBuilder *builder,
+                 const GeometricSearchTracker *search) :
+        trackerGeo_(geo),
+        builder_(builder),
+        trackerGeoSearch_(search) {}
       ~HitDropper() {}
 
       reco::HitPattern              CorrectedHits(const reco::TransientTrack *tTrack,
@@ -47,18 +47,18 @@ namespace mitedm
                                                   Double_t lxyError,
                                                   Double_t lzError,
                                                   Double_t sigmaTolerance=3.0) const;
-      Bool_t                        IsBarrel(const GeomDet *det) const;
-      Bool_t                        IsDisk(const GeomDet *det) const;
+      bool                          IsBarrel(const GeomDet *det) const;
+      bool                          IsDisk(const GeomDet *det) const;
           
     protected:
-      const TrackerGeometry         *trackerGeo_;        //tracker geometry
-      const TransientTrackBuilder   *builder_;           //track builder
-      const GeometricSearchTracker  *trackerGeoSearch_;  //geometrical track searcher
+      const TrackerGeometry        *trackerGeo_;        //tracker geometry
+      const TransientTrackBuilder  *builder_;           //track builder
+      const GeometricSearchTracker *trackerGeoSearch_;  //geometrical track searcher
   };
 }
 
 //-------------------------------------------------------------------------------------------------
-inline Bool_t mitedm::HitDropper::IsBarrel(const GeomDet *det) const
+inline bool mitedm::HitDropper::IsBarrel(const GeomDet *det) const
 {
   // Check if detector element is in a barrel layer.
 
@@ -73,7 +73,7 @@ inline Bool_t mitedm::HitDropper::IsBarrel(const GeomDet *det) const
 }
 
 //-------------------------------------------------------------------------------------------------
-inline Bool_t mitedm::HitDropper::IsDisk(const GeomDet *det) const
+inline bool mitedm::HitDropper::IsDisk(const GeomDet *det) const
 {
   // Check if detector element is in a barrel layer.
 

@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.14 2009/03/20 18:01:48 loizides Exp $
+// $Id: ProducerConversions.cc,v 1.15 2009/07/12 20:53:43 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -32,7 +32,7 @@ ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
   convConstraint_  (cfg.getUntrackedParameter<bool>  ("convConstraint",false)),
   convConstraint3D_(cfg.getUntrackedParameter<bool>  ("convConstraint3D",true)),
   rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0)),
-  useHitDropper_(cfg.getUntrackedParameter<bool>("useHitDropper",true))
+  useHitDropper_   (cfg.getUntrackedParameter<bool>  ("useHitDropper",true))
 {
   // Constructor.
 

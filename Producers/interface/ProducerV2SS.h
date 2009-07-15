@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerV2SS.h,v 1.7 2009/03/03 21:31:08 bendavid Exp $
+// $Id: ProducerV2SS.h,v 1.8 2009/03/20 18:01:48 loizides Exp $
 //
 // ProducerV2SS
 //
-// V particle reconstruction (long lived particle, decaying to two stables)
+// Producer for V particle reconstruction (long lived particle, decaying to two stable particles).
 //
 // Authors: C.Paus, M.Rudolph
 //--------------------------------------------------------------------------------------------------

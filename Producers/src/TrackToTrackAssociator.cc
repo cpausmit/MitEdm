@@ -1,4 +1,4 @@
-// $Id: TrackToTrackAssociator.cc,v 1.1 2008/11/04 19:25:56 bendavid Exp $
+// $Id: TrackToTrackAssociator.cc,v 1.2 2009/03/20 18:01:48 loizides Exp $
 
 #include "MitEdm/Producers/interface/TrackToTrackAssociator.h"
 #include <TSystem.h>
@@ -10,7 +10,6 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace mitedm;
-using namespace mithep;
 
 //--------------------------------------------------------------------------------------------------
 TrackToTrackAssociator::TrackToTrackAssociator(const ParameterSet& cfg) :

@@ -1,4 +1,4 @@
-// $Id: HitDropper.cc,v 1.5 2009/07/09 17:15:58 bendavid Exp $
+// $Id: HitDropper.cc,v 1.6 2009/07/12 20:53:07 bendavid Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -30,13 +30,12 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
     if(geoId == uint32_t(0)) continue;
     const GeomDet *det = trackerGeo_->idToDet(geoId);
   
-    HelixArbitraryPlaneCrossing crossing(HelixPlaneCrossing::PositionType(vtxTSCP.theState().position()),
-                                         HelixPlaneCrossing::DirectionType(vtxTSCP.theState().momentum()),
-                                         vtxTSCP.theState().transverseCurvature(),
-                                         anyDirection);                                        
+    HelixArbitraryPlaneCrossing c(HelixPlaneCrossing::PositionType(vtxTSCP.theState().position()),
+                                  HelixPlaneCrossing::DirectionType(vtxTSCP.theState().momentum()),
+                                  vtxTSCP.theState().transverseCurvature(),
+                                  anyDirection);                                        
                                             
-    std::pair<bool,double> crossResult = crossing.pathLength(det->surface());
-        
+    std::pair<bool,double> crossResult = c.pathLength(det->surface());
     if ( crossResult.first && crossResult.second >= 0 ) {
       hitPattern.set(*hit,nHits);
       nHits++;
@@ -84,8 +83,8 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
     const GeomDet *det = trackerGeo_->idToDet(geoId);
     
     //calculate intersection of straight line with plane
-    const StraightLinePlaneCrossing::PositionType crossPosition = crossing.position(det->surface()).second;
-    const ThreeVector crossPos(crossPosition.x(), crossPosition.y(), crossPosition.z());
+    const StraightLinePlaneCrossing::PositionType cPos = crossing.position(det->surface()).second;
+    const ThreeVector crossPos(cPos.x(), cPos.y(), cPos.z());
     const ThreeVector delta = crossPos - vtxPos;
     
     Double_t lengthOverSigma = 0;
@@ -106,7 +105,8 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
       throw edm::Exception(edm::errors::Configuration, "HitDropper::CorrectedHits\n")
          << "Error! Detector element not in a valid barrel or disk layer." << std::endl; 
     
-    //add the hit only if it is after the vertex, allowing for some uncertainty in the vertex position
+    //add the hit only if it is after the vertex, 
+    //allowing for some uncertainty in the vertex position
     if ( lengthOverSigma>(-sigmaTolerance) ) {
       hitPattern.set(*hit,nHits);
       nHits++;
@@ -130,7 +130,7 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
   // vertex position uncertainty into account, which might be important for particles which decay
   // within a tracker layer.
 
-  //This function is not working yet
+  // *** This function is not working yet ***
   
   return reco::HitPattern();
   
@@ -159,9 +159,10 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
       if (!det) continue;
       
       //calculate intersection of straight line with plane
-  //     const StraightLinePlaneCrossing::PositionType crossPosition = crossing.position(det->surface()).second;
-  //     const ThreeVector crossPos(crossPosition.x(), crossPosition.y(), crossPosition.z());
-  //     const ThreeVector delta = crossPos - vtxPos;
+      //const StraightLinePlaneCrossing::PositionType crossPosition = 
+      //  crossing.position(det->surface()).second;
+      //const ThreeVector crossPos(crossPosition.x(), crossPosition.y(), crossPosition.z());
+      //const ThreeVector delta = crossPos - vtxPos;
       
       Double_t lengthOverSigma = 0;
       
@@ -180,8 +181,9 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
       }
       else if (det->location()==GeomDetEnumerators::endcap) {
         const ForwardDetLayer *forwardDet = static_cast<const ForwardDetLayer*>(det);
-        const StraightLinePlaneCrossing::PositionType crossPosition = planeCrossing.position(forwardDet->specificSurface()).second;
-        const ThreeVector crossPos(crossPosition.x(), crossPosition.y(), crossPosition.z());
+        const StraightLinePlaneCrossing::PositionType cPos = 
+          planeCrossing.position(forwardDet->specificSurface()).second;
+        const ThreeVector crossPos(cPos.x(), cPos.y(), cPos.z());
         const ThreeVector delta = crossPos - vtxPos;
         Double_t deltaZ = delta.z()*trkMom.z()/fabs(trkMom.z());
         lengthOverSigma = deltaZ/lzError;
@@ -190,7 +192,8 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
         throw edm::Exception(edm::errors::Configuration, "HitDropper::CorrectedHits\n")
           << "Error! Detector element not in a valid barrel or disk layer." << std::endl; 
       
-      //add the hit only if it is after the vertex, allowing for some uncertainty in the vertex position
+      //add the hit only if it is after the vertex, 
+      //allowing for some uncertainty in the vertex position
       if ( lengthOverSigma>(-sigmaTolerance) ) {
         TrackingRecHit::Type hitType = static_cast<TrackingRecHit::Type>(inhits.getHitType(hit));
         InvalidTrackingRecHit dummyhit(layerid, hitType);
@@ -201,5 +204,4 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
     }
     return hitPattern;
   }
-  
 }

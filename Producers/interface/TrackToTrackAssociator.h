@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TrackToTrackAssociator.h,v 1.1 2008/09/27 05:48:25 loizides Exp $
+// $Id: TrackToTrackAssociator.h,v 1.1 2008/11/04 19:25:55 bendavid Exp $
 //
 // TrackToTrackAssociator
 //
@@ -42,30 +42,31 @@ namespace mitedm
       std::string fromTracksName_; //name of tracks which are association keys
       std::string toTracksName_;   //name of tracks which are association values
   };
+}
   
-  //------------------------------------------------------------------------------------------------
-  template <typename TYPE>
-  inline bool TrackToTrackAssociator::GetProduct(const std::string edmName, edm::Handle<TYPE> &product,
-					const edm::Event &evt, bool ignore) const
-  {
-    // Try to access data collection from EDM file. We check if we really get just one
-    // product with the given name. If not we print an error and exit.
+//--------------------------------------------------------------------------------------------------
+template <typename TYPE>
+inline bool mitedm::TrackToTrackAssociator::GetProduct(const std::string edmName, 
+                                                       edm::Handle<TYPE> &product,
+                                                       const edm::Event &evt, bool ignore) const
+{
+  // Try to access data collection from EDM file. We check if we really get just one
+  // product with the given name. If not we print an error and exit.
 
-    try {
-      evt.getByLabel(edm::InputTag(edmName),product);
-      if (! product.isValid()) 
-	throw edm::Exception(edm::errors::Configuration, "TrackToTrackAssociator::GetProduct()\n")
-	  << "Cannot get collection with label " << edmName << std::endl;
-    } catch (...) {
-      if (ignore)
-	return false;
-      else {
-	edm::LogError("TrackToTrackAssociator") << "Cannot get collection with label "
-				       << edmName << std::endl;
-	PrintErrorAndExit(Form("Cannot get collection with label %s", edmName.c_str()));
-      }
+  try {
+    evt.getByLabel(edm::InputTag(edmName),product);
+    if (! product.isValid()) 
+      throw edm::Exception(edm::errors::Configuration, "TrackToTrackAssociator::GetProduct()\n")
+        << "Cannot get collection with label " << edmName << std::endl;
+  } catch (...) {
+    if (ignore)
+      return false;
+    else {
+      edm::LogError("TrackToTrackAssociator") << "Cannot get collection with label "
+                                              << edmName << std::endl;
+      PrintErrorAndExit(Form("Cannot get collection with label %s", edmName.c_str()));
     }
-    return true;
   }
+  return true;
 }
 #endif

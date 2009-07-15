@@ -1,19 +1,18 @@
-#ifndef SimpleTrackListMergerTransient_h
-#define SimpleTrackListMergerTransient_h
+//--------------------------------------------------------------------------------------------------
+// $Id:$
+//
+// Original package was:
+//  Package:         RecoTracker/FinalTrackSelectors
+//  Class:           SimpleTrackListMergerTransient
+//  Author: Steve Wagner, stevew@pizero.colorado.edu
+//
+//
+// Authors: J.Bendavid
+//--------------------------------------------------------------------------------------------------
 
-//
-// Package:         RecoTracker/FinalTrackSelectors
-// Class:           SimpleTrackListMergerTransient
-// 
-// Description:     Hit Dumper
-//
-// Original Author: Steve Wagner, stevew@pizero.colorado.edu
-// Created:         Sat Jan 14 22:00:00 UTC 2006
-//
-// $Author: vlimant $
-// $Date: 2009/05/14 15:06:08 $
-// $Revision: 1.6 $
-//
+#ifndef MITEDM_PRODUCERS_SiMPLETRACKLISTMERGERTRANSIENT_H
+#define MITEDM_PRODUCERS_SIMPLETRACKLISTMERGERTRANSIENT_H
+
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -36,13 +35,11 @@ namespace mitedm
 {
   class SimpleTrackListMergerTransient : public edm::EDProducer
   {
-  public:
+    public:
+      explicit SimpleTrackListMergerTransient(const edm::ParameterSet& conf);
+      ~SimpleTrackListMergerTransient();
 
-    explicit SimpleTrackListMergerTransient(const edm::ParameterSet& conf);
-
-    virtual ~SimpleTrackListMergerTransient();
-
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+      void produce(edm::Event &e, const edm::EventSetup &c);
 
   private:
     edm::ParameterSet conf_;
@@ -52,14 +49,11 @@ namespace mitedm
     reco::TrackRefProd refTrks;
     reco::TrackExtraRefProd refTrkExtras;
     TrackingRecHitRefProd refTrkHits;
-//     edm::RefProd< std::vector<Trajectory> > refTrajs;
-//     std::vector<reco::TrackRef> trackRefs;
-//     edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
-    
+    //edm::RefProd< std::vector<Trajectory> > refTrajs;
+    //std::vector<reco::TrackRef> trackRefs;
+    //edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
     bool copyExtras_;
     bool makeReKeyedSeeds_;
   };
 }
-
-
 #endif

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerD2SS.h,v 1.4 2008/09/27 05:48:25 loizides Exp $
+// $Id: ProducerD2SS.h,v 1.5 2008/10/24 19:57:47 paus Exp $
 //
 // ProducerD2SS
 //
@@ -18,16 +18,16 @@ namespace mitedm
 {
   class ProducerD2SS : public BaseCandProducer
   {
-  public:
-    explicit ProducerD2SS(const edm::ParameterSet&);
-    ~ProducerD2SS();
+    public:
+      explicit ProducerD2SS(const edm::ParameterSet&);
+      ~ProducerD2SS();
     
-  protected:
-    void produce(edm::Event&, const edm::EventSetup&);
+    protected:
+      void produce(edm::Event&, const edm::EventSetup&);
 
-    // Parameters to steer the particularities of this instance
-    std::string iStables1_; // input label first stable particle
-    std::string iStables2_; // input label second stable particle
+      // Parameters to steer the particularities of this instance
+      std::string iStables1_; // input label first stable particle
+      std::string iStables2_; // input label second stable particle
   };
 }
 #endif
