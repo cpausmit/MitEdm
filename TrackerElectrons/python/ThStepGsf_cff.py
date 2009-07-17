@@ -1,4 +1,4 @@
-# $Id: ThStepGsf_cff.py,v 1.3 2009/03/20 17:18:39 loizides Exp $
+# $Id: ThStepGsf_cff.py,v 1.4 2009/03/21 12:46:57 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,9 +10,9 @@ thStripRecHitsGsf = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConvert
 thPixelRecHitsGsf.src = 'thClustersGsf'
 thStripRecHitsGsf.ClusterProducer = 'thClustersGsf'
 
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 #SEEDS
-thPLSeedsGsf = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
+thPLSeedsGsf = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 thPLSeedsGsf.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairsGsf'
 thPLSeedsGsf.RegionFactoryPSet.RegionPSet.ptMin = 0.6
@@ -60,7 +60,7 @@ thCkfTrajectoryBuilderGsf.trajectoryFilterName = 'thCkfTrajectoryFilterGsf'
 
 #TRACK CANDIDATES
 thTrackCandidatesGsf = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.egammaCkfTrackCandidates.clone()
-thTrackCandidatesGsf.SeedProducer = 'thPLSeedsGsf'
+#thTrackCandidatesGsf.SeedProducer = 'thPLSeedsGsf'
 thTrackCandidatesGsf.TrajectoryBuilder = 'thCkfTrajectoryBuilderGsf'
 thTrackCandidatesGsf.doSeedingRegionRebuilding = True
 thTrackCandidatesGsf.useHitsSplitting = True

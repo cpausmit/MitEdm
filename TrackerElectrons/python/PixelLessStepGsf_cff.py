@@ -1,4 +1,4 @@
-# $Id: PixelLessStepGsf_cff.py,v 1.3 2009/03/20 17:18:39 loizides Exp $
+# $Id: PixelLessStepGsf_cff.py,v 1.4 2009/03/21 12:46:57 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -22,8 +22,8 @@ fourthPixelRecHitsGsf.src = 'fourthClustersGsf'
 fourthStripRecHitsGsf.ClusterProducer = 'fourthClustersGsf'
 
 #SEEDS
-import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
-fourthPLSeedsGsf = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+fourthPLSeedsGsf = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 fourthPLSeedsGsf.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairsGsf'
 fourthPLSeedsGsf.RegionFactoryPSet.RegionPSet.ptMin = 0.6
@@ -69,7 +69,7 @@ fourthCkfTrajectoryBuilderGsf.trajectoryFilterName = 'fourthCkfTrajectoryFilterG
 
 #TRACK CANDIDATES
 fourthTrackCandidatesGsf = RecoEgamma.EgammaElectronProducers.gsfElectronCkfTrackCandidateMaker_cff.egammaCkfTrackCandidates.clone()
-fourthTrackCandidatesGsf.SeedProducer = 'fourthPLSeedsGsf'
+#fourthTrackCandidatesGsf.SeedProducer = 'fourthPLSeedsGsf'
 fourthTrackCandidatesGsf.TrajectoryBuilder = 'fourthCkfTrajectoryBuilderGsf'
 
 

@@ -1,4 +1,4 @@
-# $Id: SecStepGsf_cff.py,v 1.3 2009/03/20 17:18:39 loizides Exp $
+# $Id: SecStepGsf_cff.py,v 1.4 2009/03/20 18:01:48 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,8 +23,8 @@ secStripRecHitsGsf.ClusterProducer = 'secClustersGsf'
 # seeding
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 seclayertripletsGsf = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone()
-import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi
-secTripletsGsf = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi.globalSeedsFromTripletsWithVertices.clone()
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
+secTripletsGsf = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
 
 seclayertripletsGsf.ComponentName = 'SecLayerTripletsGsf'
 seclayertripletsGsf.BPix.HitProducer = 'secPixelRecHitsGsf'
@@ -58,7 +58,7 @@ secCkfTrajectoryBuilderGsf.ComponentName = 'secCkfTrajectoryBuilderGsf'
 secCkfTrajectoryBuilderGsf.MeasurementTrackerName = 'secMeasurementTrackerGsf'
 secCkfTrajectoryBuilderGsf.trajectoryFilterName = 'secCkfTrajectoryFilterGsf'
 
-secTrackCandidatesGsf.SeedProducer = 'secTripletsGsf'
+#secTrackCandidatesGsf.SeedProducer = 'secTripletsGsf'
 secTrackCandidatesGsf.TrajectoryBuilder = 'secCkfTrajectoryBuilderGsf'
 secTrackCandidatesGsf.doSeedingRegionRebuilding = True
 secTrackCandidatesGsf.useHitsSplitting = True
