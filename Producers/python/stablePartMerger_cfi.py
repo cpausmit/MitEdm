@@ -1,4 +1,4 @@
-# $Id: conversions_cfi.py,v 1.6 2009/07/02 15:15:04 bendavid Exp $
+# $Id: stablePartMerger_cfi.py,v 1.1 2009/07/12 13:11:40 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,6 +20,7 @@ stablePartMerger = cms.EDProducer("SimpleTrackListMergerTransient",
     promoteTrackQuality = cms.bool(False),
     newQuality = cms.string('confirmed'),
     copyExtras = cms.untracked.bool(False),
+    removeDuplicates = cms.bool(True),
     preferCollection = cms.uint32(0),
 )
 

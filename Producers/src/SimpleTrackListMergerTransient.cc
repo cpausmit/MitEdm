@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: SimpleTrackListMergerTransient.cc,v 1.2 2009/07/15 20:38:24 loizides Exp $
 
 #include <memory>
 #include <string>
@@ -83,6 +83,7 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
   
   //bool promoteQuality = conf_.getParameter<bool>("promoteTrackQuality");
 
+  uint removeDuplicates = conf_.getParameter<bool>("removeDuplicates");
   uint preferCollection = conf_.getParameter<uint>("preferCollection");
 
   // New track quality should be read from the file
@@ -232,7 +233,7 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
   }
   for (mitedm::StablePartCol::const_iterator stable=tC2.begin(); stable!=tC2.end(); ++stable) {
     const reco::Track *track = stable->track();
-    if (track->extra().isAvailable()) {
+    if (removeDuplicates) {
       trackingRecHit_iterator jtB = track->recHitsBegin();
       trackingRecHit_iterator jtE = track->recHitsEnd();
       for (trackingRecHit_iterator jt = jtB;  jt != jtE; ++jt) { 
@@ -247,7 +248,7 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
     for (mitedm::StablePartCol::const_iterator stable=tC1.begin(); stable!=tC1.end(); ++stable) {
       i++; 
       const reco::Track *track = stable->track();
-      if ( !selected1[i] || !track->extra().isAvailable() )continue;
+      if ( !selected1[i] || !removeDuplicates )continue;
       std::vector<const TrackingRecHit*>& iHits = rh1[stable]; 
       unsigned nh1 = iHits.size();
       int qualityMaskT1 = track->qualityMask();
@@ -255,7 +256,7 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
       for (mitedm::StablePartCol::const_iterator stable2=tC2.begin(); stable2!=tC2.end(); ++stable2) {
         j++;
 	const reco::Track *track2 = stable2->track();
-        if ((!selected2[j])||(!selected1[i])||(stable->pid()!=stable2->pid())||(!track2->extra().isAvailable()))
+        if ((!selected2[j])||(!selected1[i])||(stable->pid()!=stable2->pid())||(!removeDuplicates))
           continue;
 	std::vector<const TrackingRecHit*>& jHits = rh2[stable2]; 
 	unsigned nh2 = jHits.size();
