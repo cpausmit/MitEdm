@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.12 2009/03/20 18:01:48 loizides Exp $
+// $Id: ProducerV2SS.cc,v 1.13 2009/04/28 14:58:21 loizides Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -186,12 +186,12 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         
         //build corrected HitPattern for StableData, removing hits before the fit vertex
         if (useHitDropper_) {
-          reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), 
+          reco::HitPattern hits1 = dropper->CorrectedHitsAOD(s1.track(), 
                                                           vtxPos, 
                                                           trkMom1, 
                                                           dlErr, 
                                                           dlzErr);
-          reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), 
+          reco::HitPattern hits2 = dropper->CorrectedHitsAOD(s2.track(), 
                                                           vtxPos, 
                                                           trkMom2, 
                                                           dlErr, 

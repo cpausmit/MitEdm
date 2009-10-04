@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.15 2009/07/12 20:53:43 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.16 2009/07/15 20:38:24 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -206,9 +206,9 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         
         // Build corrected HitPattern for StableData, removing hits before the fit vertex
         if (useHitDropper_) {
-          reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
-          reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
-          
+          reco::HitPattern hits1 = dropper->CorrectedHitsAOD(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
+          reco::HitPattern hits2 = dropper->CorrectedHitsAOD(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);                 
+   
           c1.SetHits(hits1);
           c2.SetHits(hits2);
           c1.SetHitsFilled();

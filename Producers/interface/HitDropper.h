@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropper.h,v 1.5 2009/07/09 17:15:57 bendavid Exp $
+// $Id: HitDropper.h,v 1.6 2009/07/15 20:38:24 loizides Exp $
 //
 // HitDropper
 //
@@ -46,11 +46,13 @@ namespace mitedm
                                                   const ThreeVector &trkMom,
                                                   Double_t lxyError,
                                                   Double_t lzError,
-                                                  Double_t sigmaTolerance=3.0) const;
+                                                  Double_t sigmaTolerance=1.5) const;
       bool                          IsBarrel(const GeomDet *det) const;
       bool                          IsDisk(const GeomDet *det) const;
           
     protected:
+      const DetLayer               *FindLayer(int subdet, int layer, int side) const;
+      DetId                         StereoDetId(const DetId &i) const;
       const TrackerGeometry        *trackerGeo_;        //tracker geometry
       const TransientTrackBuilder  *builder_;           //track builder
       const GeometricSearchTracker *trackerGeoSearch_;  //geometrical track searcher

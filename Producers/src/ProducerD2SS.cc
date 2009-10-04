@@ -1,4 +1,4 @@
-// $Id: ProducerD2SS.cc,v 1.12 2008/10/24 19:57:47 paus Exp $
+// $Id: ProducerD2SS.cc,v 1.13 2008/11/13 17:08:31 paus Exp $
 
 #include "MitEdm/Producers/interface/ProducerD2SS.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -131,6 +131,8 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 
         c1.SetHits(hits1);
         c2.SetHits(hits2);
+        c1.SetHitsFilled();
+        c2.SetHitsFilled();
 
         d->addStableChild    (c1);
         d->addStableChild    (c2);
