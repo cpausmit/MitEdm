@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropper.h,v 1.6 2009/07/15 20:38:24 loizides Exp $
+// $Id: HitDropper.h,v 1.7 2009/10/04 12:49:25 bendavid Exp $
 //
 // HitDropper
 //
@@ -29,7 +29,6 @@ namespace mitedm
         trackerGeo_(geo),
         builder_(builder),
         trackerGeoSearch_(search) {}
-      ~HitDropper() {}
 
       reco::HitPattern              CorrectedHits(const reco::TransientTrack *tTrack,
                                                   const ThreeVector &vtxPos) const;
@@ -53,6 +52,7 @@ namespace mitedm
     protected:
       const DetLayer               *FindLayer(int subdet, int layer, int side) const;
       DetId                         StereoDetId(const DetId &i) const;
+
       const TrackerGeometry        *trackerGeo_;        //tracker geometry
       const TransientTrackBuilder  *builder_;           //track builder
       const GeometricSearchTracker *trackerGeoSearch_;  //geometrical track searcher

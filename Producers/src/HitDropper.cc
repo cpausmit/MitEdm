@@ -1,4 +1,4 @@
-// $Id: HitDropper.cc,v 1.7 2009/07/15 20:38:24 loizides Exp $
+// $Id: HitDropper.cc,v 1.8 2009/10/04 12:49:26 bendavid Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -203,103 +203,106 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
   }
 
   return hitPattern;
-
 }
 
 //--------------------------------------------------------------------------------------------------
 const DetLayer *HitDropper::FindLayer(int subdet, int layer, int side) const
 {
+  // Find a given layer.
+
   switch(subdet) {
-  case StripSubdetector::TIB:
-    //edm::LogInfo(TkDetLayers) << "TIB layer n: " << TIBDetId(id).layer() ;
-    return trackerGeoSearch_->tibLayers().at(layer-1);
-    break;
+    case StripSubdetector::TIB:
+      //edm::LogInfo(TkDetLayers) << "TIB layer n: " << TIBDetId(id).layer() ;
+      return trackerGeoSearch_->tibLayers().at(layer-1);
+      break;
 
-  case StripSubdetector::TOB:
-    //edm::LogInfo(TkDetLayers) << "TOB layer n: " << TOBDetId(id).layer() ;
-    return trackerGeoSearch_->tobLayers().at(layer-1);
-    break;
+    case StripSubdetector::TOB:
+      //edm::LogInfo(TkDetLayers) << "TOB layer n: " << TOBDetId(id).layer() ;
+      return trackerGeoSearch_->tobLayers().at(layer-1);
+      break;
 
-  case StripSubdetector::TID:
-    //edm::LogInfo(TkDetLayers) << "TID wheel n: " << TIDDetId(id).wheel() ;
-    if( side == -1 ) {
-      return trackerGeoSearch_->negTidLayers().at(layer-1);
-    }else if( side == 1 ) {
-      return trackerGeoSearch_->posTidLayers().at(layer-1);
-    }
-    break;
+    case StripSubdetector::TID:
+      //edm::LogInfo(TkDetLayers) << "TID wheel n: " << TIDDetId(id).wheel() ;
+      if( side == -1 ) {
+        return trackerGeoSearch_->negTidLayers().at(layer-1);
+      }else if( side == 1 ) {
+        return trackerGeoSearch_->posTidLayers().at(layer-1);
+      }
+      break;
 
-  case StripSubdetector::TEC:
-    //edm::LogInfo(TkDetLayers) << "TEC wheel n: " << TECDetId(id).wheel() ;
-    if( side == -1 ) {
-      return trackerGeoSearch_->negTecLayers().at(layer-1);
-    }else if( side == 1 ) {
-      return trackerGeoSearch_->posTecLayers().at(layer-1);
-    }
-    break;
+    case StripSubdetector::TEC:
+      //edm::LogInfo(TkDetLayers) << "TEC wheel n: " << TECDetId(id).wheel() ;
+      if( side == -1 ) {
+        return trackerGeoSearch_->negTecLayers().at(layer-1);
+      } else if( side == 1 ) {
+        return trackerGeoSearch_->posTecLayers().at(layer-1);
+      }
+      break;
 
-  case PixelSubdetector::PixelBarrel:
-    //edm::LogInfo(TkDetLayers) << "PixelBarrel layer n: " << PXBDetId(id).layer() ;
-    return trackerGeoSearch_->pixelBarrelLayers().at(layer-1);
-    break;
+    case PixelSubdetector::PixelBarrel:
+      //edm::LogInfo(TkDetLayers) << "PixelBarrel layer n: " << PXBDetId(id).layer() ;
+      return trackerGeoSearch_->pixelBarrelLayers().at(layer-1);
+      break;
 
-  case PixelSubdetector::PixelEndcap:
-    //edm::LogInfo(TkDetLayers) << "PixelEndcap disk n: " << PXFDetId(id).disk() ;
-    if(side == -1 ) {
-      return trackerGeoSearch_->negPixelForwardLayers().at(layer-1);
-    }else if( side == 1 ) {
-      return trackerGeoSearch_->posPixelForwardLayers().at(layer-1);
-    }
-    break;
+    case PixelSubdetector::PixelEndcap:
+      //edm::LogInfo(TkDetLayers) << "PixelEndcap disk n: " << PXFDetId(id).disk() ;
+      if(side == -1 ) {
+        return trackerGeoSearch_->negPixelForwardLayers().at(layer-1);
+      }else if( side == 1 ) {
+        return trackerGeoSearch_->posPixelForwardLayers().at(layer-1);
+      }
+      break;
 
-  default:    
-    return 0;
-    // throw(something);
+    default:    
+      return 0;
+      // throw(something);
   }
   return 0; //just to avoid compile warnings
-
 }
 
+//--------------------------------------------------------------------------------------------------
 DetId HitDropper::StereoDetId(const DetId &i) const
 {
+  // Deal with stereo det id.
+
   switch (i.det()) {
-  case DetId::Tracker:
+    case DetId::Tracker:
       switch (i.subdetId()) {
-      case PixelSubdetector::PixelBarrel:
-      case PixelSubdetector::PixelEndcap:
-            return 0;
-      case StripSubdetector::TIB:
-      {
-            TIBDetId id = i;
-            if (id.isStereo())
-              return id;
-            else {
-              const std::vector<unsigned int> idString = id.string();
-              return TIBDetId(id.layer(),idString[0],idString[1],idString[2],id.module(),1);
-            }
-      }
-      case StripSubdetector::TID:
-      {
-            TIDDetId id = i;
-            if (id.isStereo())
-              return id;
-            else {
-              const std::vector<unsigned int> idModule = id.module();
-              return TIDDetId(id.side(),id.wheel(),id.ring(),idModule[0],idModule[1],1);
-            }
-      }
+        case PixelSubdetector::PixelBarrel:
+        case PixelSubdetector::PixelEndcap:
+          return 0;
+        case StripSubdetector::TIB:
+        {
+          TIBDetId id = i;
+          if (id.isStereo())
+            return id;
+          else {
+            const std::vector<unsigned int> idString = id.string();
+            return TIBDetId(id.layer(),idString[0],idString[1],idString[2],id.module(),1);
+          }
+        }
+        case StripSubdetector::TID:
+        {
+          TIDDetId id = i;
+          if (id.isStereo())
+            return id;
+          else {
+            const std::vector<unsigned int> idModule = id.module();
+            return TIDDetId(id.side(),id.wheel(),id.ring(),idModule[0],idModule[1],1);
+          }
+        }
       case StripSubdetector::TOB:
       {
-            TOBDetId id = i;
-            if (id.isStereo())
-              return id;
-            else {
-              const std::vector<unsigned int> idRod = id.rod();
-              return TOBDetId(id.layer(),idRod[0],idRod[1],id.module(),1);
-            }
+        TOBDetId id = i;
+        if (id.isStereo())
+          return id;
+        else {
+          const std::vector<unsigned int> idRod = id.rod();
+          return TOBDetId(id.layer(),idRod[0],idRod[1],id.module(),1);
+        }
       }
-      case StripSubdetector::TEC:
-      {
+        case StripSubdetector::TEC:
+        {
             TECDetId id = i;
             if (id.isStereo())
               return id;
@@ -307,12 +310,12 @@ DetId HitDropper::StereoDetId(const DetId &i) const
               const std::vector<unsigned int> idPetal = id.petal();
               return TECDetId(id.side(),id.wheel(),idPetal[0],idPetal[1],id.ring(),id.module(),1);
             }
-      }
-      default:
-            return 0;
+        }
+        default:
+          return 0;
       }
       break;
-  default:
+    default:
       return 0;
   }
 }
