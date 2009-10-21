@@ -1,0 +1,12 @@
+# -*- Makefile -*-
+# $Id: BuildFile,v 1.10 2009/06/18 22:54:41 bendavid Exp $
+
+<use name=root>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+#<flags CXXFLAGS="-g">
+<flags EDM_PLUGIN=1>
+<export>
+  <lib name=MitEdmAnalyzers>
+</export>
