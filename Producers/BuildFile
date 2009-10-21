@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.9 2009/04/06 15:19:37 loizides Exp $
+# $Id: BuildFile,v 1.10 2009/06/18 22:54:41 bendavid Exp $
 
 <use name=root>
 <use name=FWCore/Framework>
@@ -19,5 +19,5 @@
 #<flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
 <export>
-  <lib name=MitEdmProducer>
+  <lib name=MitEdmProducers>
 </export>
