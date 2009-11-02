@@ -1,4 +1,4 @@
-// $Id: HitDropper.cc,v 1.8 2009/10/04 12:49:26 bendavid Exp $
+// $Id: HitDropper.cc,v 1.9 2009/10/12 21:41:09 loizides Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -145,61 +145,68 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
     side = 1;
   
   int nHits = 0;
-  const reco::HitPattern &inhits = track->hitPattern();
   reco::HitPattern hitPattern;
-  for (Int_t hi=0; hi<inhits.numberOfHits(); hi++) {
-    uint32_t hit = inhits.getHitPattern(hi);
-    uint32_t subdet = inhits.getSubStructure(hit);
-    uint32_t layerid = inhits.getLayer(hit);
-    const DetLayer *det = FindLayer(subdet,layerid,side);
-    if (!det) continue;
+  const reco::HitPattern* inHitPatterns[3];
+  inHitPatterns[0] = &track->hitPattern();
+  inHitPatterns[1] = &track->trackerExpectedHitsInner();
+  inHitPatterns[2] = &track->trackerExpectedHitsOuter();
+  
+  for (Int_t hp=0; hp<3; ++hp) {
+    const reco::HitPattern &inhits = *inHitPatterns[hp];
+    for (Int_t hi=0; hi<inhits.numberOfHits(); hi++) {
+      uint32_t hit = inhits.getHitPattern(hi);
+      uint32_t subdet = inhits.getSubStructure(hit);
+      uint32_t layerid = inhits.getLayer(hit);
+      const DetLayer *det = FindLayer(subdet,layerid,side);
+      if (!det) continue;
+          
+      bool goodHit = false;
+      
+      //calculate distance between vertex and approximate hit position, projected into
+      //the appropriate plane/axis and compared to the uncertainty in vertex position
+      //in that plane/axis
+      if (det->location()==GeomDetEnumerators::barrel) {
+        const BarrelDetLayer *barrelDet = static_cast<const BarrelDetLayer*>(det);
         
-    bool goodHit = false;
-    
-    //calculate distance between vertex and approximate hit position, projected into
-    //the appropriate plane/axis and compared to the uncertainty in vertex position
-    //in that plane/axis
-    if (det->location()==GeomDetEnumerators::barrel) {
-      const BarrelDetLayer *barrelDet = static_cast<const BarrelDetLayer*>(det);
-      
-      const double barrelRho = barrelDet->specificSurface().radius();
-      const double barrelHalfThickness = barrelDet->specificSurface().bounds().thickness()/2.0;
-      const ThreeVector crossPos(barrelRho*cos(track->phi()),barrelRho*sin(track->phi()),0.0);
-      
-      const ThreeVector delta = crossPos - vtxPos;
-      const ThreeVector trkMomXY(trkMom.x(), trkMom.y(), 0.0);
-      const double deltaXY = delta.Dot(trkMomXY)/trkMomXY.R();
-      goodHit = deltaXY>(-sigmaTolerance*lxyError - barrelHalfThickness);
-    }
-    else if (det->location()==GeomDetEnumerators::endcap) {
-      const ForwardDetLayer *forwardDet = static_cast<const ForwardDetLayer*>(det);
-      const double diskZ = forwardDet->specificSurface().position().z();
-      const double diskHalfThickness = forwardDet->specificSurface().bounds().thickness()/2.0;
-      const double deltaZ = (diskZ - vtxPos.z())*trkMom.z()/fabs(trkMom.z());;
-      goodHit = deltaZ>(-sigmaTolerance*lzError - diskHalfThickness);
-    }
-    else
-      throw edm::Exception(edm::errors::Configuration, "HitDropper::CorrectedHitsAOD\n")
-        << "Error! Detector element not in a valid barrel or disk layer." << std::endl; 
-    
-    //add the hit only if it is after the vertex, 
-    //allowing for some uncertainty in the vertex position
-    if ( goodHit ) {
-      bool isStereo = inhits.getSide(hit);
-      DetId dummyid = det->basicComponents().front()->geographicalId();
-      if (isStereo) {
-        dummyid = StereoDetId(dummyid);
+        const double barrelRho = barrelDet->specificSurface().radius();
+        const double barrelHalfThickness = barrelDet->specificSurface().bounds().thickness()/2.0;
+        const ThreeVector crossPos(barrelRho*cos(track->phi()),barrelRho*sin(track->phi()),0.0);
+        
+        const ThreeVector delta = crossPos - vtxPos;
+        const ThreeVector trkMomXY(trkMom.x(), trkMom.y(), 0.0);
+        const double deltaXY = delta.Dot(trkMomXY)/trkMomXY.R();
+        goodHit = deltaXY>(-sigmaTolerance*lxyError - barrelHalfThickness);
       }
-        
-      const TrackingRecHit::Type hitType = static_cast<TrackingRecHit::Type>(inhits.getHitType(hit));
-      InvalidTrackingRecHit dummyhit(dummyid, hitType);
-      hitPattern.set(dummyhit,nHits);
-      if ( hit != hitPattern.getHitPattern(nHits) )
+      else if (det->location()==GeomDetEnumerators::endcap) {
+        const ForwardDetLayer *forwardDet = static_cast<const ForwardDetLayer*>(det);
+        const double diskZ = forwardDet->specificSurface().position().z();
+        const double diskHalfThickness = forwardDet->specificSurface().bounds().thickness()/2.0;
+        const double deltaZ = (diskZ - vtxPos.z())*trkMom.z()/fabs(trkMom.z());;
+        goodHit = deltaZ>(-sigmaTolerance*lzError - diskHalfThickness);
+      }
+      else
         throw edm::Exception(edm::errors::Configuration, "HitDropper::CorrectedHitsAOD\n")
-        << "Error! Mismatch in copying hit pattern." << std::endl; 
-        
-      nHits++;
-    } 
+          << "Error! Detector element not in a valid barrel or disk layer." << std::endl; 
+      
+      //add the hit only if it is after the vertex, 
+      //allowing for some uncertainty in the vertex position
+      if ( goodHit ) {
+        bool isStereo = inhits.getSide(hit);
+        DetId dummyid = det->basicComponents().front()->geographicalId();
+        if (isStereo) {
+          dummyid = StereoDetId(dummyid);
+        }
+          
+        const TrackingRecHit::Type hitType = static_cast<TrackingRecHit::Type>(inhits.getHitType(hit));
+        InvalidTrackingRecHit dummyhit(dummyid, hitType);
+        hitPattern.set(dummyhit,nHits);
+        if ( hit != hitPattern.getHitPattern(nHits) )
+          throw edm::Exception(edm::errors::Configuration, "HitDropper::CorrectedHitsAOD\n")
+          << "Error! Mismatch in copying hit pattern." << std::endl; 
+          
+        nHits++;
+      } 
+    }
   }
 
   return hitPattern;
