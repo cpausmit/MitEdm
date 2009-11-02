@@ -1,8 +1,10 @@
-// $Id: ProducerV2SS.cc,v 1.13 2009/04/28 14:58:21 loizides Exp $
+// $Id: ProducerV2SS.cc,v 1.14 2009/10/04 12:49:26 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MitEdm/Producers/interface/HitDropperRecord.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
@@ -69,6 +71,11 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     setup.get<HitDropperRecord>().get("HitDropper",hDropper);
     dropper = hDropper.product();
   }
+  
+  //Get Magnetic Field from event setup, taking value at (0,0,0)
+  edm::ESHandle<MagneticField> magneticField;
+  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
 
   // -----------------------------------------------------------------------------------------------
   // Simple double loop
@@ -129,7 +136,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
       // Do vertex fit for all pairs
       // -------------------------------------------------------------------------------------------
       mithep::MultiVertexFitterD fit;
-      fit.init(3.8); // Reset to the MC magnetic field of 3.8 Tesla
+      fit.init(bfield); // Reset to the magnetic field from the event setup
       fit.setChisqMax(100);
       MvfInterface fitInt(&fit);
       fitInt.addTrack(s1.track(),1,s1.mass(),mithep::MultiVertexFitterD::VERTEX_1);

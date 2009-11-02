@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.16 2009/07/15 20:38:24 loizides Exp $
+// $Id: ProducerConversions.cc,v 1.17 2009/10/04 12:49:26 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -6,6 +6,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MitEdm/Producers/interface/HitDropperRecord.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
@@ -92,6 +94,11 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
   setup.get<HitDropperRecord>().get("HitDropper",hDropper);
   const HitDropper *dropper = hDropper.product();
   
+  //Get Magnetic Field from event setup, taking value at (0,0,0)
+  edm::ESHandle<MagneticField> magneticField;
+  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  
   // Create the output collection
   auto_ptr<DecayPartCol> pD(new DecayPartCol());
   
@@ -129,7 +136,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
       
         // Vertex fit now, possibly with conversion constraint
   
-        fit.init(3.8); // Reset to the MC magnetic field of 3.8 Tesla
+        fit.init(bfield); // Reset to the magnetic field from the event setup
         MvfInterface fitInt(&fit);
         fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitterD::VERTEX_1);
         fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitterD::VERTEX_1);
