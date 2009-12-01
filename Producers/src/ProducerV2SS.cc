@@ -1,10 +1,12 @@
-// $Id: ProducerV2SS.cc,v 1.14 2009/10/04 12:49:26 bendavid Exp $
+// $Id: ProducerV2SS.cc,v 1.15 2009/11/02 22:56:18 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "MitEdm/Producers/interface/HitDropperRecord.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
@@ -13,7 +15,6 @@
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
-#include "MitEdm/VertexFitInterface/interface/HisInterface.h"
 #include "MitEdm/Producers/interface/ProducerV2SS.h"
 
 using namespace std;
@@ -83,6 +84,9 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   if (0)
     cout << "Starting V finder loop" << endl;
 
+  ClosestApproachInRPhi helixIntersector;
+  
+  
   //sX_y: X= pion or proton collection.  
   //i, j = 2 loop particles. 
   //ex.: s1_i and s2_i are same particle as pion and proton
@@ -95,6 +99,11 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     else
       j = 0;
     
+    TrajectoryStateTransform tsTransform;
+    
+    FreeTrajectoryState initialState1 = tsTransform.initialFreeState(*s1.track(),&*magneticField);
+  
+    
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
 
@@ -103,32 +112,37 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
       // do fast helix fit to check if there's any hope
       const reco::Track * t1 = s1.track();
       const reco::Track * t2 = s2.track();
-      HisInterface            hisInt(t1,t2);
-      const mithep::HelixIntersector *his = hisInt.hISector();
+      
       double dZ0 = -999;
       double dR0 = -999;
-      dZ0 = his->IntersectionI(0).DeltaZ();
-      dR0 = sqrt(his->IntersectionI(0).Location().X()*his->IntersectionI(0).Location().X()+
-      		 his->IntersectionI(0).Location().Y()*his->IntersectionI(0).Location().Y());
+      double mass0 = 0.0;
+      
+      FreeTrajectoryState initialState2 = tsTransform.initialFreeState(*s2.track(),&*magneticField);
+      helixIntersector.calculate(initialState1, initialState2);
+      if (helixIntersector.status()) {
+        dZ0 = fabs(helixIntersector.points().first.z() - helixIntersector.points().second.z());
+        dR0 = helixIntersector.crossingPoint().perp();
+        
+        GlobalVector     v1, v2;
+        v1 = helixIntersector.trajectoryParameters().first.momentum();
+        v2 = helixIntersector.trajectoryParameters().second.momentum();
 
-      TVector3     v1, v2;
-      v1 = his->IntersectionI(0).TrackParamsI(0).Momentum();
-      v2 = his->IntersectionI(0).TrackParamsI(1).Momentum();
+        double e1 = sqrt(v1.mag2()+s1.mass()*s1.mass());
+        double x1 = v1.x();
+        double y1 = v1.y();
+        double z1 = v1.z();
 
-      double e1 = sqrt(v1.Mag()*v1.Mag() +s1.mass()*s1.mass());
-      double x1 = v1.X();
-      double y1 = v1.Y();
-      double z1 = v1.Z();
+        double e2 = sqrt(v2.mag2()+s2.mass()*s2.mass());
+        double x2 = v2.x();
+        double y2 = v2.y();
+        double z2 = v2.z();
 
-      double e2 = sqrt(v2.Mag()*v2.Mag()+s2.mass()*s2.mass());
-      double x2 = v2.X();
-      double y2 = v2.Y();
-      double z2 = v2.Z();
+        FourVector sum(x1+x2, y1+y2, z1+z2, e1+e2);
 
-      FourVector sum(x1+x2, y1+y2, z1+z2, e1+e2);
-
-      double mass0 = sqrt(sum.M2());
-
+        mass0 = sqrt(sum.M2());
+      }
+      
+      
       // Basic cuts on helix intersection
       if(mass0 > massMax_ || mass0<massMin_ || fabs(dZ0) > dZMax_ || dR0 < rhoMin_) continue;
 

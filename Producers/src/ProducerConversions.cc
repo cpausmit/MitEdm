@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.17 2009/10/04 12:49:26 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.18 2009/11/02 22:56:18 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -8,6 +8,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "MitEdm/Producers/interface/HitDropperRecord.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
@@ -16,7 +18,6 @@
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
-#include "MitEdm/VertexFitInterface/interface/HisInterface.h"
 
 using namespace std;
 using namespace edm;
@@ -102,6 +103,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
   // Create the output collection
   auto_ptr<DecayPartCol> pD(new DecayPartCol());
   
+  ClosestApproachInRPhi helixIntersector;
+  
   // Simple double loop
   for (UInt_t i = 0; i<pS1->size(); ++i) {
     const StablePart &s1 =  pS1->at(i);
@@ -112,6 +115,10 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     else
       j = 0;
     
+    TrajectoryStateTransform tsTransform;
+    
+    FreeTrajectoryState initialState1 = tsTransform.initialFreeState(*s1.track(),&*magneticField);
+    
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
 
@@ -120,16 +127,16 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
       const reco::Track * t2 = s2.track();
       
       int trackCharge = t1->charge() + t2->charge();
+      
       double dR0 = 0.0;
       
-      if (trackCharge==0) { 
-        HisInterface            hisInt(t1,t2);
-        const mithep::HelixIntersector *his = hisInt.hISector();
-        dR0 = sqrt(his->IntersectionI(0).Location().X()*his->IntersectionI(0).Location().X()+
-                  his->IntersectionI(0).Location().Y()*his->IntersectionI(0).Location().Y());
+      if (trackCharge==0) {
+        FreeTrajectoryState initialState2 = tsTransform.initialFreeState(*s2.track(),&*magneticField);
+        helixIntersector.calculate(initialState1, initialState2);
+        if (helixIntersector.status())
+          dR0 = helixIntersector.crossingPoint().perp();
       }
 
-                 
       int fitStatus = 0;
       MultiVertexFitterD fit;      
       if (trackCharge==0 && dR0 > rhoMin_) {
