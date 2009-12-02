@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.15 2009/11/02 22:56:18 bendavid Exp $
+// $Id: ProducerV2SS.cc,v 1.16 2009/12/01 01:33:39 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -110,8 +110,8 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
       if(s1.charge() + s2.charge() != 0) continue;
 
       // do fast helix fit to check if there's any hope
-      const reco::Track * t1 = s1.track();
-      const reco::Track * t2 = s2.track();
+      //const reco::Track * t1 = s1.track();
+      //const reco::Track * t2 = s2.track();
       
       double dZ0 = -999;
       double dR0 = -999;
