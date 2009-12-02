@@ -1,10 +1,10 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerConversions.h,v 1.5 2009/07/15 20:38:24 loizides Exp $
+// $Id: None.cc,v 1.2 2009/12/02 15:42:29 loizides Exp $
 //
 // None
 //
-// Dummy module to do nothing. Can be a place holder.
-
+// Dummy module to do nothing. Can be a place holder in sequences.
+//
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
@@ -28,5 +28,7 @@ namespace mitedm
   };
 }
 
+using namespace mitedm;
+
 //define this as a plug-in
-DEFINE_FWK_MODULE(mitedm::None);
+DEFINE_FWK_MODULE(None);
