@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerConversions.h,v 1.5 2009/07/15 20:38:24 loizides Exp $
+// $Id: FilterLumi.cc,v 1.1 2009/12/02 20:55:28 loizides Exp $
 //
 // FilterLumi
 //
@@ -49,10 +49,15 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
   if (!applyfilter_)
     return true;
 
-  bool accepted = false;
-
   unsigned int irun = iEvent.id().run();
+  if ( (irun!=122294) &&
+       (irun!=122314) &&
+       (irun!=123151) )
+    return true;
+
+  bool accepted = false;
   unsigned int ilum = iEvent.luminosityBlock();
+
   if (irun==122294) {
     if(ilum>=37 && ilum<=43) 
       accepted=true;
