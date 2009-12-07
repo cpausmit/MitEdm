@@ -1,4 +1,4 @@
-// $Id: HisInterface.cc,v 1.2 2008/09/04 13:55:29 loizides Exp $
+// $Id: HisInterface.cc,v 1.3 2008/09/27 05:48:26 loizides Exp $
 
 #include "MitEdm/VertexFitInterface/interface/HisInterface.h"
 #include <TMath.h>
@@ -16,8 +16,8 @@ HisInterface::HisInterface(const Track *trk1, const Track *trk2, const double bF
   // Constructor.
 
   // Create the CMS track parameters
-  TrackParameters cmsTrk1(trk1);
-  TrackParameters cmsTrk2(trk2);
+  TrackParameters cmsTrk1(trk1,iCms, bField);
+  TrackParameters cmsTrk2(trk2,iCms, bField);
   // Extract from them the MVF track parameters
   TrackParameters hisTrk1 = cmsTrk1.mvfTrack();
   TrackParameters hisTrk2 = cmsTrk2.mvfTrack();

@@ -1,4 +1,4 @@
-// $Id: MvfInterface.cc,v 1.7 2008/09/27 05:48:26 loizides Exp $
+// $Id: MvfInterface.cc,v 1.8 2008/11/13 16:36:48 paus Exp $
 
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 #include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
@@ -34,7 +34,7 @@ bool MvfInterface::addTrack(const Track *trk, const int id, const float mass,
 {
   // Add a track to the track pool
 
-  TrackParameters cmsTrk(trk);
+  TrackParameters cmsTrk(trk,iCms, mvf_->bField());
   TrackParameters mvfTrk = cmsTrk.mvfTrack(); 
   return (mvf_->addTrack(*mvfTrk.pars(),*mvfTrk.cMat(),id,mass,jv));
 }
@@ -45,7 +45,7 @@ bool MvfInterface::addTrack(const Track *trk, const int id, const float mass,
 {
   // Add a track to the track pool
 
-  TrackParameters cmsTrk(trk);
+  TrackParameters cmsTrk(trk,iCms, mvfC_->bField());
   TrackParameters mvfTrk = cmsTrk.mvfTrack(); 
   return (mvfC_->addTrack(*mvfTrk.pars(),*mvfTrk.cMat(),id,mass,jv));
 }
@@ -56,7 +56,7 @@ bool MvfInterface::addTrack(const Track *trk, const int id, const float mass,
 {
   // Add a track to the track pool
 
-  TrackParameters cmsTrk(trk);
+  TrackParameters cmsTrk(trk,iCms, mvfD_->bField());
   TrackParameters mvfTrk = cmsTrk.mvfTrack(); 
   return (mvfD_->addTrack(*mvfTrk.pars(),*mvfTrk.cMat(),id,mass,jv));
 }
