@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerStable.h,v 1.4 2008/09/27 05:48:25 loizides Exp $
+// $Id: ProducerStable.h,v 1.5 2009/07/15 20:38:24 loizides Exp $
 //
 // ProducerStable
 //
@@ -17,14 +17,14 @@ namespace mitedm
 {
   class ProducerStable : public BaseCandProducer
   {
-  public:
-    explicit ProducerStable(const edm::ParameterSet&);
-    ~ProducerStable();
+    public:
+      explicit ProducerStable(const edm::ParameterSet&);
+      ~ProducerStable();
     
-  private:
-    void produce (edm::Event&, const edm::EventSetup&);
+    private:
+      void produce (edm::Event&, const edm::EventSetup&);
     
-    std::string iTracks_; //input label of tracks
+      std::string iTracks_; //input label of tracks
   };
 }
 #endif
