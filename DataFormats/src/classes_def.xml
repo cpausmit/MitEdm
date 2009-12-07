@@ -1,6 +1,7 @@
-<!-- $Id: classes_def.xml,v 1.12 2009/04/07 08:06:41 loizides Exp $ -->
+<!-- $Id: classes_def.xml,v 1.13 2009/07/12 13:12:06 bendavid Exp $ -->
 
 <lcgdict>
+  <class name="mitedm::EvtSelData"/>
   <class name="mitedm::BasePart"/>
   <class name="mitedm::StablePart"/>
   <class name="mitedm::DecayPart"/>
