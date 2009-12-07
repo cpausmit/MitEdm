@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterBX.cc,v 1.1 2009/12/05 12:29:50 edwenger Exp $
+// $Id: FilterBX.cc,v 1.1 2009/12/07 22:39:50 edwenger Exp $
 //
 // FilterBX
 //
@@ -19,10 +19,10 @@
 
 namespace mitedm
 {
-  class BunchCrossingFilter : public edm::EDFilter {
+  class FilterBX : public edm::EDFilter {
   public:
-    explicit BunchCrossingFilter(const edm::ParameterSet &ps);
-    ~BunchCrossingFilter();
+    explicit FilterBX(const edm::ParameterSet &ps);
+    ~FilterBX() {}
     
   protected:
     virtual bool filter (edm::Event &iEvent, const edm::EventSetup &iSetup);
@@ -36,7 +36,7 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 FilterBX::FilterBX(const edm::ParameterSet& iConfig)
-  : crossings_ = iConfig.getUntrackedParameter< std::vector<int> >("crossings");
+  : crossings_(iConfig.getUntrackedParameter< std::vector<int> >("crossings"))
 {
 }
 

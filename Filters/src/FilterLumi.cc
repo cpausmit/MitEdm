@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.2 2009/12/05 12:29:50 loizides Exp $
+// $Id: FilterLumi.cc,v 1.3 2009/12/07 22:40:17 edwenger Exp $
 //
 // FilterLumi
 //
@@ -23,7 +23,6 @@ namespace mitedm
   class FilterLumi : public edm::EDFilter {
     public:
       explicit FilterLumi(const edm::ParameterSet &ps);
-      ~FilterLumi() {}
 
     protected:
       virtual bool filter(edm::Event &iEvent, const edm::EventSetup &iSetup);
@@ -70,10 +69,10 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(ilum>=3 && ilum<=19) 
       accepted=true;
   } else if (irun==123596) {
-    if(ils>=69 && ils<=144) 
+    if(ilum>=69 && ilum<=144) 
       accepted=true;
   } else if (irun==123615) {
-    if(ils>=71) 
+    if(ilum>=71) 
       accepted=true;
   }
 
