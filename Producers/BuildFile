@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.10 2009/06/18 22:54:41 bendavid Exp $
+# $Id: BuildFile,v 1.11 2009/10/21 13:26:02 loizides Exp $
 
 <use name=root>
 <use name=FWCore/Framework>
@@ -12,6 +12,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/VertexReco>
+<use name=Geometry/CaloGeometry>
 <use name=MitCommon/DataFormats>
 <use name=MitCommon/MathTools>
 <use name=MitEdm/DataFormats>
