@@ -1,7 +1,6 @@
-<!-- $Id: classes_def.xml,v 1.13 2009/07/12 13:12:06 bendavid Exp $ -->
+<!-- $Id: classes_def.xml,v 1.14 2009/12/07 22:04:52 loizides Exp $ -->
 
 <lcgdict>
-  <class name="mitedm::EvtSelData"/>
   <class name="mitedm::BasePart"/>
   <class name="mitedm::StablePart"/>
   <class name="mitedm::DecayPart"/>
@@ -28,4 +27,6 @@
                std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > >"/> 	 
   <class name="edm::helpers::KeyVal<edm::RefToBase<reco::Track>,
                std::vector<std::pair<edm::RefToBase<reco::Track>,double> > >"/>
+  <class name="mitedm::EvtSelData"/>
+  <class name="edm::Wrapper<mitedm::EvtSelData>"/>
 </lcgdict>
