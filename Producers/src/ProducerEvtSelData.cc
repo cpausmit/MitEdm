@@ -1,4 +1,4 @@
-// $Id: ProducerEvtSelData.cc,v 1.1 2009/12/07 22:52:30 loizides Exp $
+// $Id: ProducerEvtSelData.cc,v 1.2 2009/12/08 00:31:46 edwenger Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -252,7 +252,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
 	   << " | contained hits - 10 = " << nminus
 	   << " | pixel barrel hits = " << ePxbHits;
      
-      eClusVtxQual = (nminus+nplus)/(2.0*nbest);
+      eClusVtxQual = (2.0*nbest)/(nminus+nplus);
  
     }
     
