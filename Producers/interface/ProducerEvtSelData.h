@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerEvtSelData.h,v 1.1 2009/12/07 22:52:27 loizides Exp $
+// $Id: ProducerEvtSelData.h,v 1.2 2009/12/08 00:31:46 edwenger Exp $
 //
 // ProducerEvtSelData
 //
@@ -21,32 +21,27 @@ class TrackerGeometry;
 
 namespace mitedm
 {
-
-  class VertexHit {
-    public:
-      float z;
-      float r;
-      float w;
-  };
-
   class ProducerEvtSelData : public edm::EDProducer {
     public:
-      explicit ProducerEvtSelData(const edm::ParameterSet&);
+      explicit ProducerEvtSelData(const edm::ParameterSet &cfg);
       ~ProducerEvtSelData();
     
     private:
-      void produce (edm::Event&, const edm::EventSetup&);
-      void beginJob (const edm::EventSetup&);
-      int  getContainedHits (std::vector<VertexHit> hits, float z0, float & chi);
+      struct VertexHit {
+        float z;
+        float r;
+        float w;
+      };
+
+      void produce(edm::Event &evt, const edm::EventSetup &setup);
+      int  getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
 
       std::string srcHF_;     //hf rec hits
       std::string srcHBHE_;   //hbhe rec hits
       std::string srcCastor_; //castor rec hits
       std::string srcZDC_;    //zdc rec hits
       std::string srcPixels_; //pixel rec hits
-
-      const TrackerGeometry* theTracker;
+      std::string srcVertex_; //vertex (if not set will use pixel counting vertex)
   };
-
 }
 #endif

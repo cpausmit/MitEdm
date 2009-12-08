@@ -1,23 +1,25 @@
-// $Id: ProducerEvtSelData.cc,v 1.2 2009/12/08 00:31:46 edwenger Exp $
+// $Id: ProducerEvtSelData.cc,v 1.3 2009/12/08 02:10:04 edwenger Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include <TMath.h>
 
 using namespace std;
 using namespace edm;
@@ -29,7 +31,8 @@ ProducerEvtSelData::ProducerEvtSelData(const ParameterSet& cfg)
     srcHBHE_(cfg.getUntrackedParameter<string>("hbheRecHits","hbhereco")),
     srcCastor_(cfg.getUntrackedParameter<string>("castorRecHits","castorreco")),
     srcZDC_(cfg.getUntrackedParameter<string>("zdcRecHits","zdcreco")),
-    srcPixels_(cfg.getUntrackedParameter<string>("pixelRecHits","siPixelRecHits"))
+    srcPixels_(cfg.getUntrackedParameter<string>("pixelRecHits","siPixelRecHits")),
+    srcVertex_(cfg.getUntrackedParameter<string>("vertex",""))
 {
   // Constructor.
 
@@ -47,21 +50,21 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
 {
   // Produce event selection data for this event.
 
-  double eHfNeg     = 0;
-  double eHfPos     = 0;
-  double eHfPosTime = 0;
-  double eHfNegTime = 0;
-  double eHcalNeg   = 0;
-  double eHcalPos   = 0;
-  double eCaNeg     = 0;
-  double eCaPos     = 0;
-  double eCaPosTime = 0;
-  double eCaNegTime = 0;
-  double eZdNeg     = 0;
-  double eZdPos     = 0;
-  double eZdPosTime = 0;
-  double eZdNegTime = 0;
-  int    ePxbHits   = 0;
+  double eHfNeg       = 0;
+  double eHfPos       = 0;
+  double eHfPosTime   = 0;
+  double eHfNegTime   = 0;
+  double eHcalNeg     = 0;
+  double eHcalPos     = 0;
+  double eCaNeg       = 0;
+  double eCaPos       = 0;
+  double eCaPosTime   = 0;
+  double eCaNegTime   = 0;
+  double eZdNeg       = 0;
+  double eZdPos       = 0;
+  double eZdPosTime   = 0;
+  double eZdNegTime   = 0;
+  int    ePxbHits     = 0;
   double eClusVtxQual = 0;
 
   Handle<HFRecHitCollection> hfhits;
@@ -154,113 +157,98 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   if(eZdNeg>0)
     eZdNegTime /= eZdNeg;
   
-  cout <<"now it is time for pixels" << endl;
-
-
-  Handle<SiPixelRecHitCollection> pixelhits;
+  Handle<SiPixelRecHitCollection> hRecHits;
   try {
-    evt.getByLabel(edm::InputTag(srcPixels_),pixelhits);
+    evt.getByLabel(edm::InputTag(srcPixels_),hRecHits);
   } catch (...) {}
-  if (pixelhits.isValid()) {
-    
-    cout << "valid pixel hits" << endl;
 
-    const SiPixelRecHitCollection* thePixelHits = pixelhits.product();
-    ePxbHits = thePixelHits->size();
-
-    if(ePxbHits > 0) {
+  if (hRecHits.isValid()) {
+    ESHandle<TrackerGeometry> trackerHandle;
+    setup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+    const TrackerGeometry *tgeo = trackerHandle.product();
+    const SiPixelRecHitCollection *hits = hRecHits.product();
+    vector<VertexHit> vhits(hits->size());
+    for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
+          end = hits->data().end(); hit != end; ++hit) {
+      if (!hit->isValid())
+        continue;
+      DetId id(hit->geographicalId());
+      if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
+        continue;
+      const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
+      if (1) {
+        const RectangularPixelTopology *pixTopo = 
+          static_cast<const RectangularPixelTopology*>(&(pgdu->specificTopology()));
+        vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
+        bool pixelOnEdge = false;
+        for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); 
+            pixel != pixels.end(); ++pixel) {
+          int pixelX = pixel->x;
+          int pixelY = pixel->y;
+          if(pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
+            pixelOnEdge = true;
+            break;
+          }
+        }
+        if (pixelOnEdge)
+          continue;
+      }
       
-      vector<VertexHit> hits;
-      
-      for(SiPixelRecHitCollection::DataContainer::const_iterator
-	    recHit = thePixelHits->data().begin(),
-	    recHitEnd = thePixelHits->data().end();
-	  recHit != recHitEnd; ++recHit)
-	{
-	  if(recHit->isValid())
-	    {
-	      //      if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
-	      DetId id = recHit->geographicalId();
-	      const PixelGeomDetUnit* pgdu =
-		dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDetUnit(id));
-	      const RectangularPixelTopology* theTopol =
-		dynamic_cast<const RectangularPixelTopology*>( &(pgdu->specificTopology()) );
-	      vector<SiPixelCluster::Pixel> pixels = recHit->cluster()->pixels();
-	      
-	      bool pixelOnEdge = false;
-	      for(vector<SiPixelCluster::Pixel>::const_iterator
-		    pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
-		{
-		  int pos_x = (int)pixel->x;
-		  int pos_y = (int)pixel->y;
-		  
-		  if(theTopol->isItEdgePixelInX(pos_x) ||
-		     theTopol->isItEdgePixelInY(pos_y))
-		    { pixelOnEdge = true; break; }
-		}
-	      
-	      if(!pixelOnEdge)
-		if(id.subdetId() == int(PixelSubdetector::PixelBarrel))  
-		  {
-		    PXBDetId pid(id);
-		    
-		    LocalPoint lpos = LocalPoint(recHit->localPosition().x(),
-						 recHit->localPosition().y(),
-						 recHit->localPosition().z());
-		    
-		    GlobalPoint gpos = theTracker->idToDet(id)->toGlobal(lpos);
-		    
-		    VertexHit hit;
-		    hit.z = gpos.z(); 
-		    hit.r = gpos.perp(); 
-		    hit.w = recHit->cluster()->sizeY();
-		    
-		    hits.push_back(hit);
-		  }
-	    }
-	}
-      
-      int nhits; int nhits_max = 0;
-      float chi; float chi_max = 1e+9;
-      
-      float zest = 0.0;
-      
-      for(float z0 = -15.9; z0 <= 15.95; z0 += 0.1)
-	{
-	  nhits = getContainedHits(hits, z0, chi);
-	  
-	  if(nhits > 0)
-	    {
-	      if(nhits >  nhits_max)
-		{ chi_max = 1e+9; nhits_max = nhits; }
-	      
-	      if(nhits >= nhits_max)
-		if(chi < chi_max)
-		  { chi_max = chi; zest = z0; }
-	    }
-	}
-      
-      int nbest=0, nminus=0, nplus=0;
-      nbest = getContainedHits(hits,zest,chi);
-      nminus = getContainedHits(hits,zest-10.,chi);
-      nplus = getContainedHits(hits,zest+10.,chi);
-      
-
-      cout << "  [vertex position] estimated = " << zest 
-	   << " | contained hits = " << nbest 
-	   << " | contained hits + 10 = " << nplus
-	   << " | contained hits - 10 = " << nminus
-	   << " | pixel barrel hits = " << ePxbHits;
-     
-      eClusVtxQual = (2.0*nbest)/(nminus+nplus);
- 
+      LocalPoint lpos = LocalPoint(hit->localPosition().x(),
+                                   hit->localPosition().y(),
+                                   hit->localPosition().z());
+      GlobalPoint gpos = pgdu->toGlobal(lpos);
+      VertexHit vh;
+      vh.z = gpos.z(); 
+      vh.r = gpos.perp(); 
+      vh.w = hit->cluster()->sizeY();
+      vhits.push_back(vh);
     }
-    
+
+    double zest = 0.0;
+    if (srcVertex_.length()!=0) {
+      edm::Handle<reco::VertexCollection> vertexCol;
+      evt.getByLabel(srcVertex_,vertexCol);
+      const reco::VertexCollection *vertices = vertexCol.product();
+      unsigned int vtracks = 0;
+      for(reco::VertexCollection::const_iterator
+            vertex = vertices->begin(); vertex!= vertices->end(); ++vertex) {
+        if(vertex->tracksSize()>vtracks) {
+          vtracks = vertex->tracksSize();
+          zest = vertex->z();
+        }
+      }
+    } else {
+      int nhits = 0, nhits_max = 0;
+      double chi = 0, chi_max = 1e+9;
+      for(double z0 = -15.9; z0 <= 15.95; z0 += 0.1) {
+        nhits = getContainedHits(vhits, z0, chi);
+        if(nhits > 0) {
+          if(nhits >  nhits_max) { 
+            chi_max = 1e+9; 
+            nhits_max = nhits; 
+          }
+          if(nhits >= nhits_max) {
+            if(chi < chi_max) { 
+              chi_max = chi; 
+              zest = z0; 
+            }
+          }
+        }
+      }
+    }
+
+    double chi = 0;
+    int nbest=0, nminus=0, nplus=0;
+    nbest = getContainedHits(vhits,zest,chi);
+    nminus = getContainedHits(vhits,zest-10.,chi);
+    nplus = getContainedHits(vhits,zest+10.,chi);
+    if (nbest!=0)
+      eClusVtxQual = (2.0*nbest)/(nminus+nplus);
   }
-  
-  
-  std::auto_ptr<EvtSelData> output(new EvtSelData(eHfNeg,eHfPos,eHfNegTime,eHfPosTime,
-                                                  eHcalNeg, eHcalPos,
+
+  std::auto_ptr<EvtSelData> output(new EvtSelData(eHcalNeg, eHcalPos,
+                                                  eHfNeg,eHfPos,eHfNegTime,eHfPosTime,
                                                   eCaNeg,eCaPos,eCaNegTime,eCaPosTime,
                                                   eZdNeg,eZdPos,eZdNegTime,eZdPosTime,
 						  ePxbHits,eClusVtxQual));
@@ -268,42 +256,22 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
 }
 
 //--------------------------------------------------------------------------------------------------
-void ProducerEvtSelData::beginJob (const edm::EventSetup& es) {
-
-  cout << "begin job" << endl;
-
-  // Get tracker geometry
-  edm::ESHandle<TrackerGeometry> trackerHandle;
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  theTracker = trackerHandle.product();
-
-}
-
-//--------------------------------------------------------------------------------------------------
-int ProducerEvtSelData::getContainedHits (std::vector<VertexHit> hits, float z0, float & chi) {
-
-  // Calculate number of hits contained in V-shaped window in cluster y-width vs. z-position
+int ProducerEvtSelData::getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi) 
+{
+  // Calculate number of hits contained in v-shaped window in cluster y-width vs. z-position.
 
   int n = 0;
-  chi = 0.;
+  chi   = 0.;
 
-  for(vector<VertexHit>::const_iterator hit = hits.begin();
-                                        hit!= hits.end(); hit++)
-  {
-    // Predicted cluster width in y direction
-    float p = 2 * fabs(hit->z - z0)/hit->r + 0.5; // FIXME
-
-    if(fabs(p - hit->w) <= 1.)
-    { 
+  for(vector<VertexHit>::const_iterator hit = hits.begin(); hit!= hits.end(); hit++) {
+    double p = 2 * fabs(hit->z - z0)/hit->r + 0.5; // FIXME
+    if(TMath::Abs(p - hit->w) <= 1.) { 
       chi += fabs(p - hit->w);
       n++;
     }
   }
-
   return n;
-
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ProducerEvtSelData);
