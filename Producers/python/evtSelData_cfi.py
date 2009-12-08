@@ -1,4 +1,4 @@
-# $Id: conversions_cfi.py,v 1.7 2009/07/12 13:12:06 bendavid Exp $
+# $Id: evtSelData_cfi.py,v 1.1 2009/12/07 22:53:00 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7,4 +7,5 @@ evtSelData = cms.EDProducer("ProducerEvtSelData",
     hbheRecHits = cms.untracked.string('hbhereco'),
     castorRecHits = cms.untracked.string('castorreco'),
     zdcRecHits = cms.untracked.string('zdcreco'),
+    pixelRecHits = cms.untracked.string('siPixelRecHits')
 )

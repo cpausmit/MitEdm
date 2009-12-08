@@ -1,4 +1,4 @@
-// $Id: ProducerStable.cc,v 1.6 2008/12/01 17:25:58 bendavid Exp $
+// $Id: ProducerEvtSelData.cc,v 1.1 2009/12/07 22:52:30 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -9,6 +9,16 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+
 using namespace std;
 using namespace edm;
 using namespace mitedm;
@@ -18,7 +28,8 @@ ProducerEvtSelData::ProducerEvtSelData(const ParameterSet& cfg)
   : srcHF_(cfg.getUntrackedParameter<string>("hfRecHits","hfreco")),
     srcHBHE_(cfg.getUntrackedParameter<string>("hbheRecHits","hbhereco")),
     srcCastor_(cfg.getUntrackedParameter<string>("castorRecHits","castorreco")),
-    srcZDC_(cfg.getUntrackedParameter<string>("zdcRecHits","zdcreco"))
+    srcZDC_(cfg.getUntrackedParameter<string>("zdcRecHits","zdcreco")),
+    srcPixels_(cfg.getUntrackedParameter<string>("pixelRecHits","siPixelRecHits"))
 {
   // Constructor.
 
@@ -50,6 +61,8 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   double eZdPos     = 0;
   double eZdPosTime = 0;
   double eZdNegTime = 0;
+  int    ePxbHits   = 0;
+  double eClusVtxQual = 0;
 
   Handle<HFRecHitCollection> hfhits;
   try {
@@ -112,7 +125,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   try {
     evt.getByLabel(edm::InputTag(srcZDC_),zdchits);
   } catch (...) {}  
-  if (castorhits.isValid()) {
+  if (zdchits.isValid()) {
     for(size_t ihit = 0; ihit<zdchits->size(); ++ihit){
       const ZDCRecHit h = (*zdchits)[ihit];
       double energy = h.energy();
@@ -141,12 +154,156 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   if(eZdNeg>0)
     eZdNegTime /= eZdNeg;
   
+  cout <<"now it is time for pixels" << endl;
+
+
+  Handle<SiPixelRecHitCollection> pixelhits;
+  try {
+    evt.getByLabel(edm::InputTag(srcPixels_),pixelhits);
+  } catch (...) {}
+  if (pixelhits.isValid()) {
+    
+    cout << "valid pixel hits" << endl;
+
+    const SiPixelRecHitCollection* thePixelHits = pixelhits.product();
+    ePxbHits = thePixelHits->size();
+
+    if(ePxbHits > 0) {
+      
+      vector<VertexHit> hits;
+      
+      for(SiPixelRecHitCollection::DataContainer::const_iterator
+	    recHit = thePixelHits->data().begin(),
+	    recHitEnd = thePixelHits->data().end();
+	  recHit != recHitEnd; ++recHit)
+	{
+	  if(recHit->isValid())
+	    {
+	      //      if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
+	      DetId id = recHit->geographicalId();
+	      const PixelGeomDetUnit* pgdu =
+		dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDetUnit(id));
+	      const RectangularPixelTopology* theTopol =
+		dynamic_cast<const RectangularPixelTopology*>( &(pgdu->specificTopology()) );
+	      vector<SiPixelCluster::Pixel> pixels = recHit->cluster()->pixels();
+	      
+	      bool pixelOnEdge = false;
+	      for(vector<SiPixelCluster::Pixel>::const_iterator
+		    pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
+		{
+		  int pos_x = (int)pixel->x;
+		  int pos_y = (int)pixel->y;
+		  
+		  if(theTopol->isItEdgePixelInX(pos_x) ||
+		     theTopol->isItEdgePixelInY(pos_y))
+		    { pixelOnEdge = true; break; }
+		}
+	      
+	      if(!pixelOnEdge)
+		if(id.subdetId() == int(PixelSubdetector::PixelBarrel))  
+		  {
+		    PXBDetId pid(id);
+		    
+		    LocalPoint lpos = LocalPoint(recHit->localPosition().x(),
+						 recHit->localPosition().y(),
+						 recHit->localPosition().z());
+		    
+		    GlobalPoint gpos = theTracker->idToDet(id)->toGlobal(lpos);
+		    
+		    VertexHit hit;
+		    hit.z = gpos.z(); 
+		    hit.r = gpos.perp(); 
+		    hit.w = recHit->cluster()->sizeY();
+		    
+		    hits.push_back(hit);
+		  }
+	    }
+	}
+      
+      int nhits; int nhits_max = 0;
+      float chi; float chi_max = 1e+9;
+      
+      float zest = 0.0;
+      
+      for(float z0 = -15.9; z0 <= 15.95; z0 += 0.1)
+	{
+	  nhits = getContainedHits(hits, z0, chi);
+	  
+	  if(nhits > 0)
+	    {
+	      if(nhits >  nhits_max)
+		{ chi_max = 1e+9; nhits_max = nhits; }
+	      
+	      if(nhits >= nhits_max)
+		if(chi < chi_max)
+		  { chi_max = chi; zest = z0; }
+	    }
+	}
+      
+      int nbest=0, nminus=0, nplus=0;
+      nbest = getContainedHits(hits,zest,chi);
+      nminus = getContainedHits(hits,zest-10.,chi);
+      nplus = getContainedHits(hits,zest+10.,chi);
+      
+
+      cout << "  [vertex position] estimated = " << zest 
+	   << " | contained hits = " << nbest 
+	   << " | contained hits + 10 = " << nplus
+	   << " | contained hits - 10 = " << nminus
+	   << " | pixel barrel hits = " << ePxbHits;
+     
+      eClusVtxQual = (nminus+nplus)/(2.0*nbest);
+ 
+    }
+    
+  }
+  
+  
   std::auto_ptr<EvtSelData> output(new EvtSelData(eHfNeg,eHfPos,eHfNegTime,eHfPosTime,
                                                   eHcalNeg, eHcalPos,
                                                   eCaNeg,eCaPos,eCaNegTime,eCaPosTime,
-                                                  eZdNeg,eZdPos,eZdNegTime,eZdPosTime));
+                                                  eZdNeg,eZdPos,eZdNegTime,eZdPosTime,
+						  ePxbHits,eClusVtxQual));
   evt.put(output);
 }
+
+//--------------------------------------------------------------------------------------------------
+void ProducerEvtSelData::beginJob (const edm::EventSetup& es) {
+
+  cout << "begin job" << endl;
+
+  // Get tracker geometry
+  edm::ESHandle<TrackerGeometry> trackerHandle;
+  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+  theTracker = trackerHandle.product();
+
+}
+
+//--------------------------------------------------------------------------------------------------
+int ProducerEvtSelData::getContainedHits (std::vector<VertexHit> hits, float z0, float & chi) {
+
+  // Calculate number of hits contained in V-shaped window in cluster y-width vs. z-position
+
+  int n = 0;
+  chi = 0.;
+
+  for(vector<VertexHit>::const_iterator hit = hits.begin();
+                                        hit!= hits.end(); hit++)
+  {
+    // Predicted cluster width in y direction
+    float p = 2 * fabs(hit->z - z0)/hit->r + 0.5; // FIXME
+
+    if(fabs(p - hit->w) <= 1.)
+    { 
+      chi += fabs(p - hit->w);
+      n++;
+    }
+  }
+
+  return n;
+
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ProducerEvtSelData);

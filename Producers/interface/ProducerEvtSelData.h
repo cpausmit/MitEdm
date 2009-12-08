@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerStable.h,v 1.5 2009/07/15 20:38:24 loizides Exp $
+// $Id: ProducerEvtSelData.h,v 1.1 2009/12/07 22:52:27 loizides Exp $
 //
 // ProducerEvtSelData
 //
@@ -17,8 +17,18 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class TrackerGeometry;
+
 namespace mitedm
 {
+
+  class VertexHit {
+    public:
+      float z;
+      float r;
+      float w;
+  };
+
   class ProducerEvtSelData : public edm::EDProducer {
     public:
       explicit ProducerEvtSelData(const edm::ParameterSet&);
@@ -26,11 +36,17 @@ namespace mitedm
     
     private:
       void produce (edm::Event&, const edm::EventSetup&);
+      void beginJob (const edm::EventSetup&);
+      int  getContainedHits (std::vector<VertexHit> hits, float z0, float & chi);
 
       std::string srcHF_;     //hf rec hits
       std::string srcHBHE_;   //hbhe rec hits
       std::string srcCastor_; //castor rec hits
       std::string srcZDC_;    //zdc rec hits
+      std::string srcPixels_; //pixel rec hits
+
+      const TrackerGeometry* theTracker;
   };
+
 }
 #endif
