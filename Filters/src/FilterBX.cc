@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterBX.cc,v 1.1 2009/12/07 22:39:50 edwenger Exp $
+// $Id: FilterBX.cc,v 1.2 2009/12/07 22:49:05 edwenger Exp $
 //
 // FilterBX
 //
-// Filter to select events from specified bunch crossing numbers
+// Filter to select events from specified bunch crossing numbers.
 //
 // Authors: E.Wenger
 //--------------------------------------------------------------------------------------------------
@@ -38,18 +38,22 @@ using namespace std;
 FilterBX::FilterBX(const edm::ParameterSet& iConfig)
   : crossings_(iConfig.getUntrackedParameter< std::vector<int> >("crossings"))
 {
+  // Constructor.
 }
 
 //--------------------------------------------------------------------------------------------------
 bool FilterBX::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
-  // Filter events based on specified bunch crossings
+  // Filter events based on specified bunch crossings.
   
   bool accepted = false;
   int bx = iEvent.bunchCrossing();
 
   for(unsigned int ibunch = 0; ibunch<crossings_.size(); ibunch++) {
-    if(bx == crossings_[ibunch]) accepted = true;
+    if(bx == crossings_[ibunch]) {
+      accepted = true;
+      break;
+    }
   }
   
   return accepted;
