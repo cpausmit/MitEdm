@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.18 2009/11/02 22:56:18 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.19 2009/12/01 01:33:39 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -18,6 +18,7 @@
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
+#include <TMath.h>
 
 using namespace std;
 using namespace edm;
@@ -35,7 +36,10 @@ ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
   convConstraint_  (cfg.getUntrackedParameter<bool>  ("convConstraint",false)),
   convConstraint3D_(cfg.getUntrackedParameter<bool>  ("convConstraint3D",true)),
   rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0)),
-  useHitDropper_   (cfg.getUntrackedParameter<bool>  ("useHitDropper",true))
+  useHitDropper_   (cfg.getUntrackedParameter<bool>  ("useHitDropper",true)),
+  applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false)),
+  applyMinTrackProb_(cfg.getUntrackedParameter<bool>  ("applyMinTrackProb",false)),
+  minTrackProb_     (cfg.getUntrackedParameter<double>("minTrackProb",1e-4))
 {
   // Constructor.
 
@@ -105,9 +109,18 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
   
   ClosestApproachInRPhi helixIntersector;
   
+  int nFits = 0;
+  
+  //printf("S1 size = %i\n", pS1->size());
+  
   // Simple double loop
   for (UInt_t i = 0; i<pS1->size(); ++i) {
     const StablePart &s1 =  pS1->at(i);
+    
+    const reco::Track * t1 = s1.track();
+    
+    if (t1->dz()>20.0) continue;
+    if (applyMinTrackProb_ && TMath::Prob(t1->chi2(),static_cast<int>(t1->ndof())) < minTrackProb_ ) continue;
     
     UInt_t j;
     if (iStables1_ == iStables2_)
@@ -123,14 +136,17 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
       const StablePart &s2 = pS2->at(j);
 
             //Do fast helix fit to check if there's any hope
-      const reco::Track * t1 = s1.track();
       const reco::Track * t2 = s2.track();
+      
+      if (t2->dz()>20.0) continue;
+      if (applyMinTrackProb_ && TMath::Prob(t2->chi2(),static_cast<int>(t2->ndof())) < minTrackProb_ ) continue;
+
       
       int trackCharge = t1->charge() + t2->charge();
       
       double dR0 = 0.0;
       
-      if (trackCharge==0) {
+      if (!applyChargeConstraint_ || trackCharge==0) {
         FreeTrajectoryState initialState2 = tsTransform.initialFreeState(*s2.track(),&*magneticField);
         helixIntersector.calculate(initialState1, initialState2);
         if (helixIntersector.status())
@@ -139,9 +155,10 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
 
       int fitStatus = 0;
       MultiVertexFitterD fit;      
-      if (trackCharge==0 && dR0 > rhoMin_) {
+      if ( (!applyChargeConstraint_ || trackCharge==0) && dR0 > rhoMin_) {
       
         // Vertex fit now, possibly with conversion constraint
+        nFits++;
   
         fit.init(bfield); // Reset to the magnetic field from the event setup
         MvfInterface fitInt(&fit);
@@ -261,6 +278,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
       }
     }
   }
+  
+  //printf("nConversionFits = %i\n",nFits);
 
   // Write the collection even if it is empty
   if (0) {
