@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterEvtSel.cc,v 1.3 2009/12/08 00:06:32 loizides Exp $
+// $Id: FilterEvtSel.cc,v 1.1 2009/12/08 02:07:45 edwenger Exp $
 //
 // FilterEvtSel
 //
@@ -29,10 +29,10 @@ namespace mitedm
     
   protected:
     virtual bool filter (edm::Event &iEvent, const edm::EventSetup &iSetup);
-    std::vector<double> clusterPars_;
     double minHfEnergy_;
     double maxHfTimeDiff_;
     std::string srcEvtSel_;
+    std::vector<double> clusterPars_;
   };
 }
 
@@ -42,10 +42,10 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 FilterEvtSel::FilterEvtSel(const edm::ParameterSet& iConfig)
-  : clusterPars_(iConfig.getUntrackedParameter< std::vector<double> >("clusterPars")),
-    minHfEnergy_(iConfig.getUntrackedParameter<double>("minHfEnergy")),
+  : minHfEnergy_(iConfig.getUntrackedParameter<double>("minHfEnergy")),
     maxHfTimeDiff_(iConfig.getUntrackedParameter<double>("maxHfTimeDiff")),
-    srcEvtSel_(iConfig.getUntrackedParameter<std::string>("srcEvtSel","evtSelData"))
+    srcEvtSel_(iConfig.getUntrackedParameter<std::string>("srcEvtSel","evtSelData")),
+    clusterPars_(iConfig.getUntrackedParameter< std::vector<double> >("clusterPars"))
 {
   // Constructor.
 }
@@ -65,8 +65,8 @@ bool FilterEvtSel::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
 
   // construct polynomial cut on cluster vertex quality vs. npixelhits
   double polyCut=0;
-  for(int i=0; i < (int)clusterPars_.size(); i++) {
-    polyCut += clusterPars_[i]*pow((double)nPxlHits,i);
+  for(unsigned int i=0; i < clusterPars_.size(); i++) {
+    polyCut += clusterPars_[i]*pow((double)nPxlHits,(int)i);
   }
 
   bool accepted = true;
