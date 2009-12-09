@@ -1,4 +1,4 @@
-// $Id: ProducerEvtSelData.cc,v 1.3 2009/12/08 02:10:04 edwenger Exp $
+// $Id: ProducerEvtSelData.cc,v 1.4 2009/12/08 11:33:23 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -65,7 +65,9 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   double eZdPosTime   = 0;
   double eZdNegTime   = 0;
   int    ePxbHits     = 0;
+  int    ePxHits      = 0;
   double eClusVtxQual = 0;
+  double eClusVtxDiff = 0;
 
   Handle<HFRecHitCollection> hfhits;
   try {
@@ -76,7 +78,8 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
       const HFRecHit h = (*hfhits)[ihit];
       double energy = h.energy();
       double time = h.time();
-      const HcalDetId id(h.id()); 
+      const HcalDetId id(h.id());
+      if(energy<0) continue; 
       if (id.zside()<0) {
         eHfNeg     += energy;
         eHfNegTime += energy * time;
@@ -96,6 +99,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
       const HBHERecHit h = (*hbhehits)[ihit];
       double energy = h.energy();
       const HcalDetId id(h.id()); 
+      if(energy<0) continue;
       if (id.zside()<0) {
         eHcalNeg   += energy;
       } else {
@@ -114,6 +118,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
       double energy = h.energy();
       double time = h.time();
       const HcalCastorDetId id(h.id()); 
+      if(energy<0) continue;
       if (id.zside()<0) {
         eCaNeg     += energy;
         eCaNegTime += energy * time;
@@ -134,6 +139,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
       double energy = h.energy();
       double time = h.time();
       const HcalZDCDetId id(h.id()); 
+      if(energy<0) continue;
       if (id.zside()<0) {
         eZdNeg     += energy;
         eZdNegTime += energy * time;
@@ -167,7 +173,10 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     setup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
     const TrackerGeometry *tgeo = trackerHandle.product();
     const SiPixelRecHitCollection *hits = hRecHits.product();
-    vector<VertexHit> vhits(hits->size());
+
+    ePxHits = hits->size();
+    vector<VertexHit> vhits(ePxHits);
+
     for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
           end = hits->data().end(); hit != end; ++hit) {
       if (!hit->isValid())
@@ -175,6 +184,9 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
       DetId id(hit->geographicalId());
       if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
+
+      ePxbHits++;
+
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
       if (1) {
         const RectangularPixelTopology *pixTopo = 
@@ -243,7 +255,9 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     nbest = getContainedHits(vhits,zest,chi);
     nminus = getContainedHits(vhits,zest-10.,chi);
     nplus = getContainedHits(vhits,zest+10.,chi);
-    if (nbest!=0)
+
+    eClusVtxDiff = nbest - (nminus+nplus)/2.;
+    if ( (nminus+nplus)> 0 )
       eClusVtxQual = (2.0*nbest)/(nminus+nplus);
   }
 
@@ -251,7 +265,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
                                                   eHfNeg,eHfPos,eHfNegTime,eHfPosTime,
                                                   eCaNeg,eCaPos,eCaNegTime,eCaPosTime,
                                                   eZdNeg,eZdPos,eZdNegTime,eZdPosTime,
-						  ePxbHits,eClusVtxQual));
+						  ePxbHits,ePxHits,eClusVtxQual,eClusVtxDiff));
   evt.put(output);
 }
 

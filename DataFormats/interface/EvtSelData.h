@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: EvtSelData.h,v 1.2 2009/12/08 00:31:46 edwenger Exp $
+// $Id: EvtSelData.h,v 1.3 2009/12/08 11:33:22 loizides Exp $
 //
 // EvtSelData
 //
@@ -20,16 +20,17 @@ namespace mitedm
                      eHfNeg_(0), eHfPos_(0), eHfNegTime_(0), eHfPosTime_(0), 
                      eCaNeg_(0), eCaPos_(0), eCaNegTime_(0), eCaPosTime_(0),
                      eZdcNeg_(0), eZdcPos_(0), eZdcNegTime_(0), eZdcPosTime_(0),
-	             ePxbHits_(0), eClusVtxQual_(0) {}
+	             ePxbHits_(0), ePxHits_(0), eClusVtxQual_(0), eClusVtxDiff_(0) {}
       EvtSelData(double eHcalNeg, double eHcalPos,
                  double eHfNeg, double eHfPos, double eHfNegTime, double eHfPosTime,
                  double eCaNeg, double eCaPos, double eCaNegTime, double eCaPosTime,
                  double eZdcNeg, double eZdcPos, double eZdcNegTime, double eZdcPosTime,
-		 int ePxbHits, double eClusVtxQual) : 
-        eHfNeg_(eHfNeg), eHfPos_(eHfPos), eHfNegTime_(eHfNegTime), eHfPosTime_(eHfPosTime),
+		 int ePxbHits, int ePxHits, double eClusVtxQual, double eClusVtxDiff) : 
+        eHcalNeg_(eHcalNeg), eHcalPos_(eHcalPos),
+	eHfNeg_(eHfNeg), eHfPos_(eHfPos), eHfNegTime_(eHfNegTime), eHfPosTime_(eHfPosTime),
         eCaNeg_(eCaNeg), eCaPos_(eCaPos), eCaNegTime_(eCaNegTime), eCaPosTime_(eCaPosTime),
         eZdcNeg_(eZdcNeg), eZdcPos_(eZdcPos), eZdcNegTime_(eZdcNegTime), eZdcPosTime_(eZdcPosTime),
-        ePxbHits_(ePxbHits), eClusVtxQual_(eClusVtxQual) {}
+        ePxbHits_(ePxbHits), ePxHits_(ePxHits), eClusVtxQual_(eClusVtxQual), eClusVtxDiff_(eClusVtxDiff) {}
       ~EvtSelData() {}
 
       double eHcalNeg()       const { return eHcalNeg_;    }
@@ -47,7 +48,9 @@ namespace mitedm
       double eZdcNegTime()    const { return eZdcNegTime_; }
       double eZdcPosTime()    const { return eZdcPosTime_; }
       int    ePxbHits()       const { return ePxbHits_; }
+      int    ePxHits()        const { return ePxHits_; }
       double eClusVtxQual()   const { return eClusVtxQual_; }
+      double eClusVtxDiff()   const { return eClusVtxDiff_; }
 
     protected:
       double eHcalNeg_;     //energy HCAL negative side
@@ -65,7 +68,10 @@ namespace mitedm
       double eZdcNegTime_;  //energy weighted ZDC time on negative side 
       double eZdcPosTime_;  //energy weighted ZDC time on positive side 
       int    ePxbHits_;     //number of pixel rechits in the three barrel layers
-      double eClusVtxQual_; //incompatibility of pixel cluster shapes with vertex
+      int    ePxHits_;      //number of pixel rechits in all barrel and forward layers
+      double eClusVtxQual_; //incompatibility of pixel cluster shapes with vertex (ratio)
+      double eClusVtxDiff_; //incompatibility of pixel cluster shapes with vertex (difference)
+
    };
 }
 #endif
