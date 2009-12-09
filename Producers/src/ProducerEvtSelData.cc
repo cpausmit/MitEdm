@@ -1,4 +1,4 @@
-// $Id: ProducerEvtSelData.cc,v 1.6 2009/12/09 14:03:23 loizides Exp $
+// $Id: ProducerEvtSelData.cc,v 1.7 2009/12/09 16:09:03 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -174,13 +174,12 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     const TrackerGeometry *tgeo = trackerHandle.product();
     const SiPixelRecHitCollection *hits = hRecHits.product();
 
-    ePxHits = hits->size();
-    vector<VertexHit> vhits(ePxHits);
-
+    vector<VertexHit> vhits(hits->dataSize());
     for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
           end = hits->data().end(); hit != end; ++hit) {
       if (!hit->isValid())
         continue;
+      ++ePxHits;
       DetId id(hit->geographicalId());
       if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
