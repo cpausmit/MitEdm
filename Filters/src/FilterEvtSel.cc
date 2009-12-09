@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterEvtSel.cc,v 1.1 2009/12/08 02:07:45 edwenger Exp $
+// $Id: FilterEvtSel.cc,v 1.2 2009/12/08 13:37:59 edwenger Exp $
 //
 // FilterEvtSel
 //
@@ -58,7 +58,7 @@ bool FilterEvtSel::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
   Handle<EvtSelData> evtSel;
   iEvent.getByLabel(edm::InputTag(srcEvtSel_),evtSel);
 
-  int nPxlHits = evtSel->ePxbHits();
+  int nPxlHits = evtSel->ePxHits();
   double hfTimeDiff = evtSel->eHfPosTime() - evtSel->eHfNegTime();
   double clusVtxQual = evtSel->eClusVtxQual();
   double hfEnergyMin = min(evtSel->eHfPos(),evtSel->eHfNeg());
