@@ -1,4 +1,4 @@
-// $Id: ProducerEvtSelData.cc,v 1.5 2009/12/09 12:49:58 edwenger Exp $
+// $Id: ProducerEvtSelData.cc,v 1.6 2009/12/09 14:03:23 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -255,7 +255,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     nplus = getContainedHits(vhits,zest+10.,chi);
 
     eClusVtxDiff = nbest - (nminus+nplus)/2.;
-    if ( (nminus+nplus)> 0 )
+    if ((nminus+nplus)> 0)
       eClusVtxQual = (2.0*nbest)/(nminus+nplus);
   }
 
