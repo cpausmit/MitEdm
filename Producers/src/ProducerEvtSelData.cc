@@ -1,4 +1,4 @@
-// $Id: ProducerEvtSelData.cc,v 1.4 2009/12/08 11:33:23 loizides Exp $
+// $Id: ProducerEvtSelData.cc,v 1.5 2009/12/09 12:49:58 edwenger Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -184,9 +184,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
       DetId id(hit->geographicalId());
       if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
-
-      ePxbHits++;
-
+      ++ePxbHits;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
       if (1) {
         const RectangularPixelTopology *pixTopo = 
