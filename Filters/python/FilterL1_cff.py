@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 ###### L1 (https://twiki.cern.ch/twiki/bin/viewauth/CMS/DNDEtaTriggerList#Relevant_L1_Bits) ######
