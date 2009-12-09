@@ -1,4 +1,4 @@
-# $Id:$
+# $Id: FilterL1_cff.py,v 1.2 2009/12/09 13:55:36 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,6 +20,11 @@ L1BscMB2.L1SeedsLogicalExpression = cms.string('41')
 L1BscOR = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
 L1BscOR.L1TechTriggerSeeding = cms.bool(True)
 L1BscOR.L1SeedsLogicalExpression = cms.string('34')
+
+#tech bits 34 or 40 or 41
+L1BscColl = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+L1BscColl.L1TechTriggerSeeding = cms.bool(True)
+L1BscColl.L1SeedsLogicalExpression = cms.string('34 OR 40 OR 41')
     
 #tech bits 36,37,38,39 - BSC halo bits
 L1BscHalo = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
