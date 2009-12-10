@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterBX.cc,v 1.2 2009/12/07 22:49:05 edwenger Exp $
+// $Id: FilterBX.cc,v 1.3 2009/12/08 00:06:32 loizides Exp $
 //
 // FilterBX
 //
@@ -26,7 +26,8 @@ namespace mitedm
     
   protected:
     virtual bool filter (edm::Event &iEvent, const edm::EventSetup &iSetup);
-    std::vector<int> crossings_;
+    std::vector<int> crossings_; //if not set hardcoded values will be used
+    int type_;                   //==1 for collisions, ==2 for empty
   };
 }
 
@@ -36,7 +37,8 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 FilterBX::FilterBX(const edm::ParameterSet& iConfig)
-  : crossings_(iConfig.getUntrackedParameter< std::vector<int> >("crossings"))
+  : crossings_(iConfig.getUntrackedParameter<std::vector<int> >("crossings")),
+    type_(iConfig.getUntrackedParameter<int>("coltype",1))
 {
   // Constructor.
 }
@@ -47,15 +49,47 @@ bool FilterBX::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
   // Filter events based on specified bunch crossings.
   
   bool accepted = false;
+
   int bx = iEvent.bunchCrossing();
 
-  for(unsigned int ibunch = 0; ibunch<crossings_.size(); ibunch++) {
-    if(bx == crossings_[ibunch]) {
-      accepted = true;
-      break;
+  if (crossings_.size()>0) {
+    for(unsigned int ibunch = 0; ibunch<crossings_.size(); ibunch++) {
+      if(bx == crossings_[ibunch]) {
+        accepted = true;
+        break;
+      }
+    }
+    return accepted;
+  }
+
+  unsigned int irun = iEvent.id().run();
+
+  if (irun==123596) {
+    if (type_==1) {
+      if ((bx==51) || (bx==2724))
+        accepted=true;
+    } else if (type_==2) {
+      if ((bx==2276) || (bx==3170))
+        accepted=true;
+    }
+  } else if (irun==123615) {
+    if (type_==1) {
+      if ((bx==51) || (bx==2724))
+        accepted=true;
+    } else if (type_==2) {
+      if ((bx==2276) || (bx==3170))
+        accepted=true;
+    }
+  } else if (irun==123732) {
+    if (type_==1) {
+      if ((bx==3487) || (bx==2596))
+        accepted=true;
+    } else if (type_==2) {
+      if ((bx==2148) || (bx==3042))
+        accepted=true;
     }
   }
-  
+
   return accepted;
 }
 

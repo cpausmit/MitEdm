@@ -1,3 +1,5 @@
+# $Id:$
+
 import FWCore.ParameterSet.Config as cms
 
 ###### Filter on event selection object (HF energy/timing, pixel hits, cluster shapes ######
