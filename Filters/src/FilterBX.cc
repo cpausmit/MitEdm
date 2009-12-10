@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterBX.cc,v 1.3 2009/12/08 00:06:32 loizides Exp $
+// $Id: FilterBX.cc,v 1.4 2009/12/10 15:31:04 loizides Exp $
 //
 // FilterBX
 //
@@ -64,15 +64,7 @@ bool FilterBX::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
 
   unsigned int irun = iEvent.id().run();
 
-  if (irun==123596) {
-    if (type_==1) {
-      if ((bx==51) || (bx==2724))
-        accepted=true;
-    } else if (type_==2) {
-      if ((bx==2276) || (bx==3170))
-        accepted=true;
-    }
-  } else if (irun==123615) {
+  if (irun==123596 || irun==123615) {
     if (type_==1) {
       if ((bx==51) || (bx==2724))
         accepted=true;
