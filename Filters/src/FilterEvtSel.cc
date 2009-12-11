@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterEvtSel.cc,v 1.3 2009/12/09 16:40:10 edwenger Exp $
+// $Id: FilterEvtSel.cc,v 1.4 2009/12/11 11:06:09 loizides Exp $
 //
 // FilterEvtSel
 //
@@ -74,7 +74,7 @@ bool FilterEvtSel::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
   if( (fabs(hfTimeDiff)>maxHfTimeDiff_ && maxHfTimeDiff_>0) || 
       hfEnergyMin < minHfEnergy_ || 
       clusVtxQual < polyCut ||
-      (nhitsmax_ > nPxlHits && nhitsmax_>0) )
+      (nhitsmax_ < nPxlHits && nhitsmax_>0) )
     accepted = false;
 
   return accepted;
