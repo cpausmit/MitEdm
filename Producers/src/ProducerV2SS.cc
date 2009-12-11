@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.17 2009/12/02 15:43:04 loizides Exp $
+// $Id: ProducerV2SS.cc,v 1.18 2009/12/08 17:40:04 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -31,9 +31,7 @@ ProducerV2SS::ProducerV2SS(const ParameterSet& cfg) :
   massMax_    (cfg.getUntrackedParameter<double>("maxMass",     3.0)),
   dZMax_      (cfg.getUntrackedParameter<double>("maxZDistance",5.0)),
   useHitDropper_(cfg.getUntrackedParameter<bool>("useHitDropper",true)),
-  applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false)),
-  applyMinTrackProb_(cfg.getUntrackedParameter<bool>  ("applyMinTrackProb",false)),
-  minTrackProb_     (cfg.getUntrackedParameter<double>("minTrackProb",1e-4))
+  applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false))
 {
   // Constructor.
 }
@@ -97,11 +95,8 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   for (UInt_t i=0; i<pS1->size(); ++i) {
     const StablePart &s1 =  pS1->at(i);
    
-    const reco::Track * t1 = s1.track();
+    //const reco::Track * t1 = s1.track();
     
-    if (t1->dz()>20.0) continue;
-    if (applyMinTrackProb_ && TMath::Prob(t1->chi2(),static_cast<int>(t1->ndof())) < minTrackProb_ ) continue;
-
     UInt_t j;
     if (iStables1_ == iStables2_)
       j = i+1; 
@@ -120,11 +115,8 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
 
       // do fast helix fit to check if there's any hope
       //
-      const reco::Track * t2 = s2.track();
-      
-      if (t2->dz()>20.0) continue;
-      if (applyMinTrackProb_ && TMath::Prob(t2->chi2(),static_cast<int>(t2->ndof())) < minTrackProb_ ) continue;
-      
+      //const reco::Track * t2 = s2.track();
+         
       double dZ0 = -999;
       double dR0 = -999;
       double mass0 = 0.0;

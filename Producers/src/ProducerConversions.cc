@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.19 2009/12/01 01:33:39 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.20 2009/12/08 17:40:04 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -37,9 +37,7 @@ ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
   convConstraint3D_(cfg.getUntrackedParameter<bool>  ("convConstraint3D",true)),
   rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0)),
   useHitDropper_   (cfg.getUntrackedParameter<bool>  ("useHitDropper",true)),
-  applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false)),
-  applyMinTrackProb_(cfg.getUntrackedParameter<bool>  ("applyMinTrackProb",false)),
-  minTrackProb_     (cfg.getUntrackedParameter<double>("minTrackProb",1e-4))
+  applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false))
 {
   // Constructor.
 
@@ -118,10 +116,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     const StablePart &s1 =  pS1->at(i);
     
     const reco::Track * t1 = s1.track();
-    
-    if (t1->dz()>20.0) continue;
-    if (applyMinTrackProb_ && TMath::Prob(t1->chi2(),static_cast<int>(t1->ndof())) < minTrackProb_ ) continue;
-    
+        
     UInt_t j;
     if (iStables1_ == iStables2_)
       j = i+1; 
@@ -135,12 +130,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
 
-            //Do fast helix fit to check if there's any hope
+      //Do fast helix fit to check if there's any hope
       const reco::Track * t2 = s2.track();
-      
-      if (t2->dz()>20.0) continue;
-      if (applyMinTrackProb_ && TMath::Prob(t2->chi2(),static_cast<int>(t2->ndof())) < minTrackProb_ ) continue;
-
       
       int trackCharge = t1->charge() + t2->charge();
       

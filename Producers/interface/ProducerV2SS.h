@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerV2SS.h,v 1.10 2009/12/07 22:50:39 loizides Exp $
+// $Id: ProducerV2SS.h,v 1.11 2009/12/08 17:40:04 bendavid Exp $
 //
 // ProducerV2SS
 //
@@ -30,8 +30,6 @@ namespace mitedm
     double dZMax_;          //maximum dZ0
     bool   useHitDropper_;  //=true if hit dropper is to be used
     bool   applyChargeConstraint_; //require opposite charged tracks
-    bool   applyMinTrackProb_;
-    double minTrackProb_;
   };
 }
 #endif
