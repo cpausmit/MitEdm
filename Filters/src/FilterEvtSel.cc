@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterEvtSel.cc,v 1.2 2009/12/08 13:37:59 edwenger Exp $
+// $Id: FilterEvtSel.cc,v 1.3 2009/12/09 16:40:10 edwenger Exp $
 //
 // FilterEvtSel
 //
@@ -17,7 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
 
 namespace mitedm
@@ -29,10 +28,11 @@ namespace mitedm
     
   protected:
     virtual bool filter (edm::Event &iEvent, const edm::EventSetup &iSetup);
-    double minHfEnergy_;
-    double maxHfTimeDiff_;
-    std::string srcEvtSel_;
+    double              minHfEnergy_;
+    double              maxHfTimeDiff_;
+    std::string         srcEvtSel_;
     std::vector<double> clusterPars_;
+    int                 nhitsmax_;
   };
 }
 
@@ -42,10 +42,11 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 FilterEvtSel::FilterEvtSel(const edm::ParameterSet& iConfig)
-  : minHfEnergy_(iConfig.getUntrackedParameter<double>("minHfEnergy")),
-    maxHfTimeDiff_(iConfig.getUntrackedParameter<double>("maxHfTimeDiff")),
+  : minHfEnergy_(iConfig.getUntrackedParameter<double>("minHfEnergy",0)),
+    maxHfTimeDiff_(iConfig.getUntrackedParameter<double>("maxHfTimeDiff",0)),
     srcEvtSel_(iConfig.getUntrackedParameter<std::string>("srcEvtSel","evtSelData")),
-    clusterPars_(iConfig.getUntrackedParameter< std::vector<double> >("clusterPars"))
+    clusterPars_(iConfig.getUntrackedParameter< std::vector<double> >("clusterPars")),
+    nhitsmax_(iConfig.getUntrackedParameter<int>("nhitsmax",0))
 {
   // Constructor.
 }
@@ -70,9 +71,10 @@ bool FilterEvtSel::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
   }
 
   bool accepted = true;
-
-  if( (fabs(hfTimeDiff)>maxHfTimeDiff_ && maxHfTimeDiff_>0) 
-      || hfEnergyMin < minHfEnergy_ || clusVtxQual < polyCut )
+  if( (fabs(hfTimeDiff)>maxHfTimeDiff_ && maxHfTimeDiff_>0) || 
+      hfEnergyMin < minHfEnergy_ || 
+      clusVtxQual < polyCut ||
+      (nhitsmax_ > nPxlHits && nhitsmax_>0) )
     accepted = false;
 
   return accepted;
