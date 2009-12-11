@@ -1,4 +1,4 @@
-// $Id: ProducerEvtSelData.cc,v 1.7 2009/12/09 16:09:03 loizides Exp $
+// $Id: ProducerEvtSelData.cc,v 1.8 2009/12/09 23:05:26 loizides Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -255,7 +255,12 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
 
     eClusVtxDiff = nbest - (nminus+nplus)/2.;
     if ((nminus+nplus)> 0)
-      eClusVtxQual = (2.0*nbest)/(nminus+nplus);
+      eClusVtxQual = (2.0*nbest)/(nminus+nplus);  // A/B
+    else if (nbest>0)
+      eClusVtxQual = 1000.0;                      // A/0 (set to arbitrarily large number)
+    else
+      eClusVtxQual = 0;                           // 0/B (already the default)
+
   }
 
   std::auto_ptr<EvtSelData> output(new EvtSelData(eHcalNeg, eHcalPos,
