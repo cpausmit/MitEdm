@@ -1,4 +1,4 @@
-// $Id: ProducerEvtSelData.cc,v 1.8 2009/12/09 23:05:26 loizides Exp $
+// $Id: ProducerEvtSelData.cc,v 1.9 2009/12/11 21:30:37 edwenger Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -259,7 +259,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     else if (nbest>0)
       eClusVtxQual = 1000.0;                      // A/0 (set to arbitrarily large number)
     else
-      eClusVtxQual = 0;                           // 0/B (already the default)
+      eClusVtxQual = 0;                           // 0/0 (already the default)
 
   }
 
