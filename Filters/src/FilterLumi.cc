@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.5 2009/12/10 15:31:04 loizides Exp $
+// $Id: FilterLumi.cc,v 1.6 2009/12/10 15:49:14 edwenger Exp $
 //
 // FilterLumi
 //
@@ -54,7 +54,23 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
        (irun!=123151) &&
        (irun!=123596) &&
        (irun!=123615) &&
-       (irun!=123732) )
+       (irun!=123732) &&
+       (irun!=123815) &&
+       (irun!=123818) &&
+       (irun!=123906) &&
+       (irun!=123908) &&
+       (irun!=123987) &&
+       (irun!=124006) &&
+       (irun!=124020) &&
+       (irun!=124022) &&
+       (irun!=124023) &&
+       (irun!=124024) &&
+       (irun!=124025) &&
+       (irun!=124027) &&
+       (irun!=124030) 
+       
+       
+        )
     return true;
 
   bool accepted = false;
@@ -77,10 +93,49 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(ilum>=71) 
       accepted=true;
   } else if (irun==123732) {
-    if(ilum>=57) 
+    if(ilum>=57)//From run registry, pix was off before 62 ...
+      accepted=true;
+  } else if (irun==123815) {
+    if(ilum>=8 && ilum<=16)
+      accepted=true;
+  } else if (irun==123818) {
+    if(ilum>=2 && ilum<=42) //RunRegistry says scan starting at lumi 19
+      accepted=true;
+  } else if (irun==123906) {
+    if(ilum>=17 && ilum<=28)
+      accepted=true;
+  } else if (irun==123908) {
+    if(ilum>=2 && ilum<=13)
+      accepted=true;
+  } else if (irun==123987) {//3T run ...
+    if(ilum>=1 && ilum<=21)
+      accepted=true;
+  } else if (irun==124006) {
+    if(ilum>=1 && ilum<=6) //though Phys bit set from lumi 6 ...
+      accepted=true;
+  } else if (irun==124020) {
+    if(ilum>=12 && ilum<=94)
+      accepted=true;
+  } else if (irun==124022) {
+    if(ilum>=65 && ilum<=183) //scan starting lumi 161 ...
+      accepted=true;
+  } else if (irun==124023) {
+    if(ilum>=41 && ilum<=96)
+      accepted=true;
+  } else if (irun==124024) {
+    if(ilum>=2 && ilum<=83)
+      accepted=true;
+  } else if (irun==124025) {
+    if(ilum>=3 && ilum<=13)
+      accepted=true;
+  } else if (irun==124027) {
+    if(ilum>=23 && ilum<=39)
+      accepted=true;
+  } else if (irun==124030) {
+    if(ilum>=1 && ilum<=32)
       accepted=true;
   }
-
+  
   return accepted;
 }
 
