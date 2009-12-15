@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.7 2009/12/15 13:18:06 rougny Exp $
+// $Id: FilterLumi.cc,v 1.8 2009/12/15 13:47:51 rougny Exp $
 //
 // FilterLumi
 //
@@ -61,6 +61,7 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
        (irun!=123908) &&
        (irun!=123987) &&
        (irun!=124006) &&
+       (irun!=124009) &&
        (irun!=124020) &&
        (irun!=124022) &&
        (irun!=124023) &&
@@ -113,6 +114,9 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
       accepted=true;
   } else if (irun==124006) {
     if(ilum>=1 && ilum<=6) //though Phys bit set from lumi 6 ...
+      accepted=true;
+  } else if (irun==124009) {
+    if(ilum>=1 && ilum<=68)
       accepted=true;
   } else if (irun==124020) {
     if(ilum>=12 && ilum<=94)
