@@ -1,4 +1,4 @@
-// $Id: HitDropper.cc,v 1.9 2009/10/12 21:41:09 loizides Exp $
+// $Id: HitDropper.cc,v 1.10 2009/11/02 22:55:58 bendavid Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -210,6 +210,33 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
   }
 
   return hitPattern;
+}
+
+reco::HitPattern HitDropper::SharedHits(const reco::Track *t1, const reco::Track *t2) const
+{
+  //Return a hit pattern corresponding to the hits on the two tracks which share clusters
+  
+  int nHits = 0;
+  reco::HitPattern sharedHits;
+  
+  if (!t1->extra().isAvailable() || !t2->extra().isAvailable())
+    return sharedHits;
+  
+  for (trackingRecHit_iterator iHit1 = t1->recHitsBegin();  iHit1 != t1->recHitsEnd(); ++iHit1) { 
+    const TrackingRecHit *hit1 = iHit1->get();
+    if (hit1->isValid()) {
+      for (trackingRecHit_iterator iHit2 = t2->recHitsBegin();  iHit2 != t2->recHitsEnd(); ++iHit2) { 
+        const TrackingRecHit *hit2 = iHit2->get();
+        if (hit2->isValid() && hit1->sharesInput(hit2,TrackingRecHit::some)) {
+          sharedHits.set(*hit1,nHits);
+          nHits++;
+        }
+      }    
+    }
+  }
+  
+  return sharedHits;
+  
 }
 
 //--------------------------------------------------------------------------------------------------

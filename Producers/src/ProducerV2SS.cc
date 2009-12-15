@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.18 2009/12/08 17:40:04 bendavid Exp $
+// $Id: ProducerV2SS.cc,v 1.19 2009/12/11 17:46:24 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -226,6 +226,9 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
           c2.SetHits(hits2);
           c1.SetHitsFilled();
           c2.SetHitsFilled();
+          
+          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track());
+          d->setSharedHits(sharedHits);
         }
         
         d->addStableChild    (c1);

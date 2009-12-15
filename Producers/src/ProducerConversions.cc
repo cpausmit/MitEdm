@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.20 2009/12/08 17:40:04 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.21 2009/12/11 17:46:24 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -235,6 +235,9 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
           c2.SetHits(hits2);
           c1.SetHitsFilled();
           c2.SetHitsFilled();
+          
+          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track());
+          d->setSharedHits(sharedHits);
         }
         
         d->addStableChild(c1);

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropper.h,v 1.7 2009/10/04 12:49:25 bendavid Exp $
+// $Id: HitDropper.h,v 1.8 2009/10/12 21:41:08 loizides Exp $
 //
 // HitDropper
 //
@@ -46,6 +46,7 @@ namespace mitedm
                                                   Double_t lxyError,
                                                   Double_t lzError,
                                                   Double_t sigmaTolerance=1.5) const;
+      reco::HitPattern              SharedHits(const reco::Track *t1, const reco::Track *t2) const;                                                  
       bool                          IsBarrel(const GeomDet *det) const;
       bool                          IsDisk(const GeomDet *det) const;
           

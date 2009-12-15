@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: DecayPart.h,v 1.12 2008/10/03 23:53:46 loizides Exp $
+// $Id: DecayPart.h,v 1.13 2009/03/20 17:13:33 loizides Exp $
 //
 // DecayPart
 //
@@ -142,6 +142,9 @@ namespace mitedm
     VertexPtr                 primaryVertex() const { return primaryVertex_; }
     void                   setPrimaryVertex(VertexPtr ptr) { primaryVertex_ = ptr; }
     
+    const reco::HitPattern   &sharedHits()    const { return sharedHits_;    }
+    void                   setSharedHits(const reco::HitPattern &hits) { sharedHits_=hits;     }
+    
   private:
     // Decay type (either fast of slow)
     DecayType              decayType_;        //type of decay
@@ -174,6 +177,8 @@ namespace mitedm
     ThreeVector            position_;         //vertex position
     ThreeSymMatrix         error_;            //error matrix
     SevenSymMatrix         bigError_;         //error matrix
+    
+    reco::HitPattern       sharedHits_;       //hit pattern of daughter hits with shared clusters
      
     VertexPtr              primaryVertex_;    //primary vertex
     
