@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.9 2009/12/15 13:59:40 rougny Exp $
+// $Id: FilterLumi.cc,v 1.10 2009/12/15 16:46:34 rougny Exp $
 //
 // FilterLumi
 //
@@ -89,20 +89,20 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(ilum>=3 && ilum<=19) 
       accepted=true;
   } else if (irun==123596) {
-    if (/*(ilum>=4 && ilum<=26) ||*/   //pixel timing scan
+    if (/*(ilum>=4 && ilum<=26) ||*/ //pixel timing scan
         (ilum>=69 && ilum<=144) )
       accepted=true;
   } else if (irun==123615) {
     if(ilum>=71) 
       accepted=true;
   } else if (irun==123732) {
-    if(ilum>=62 && ilum<=112)//though phys bit starting 57 ...
+    if(ilum>=62 && ilum<=112)        //though phys bit starting 57
       accepted=true;
   } else if (irun==123815) {
     if(ilum>=8 && ilum<=16)
       accepted=true;
   } else if (irun==123818) {
-    if(ilum>=2 && ilum<=18) //RunRegistry says lumi scan starting at lumi 19 until 42
+    if(ilum>=2 && ilum<=18)          //RunRegistry says lumi scan starting at lumi 19 until 42
       accepted=true;
   } else if (irun==123906) {
     if(ilum>=17 && ilum<=28)
@@ -110,11 +110,11 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
   } else if (irun==123908) {
     if(ilum>=2 && ilum<=13)
       accepted=true;
-  /*} else if (irun==123987) {//3T run ...
+  /*} else if (irun==123987) {       //3T run
     if(ilum>=1 && ilum<=21)
       accepted=true;*/
   } else if (irun==124006) {
-    if(ilum>=1 && ilum<=6) //though Phys bit set from lumi 6 ...
+    if(ilum>=1 && ilum<=6)           //though Phys bit set from lumi 6
       accepted=true;
   } else if (irun==124009) {
     if(ilum>=1 && ilum<=68)
@@ -123,7 +123,7 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(ilum>=12 && ilum<=94)
       accepted=true;
   } else if (irun==124022) {
-    if(ilum>=65 && ilum<=161) //lumi scan starting lumi 161 'til 183...
+    if(ilum>=65 && ilum<=161)        //lumi scan starting lumi 161 until 183
       accepted=true;
   } else if (irun==124023) {
     if(ilum>=41 && ilum<=96)
@@ -140,11 +140,11 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
   } else if (irun==124030) {
     if(ilum>=1 && ilum<=32)
       accepted=true;
-  /*} else if (irun==124120) { //2.2 TeV run
+  } else if (irun==124120) {         //2.36 TeV run
     if(ilum>=1)
-      accepted=true;*/
+      accepted=true;
   } else if (irun==124230) {
-    if(ilum>=26 && ilum<=68)//paused at 47, resumed 48
+    if(ilum>=26 && ilum<=68)         //paused at 47, resumed 48
       accepted=true;
   }
   
@@ -153,4 +153,3 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FilterLumi);
-
