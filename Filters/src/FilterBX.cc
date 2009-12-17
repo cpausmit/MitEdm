@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterBX.cc,v 1.4 2009/12/10 15:31:04 loizides Exp $
+// $Id: FilterBX.cc,v 1.5 2009/12/10 15:49:14 edwenger Exp $
 //
 // FilterBX
 //
@@ -78,6 +78,22 @@ bool FilterBX::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
         accepted=true;
     } else if (type_==2) {
       if ((bx==2148) || (bx==3042))
+        accepted=true;
+    }
+  } else if (irun==124022 || irun==124023 || irun==124024) {
+    if (type_==1) {
+      if ((bx==2824) || (bx==151) || (bx==51))
+        accepted=true;
+    /*} else if (type_==2) {
+      if ((bx==2148) || (bx==3042))
+        accepted=true;*/
+    }
+  } else if (irun==124120) {
+    if (type_==1) {
+      if ((bx==51))
+        accepted=true;
+    } else if (type_==2) {
+      if ((bx==1836) || (bx==942))
         accepted=true;
     }
   }
