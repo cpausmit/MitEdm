@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterBX.cc,v 1.5 2009/12/10 15:49:14 edwenger Exp $
+// $Id: FilterBX.cc,v 1.6 2009/12/17 11:34:05 rougny Exp $
 //
 // FilterBX
 //
@@ -84,9 +84,9 @@ bool FilterBX::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
     if (type_==1) {
       if ((bx==2824) || (bx==151) || (bx==51))
         accepted=true;
-    /*} else if (type_==2) {
+    } else if (type_==2) {
       if ((bx==2148) || (bx==3042))
-        accepted=true;*/
+        accepted=true;
     }
   } else if (irun==124120) {
     if (type_==1) {
