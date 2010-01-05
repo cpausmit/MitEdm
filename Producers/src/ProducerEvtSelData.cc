@@ -1,4 +1,4 @@
-// $Id: ProducerEvtSelData.cc,v 1.9 2009/12/11 21:30:37 edwenger Exp $
+// $Id: ProducerEvtSelData.cc,v 1.10 2009/12/12 13:37:30 edwenger Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
@@ -11,6 +11,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -32,7 +34,8 @@ ProducerEvtSelData::ProducerEvtSelData(const ParameterSet& cfg)
     srcCastor_(cfg.getUntrackedParameter<string>("castorRecHits","castorreco")),
     srcZDC_(cfg.getUntrackedParameter<string>("zdcRecHits","zdcreco")),
     srcPixels_(cfg.getUntrackedParameter<string>("pixelRecHits","siPixelRecHits")),
-    srcVertex_(cfg.getUntrackedParameter<string>("vertex",""))
+    srcVertex_(cfg.getUntrackedParameter<string>("vertex","")),
+    srcTrk_(cfg.getUntrackedParameter<string>("tracks","generalTracks"))
 {
   // Constructor.
 
@@ -68,7 +71,10 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   int    ePxHits      = 0;
   double eClusVtxQual = 0;
   double eClusVtxDiff = 0;
+  double eHPTrkFrac   = 0;
 
+
+  // HF
   Handle<HFRecHitCollection> hfhits;
   try {
     evt.getByLabel(edm::InputTag(srcHF_),hfhits);
@@ -90,6 +96,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     }
   }
 
+  // HCAL (barrel + endcap)
   Handle<HBHERecHitCollection> hbhehits;
   try {
     evt.getByLabel(edm::InputTag(srcHBHE_),hbhehits);
@@ -108,6 +115,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     }
   }
 
+  // CASTOR
   Handle<CastorRecHitCollection> castorhits;
   try {
     evt.getByLabel(edm::InputTag(srcCastor_),castorhits);
@@ -129,6 +137,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     }
   }
 
+  // ZDC
   Handle<ZDCRecHitCollection> zdchits;
   try {
     evt.getByLabel(edm::InputTag(srcZDC_),zdchits);
@@ -150,6 +159,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     }
   }
 
+  // time values are energy-weighted averages
   if(eHfPos>0)
     eHfPosTime /= eHfPos;
   if(eHfNeg>0)
@@ -163,6 +173,8 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   if(eZdNeg>0)
     eZdNegTime /= eZdNeg;
   
+
+  // pixel cluster shape compatibility with vertex
   Handle<SiPixelRecHitCollection> hRecHits;
   try {
     evt.getByLabel(edm::InputTag(srcPixels_),hRecHits);
@@ -215,7 +227,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
     }
 
     double zest = 0.0;
-    if (srcVertex_.length()!=0) {
+    if (srcVertex_.length()!=0) { // use specified vertex
       edm::Handle<reco::VertexCollection> vertexCol;
       evt.getByLabel(srcVertex_,vertexCol);
       const reco::VertexCollection *vertices = vertexCol.product();
@@ -227,7 +239,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
           zest = vertex->z();
         }
       }
-    } else {
+    } else { // or use pixel cluster-shape vertex
       int nhits = 0, nhits_max = 0;
       double chi = 0, chi_max = 1e+9;
       for(double z0 = -15.9; z0 <= 15.95; z0 += 0.1) {
@@ -263,11 +275,33 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
 
   }
 
+
+  // high-purity track fraction
+  Handle<reco::TrackCollection> tkRef;
+  try {
+    evt.getByLabel(edm::InputTag(srcTrk_),tkRef);
+  } catch (...) {}  
+  const reco::TrackCollection* tkColl = tkRef.product();
+  
+  int numhighpurity=0;
+  reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::qualityByName("highPurity");
+
+  if(tkColl->size()>0){ 
+    reco::TrackCollection::const_iterator itk = tkColl->begin();
+    reco::TrackCollection::const_iterator itk_e = tkColl->end();
+    for(;itk!=itk_e;++itk){
+      if(itk->quality(trackQuality)) numhighpurity++;
+    }
+    eHPTrkFrac = (float)numhighpurity/(float)tkColl->size();
+  }
+
+  // fill EvtSelData object
   std::auto_ptr<EvtSelData> output(new EvtSelData(eHcalNeg, eHcalPos,
                                                   eHfNeg,eHfPos,eHfNegTime,eHfPosTime,
                                                   eCaNeg,eCaPos,eCaNegTime,eCaPosTime,
                                                   eZdNeg,eZdPos,eZdNegTime,eZdPosTime,
-						  ePxbHits,ePxHits,eClusVtxQual,eClusVtxDiff));
+						  ePxbHits,ePxHits,eClusVtxQual,eClusVtxDiff,
+						  eHPTrkFrac));
   evt.put(output);
 }
 

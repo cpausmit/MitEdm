@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerEvtSelData.h,v 1.2 2009/12/08 00:31:46 edwenger Exp $
+// $Id: ProducerEvtSelData.h,v 1.3 2009/12/08 11:33:23 loizides Exp $
 //
 // ProducerEvtSelData
 //
@@ -42,6 +42,7 @@ namespace mitedm
       std::string srcZDC_;    //zdc rec hits
       std::string srcPixels_; //pixel rec hits
       std::string srcVertex_; //vertex (if not set will use pixel counting vertex)
+      std::string srcTrk_;    //track collection
   };
 }
 #endif
