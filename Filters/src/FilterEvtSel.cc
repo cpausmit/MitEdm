@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterEvtSel.cc,v 1.5 2009/12/11 15:05:59 loizides Exp $
+// $Id: FilterEvtSel.cc,v 1.6 2009/12/12 13:37:30 edwenger Exp $
 //
 // FilterEvtSel
 //
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
+#include <TMath.h>
 
 namespace mitedm
 {
@@ -28,12 +29,14 @@ namespace mitedm
     
   protected:
     virtual bool filter (edm::Event &iEvent, const edm::EventSetup &iSetup);
-    double              minHfEnergy_;
-    double              maxHfTimeDiff_;
-    std::string         srcEvtSel_;
-    std::vector<double> clusterPars_;
-    int                 nhitsmax_;
-    int                 nhitsTrunc_;
+    double              minHfEnergy_;   //minimum hf energy
+    double              maxHfTimeDiff_; //maximum hf energy
+    std::string         srcEvtSel_;     //event selection data string
+    std::vector<double> clusterPars_;   //pixel cluster polynomial pars for vertex compatibility cut
+    int                 nhitsTrunc_;    //maximum pixel clusters to apply compatibility check
+    int                 nhitsmax_;      //maximum number of pixel clusters
+    int                 nHfHits_;       //minimum number of hf coincidence hits
+    int                 nHfTowers_;     //minimum number of hf coincidence hits
   };
 }
 
@@ -47,8 +50,10 @@ FilterEvtSel::FilterEvtSel(const edm::ParameterSet& iConfig)
     maxHfTimeDiff_(iConfig.getUntrackedParameter<double>("maxHfTimeDiff",0)),
     srcEvtSel_(iConfig.getUntrackedParameter<std::string>("srcEvtSel","evtSelData")),
     clusterPars_(iConfig.getUntrackedParameter< std::vector<double> >("clusterPars")),
+    nhitsTrunc_(iConfig.getUntrackedParameter<int>("nhitsTrunc",0)),
     nhitsmax_(iConfig.getUntrackedParameter<int>("nhitsmax",0)),
-    nhitsTrunc_(iConfig.getUntrackedParameter<int>("nhitsTrunc",0))
+    nHfHits_(iConfig.getUntrackedParameter<int>("nHfHits",0)),
+    nHfTowers_(iConfig.getUntrackedParameter<int>("nHfTowers",0))
 {
   // Constructor.
 }
@@ -61,8 +66,8 @@ bool FilterEvtSel::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
   Handle<EvtSelData> evtSel;
   iEvent.getByLabel(edm::InputTag(srcEvtSel_),evtSel);
 
-  int nPxlHits = evtSel->ePxHits();
-  double hfTimeDiff = evtSel->eHfPosTime() - evtSel->eHfNegTime();
+  int nPxlHits       = evtSel->ePxHits();
+  double hfTimeDiff  = evtSel->eHfPosTime() - evtSel->eHfNegTime();
   double clusVtxQual = evtSel->eClusVtxQual();
   double hfEnergyMin = min(evtSel->eHfPos(),evtSel->eHfNeg());
 
@@ -73,10 +78,14 @@ bool FilterEvtSel::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
   }
 
   bool accepted = true;
-  if( (fabs(hfTimeDiff)>maxHfTimeDiff_ && maxHfTimeDiff_>0) || 
-      hfEnergyMin < minHfEnergy_ || 
-      (clusVtxQual < polyCut && nPxlHits > nhitsTrunc_) ||
-      (nPxlHits > nhitsmax_ && nhitsmax_>0) )
+  if ( (TMath::Abs(hfTimeDiff)>maxHfTimeDiff_ && maxHfTimeDiff_>0) || 
+       hfEnergyMin < minHfEnergy_                                  || 
+       (clusVtxQual < polyCut && nPxlHits > nhitsTrunc_)           ||
+       (nPxlHits > nhitsmax_ && nhitsmax_>0)                       ||
+       (evtSel->nHfNegHits() < nHfHits_)                           ||
+       (evtSel->nHfPosHits() < nHfHits_)                           ||
+       (evtSel->nHfTowersP() < nHfTowers_)                         ||
+       (evtSel->nHfTowersN() < nHfTowers_) )
     accepted = false;
 
   return accepted;

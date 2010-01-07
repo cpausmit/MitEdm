@@ -1,7 +1,9 @@
-// $Id: ProducerEvtSelData.cc,v 1.10 2009/12/12 13:37:30 edwenger Exp $
+// $Id: ProducerEvtSelData.cc,v 1.11 2010/01/05 16:39:44 edwenger Exp $
 
 #include "MitEdm/Producers/interface/ProducerEvtSelData.h"
 #include "MitEdm/DataFormats/interface/EvtSelData.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -35,6 +37,9 @@ ProducerEvtSelData::ProducerEvtSelData(const ParameterSet& cfg)
     srcZDC_(cfg.getUntrackedParameter<string>("zdcRecHits","zdcreco")),
     srcPixels_(cfg.getUntrackedParameter<string>("pixelRecHits","siPixelRecHits")),
     srcVertex_(cfg.getUntrackedParameter<string>("vertex","")),
+    srcTowers_(cfg.getUntrackedParameter<string>("caloTowers","towerMaker")),
+    hfEthresh_(cfg.getUntrackedParameter<double>("hfEThreshold",3.)),
+    hfETowerh_(cfg.getUntrackedParameter<double>("hfETowerThreshold",3.)),
     srcTrk_(cfg.getUntrackedParameter<string>("tracks","generalTracks"))
 {
   // Constructor.
@@ -57,6 +62,8 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   double eHfPos       = 0;
   double eHfPosTime   = 0;
   double eHfNegTime   = 0;
+  int    eHfPcounts   = 0;
+  int    eHfNcounts   = 0;
   double eHcalNeg     = 0;
   double eHcalPos     = 0;
   double eCaNeg       = 0;
@@ -71,14 +78,24 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   int    ePxHits      = 0;
   double eClusVtxQual = 0;
   double eClusVtxDiff = 0;
-  double eHPTrkFrac   = 0;
-
+  int    nHfTowersP      = 0;
+  int    nHfTowersN      = 0;
+  double sumEsubEpPos    = 0;
+  double sumEaddEpPos    = 0;
+  double sumHfEsubEpPos  = 0;
+  double sumHfEaddEpPos  = 0;
+  double sumEsubEpNeg    = 0;
+  double sumEaddEpNeg    = 0;
+  double sumHfEsubEpNeg  = 0;
+  double sumHfEaddEpNeg  = 0;
+  double eHPTrkFrac      = 0;
 
   // HF
   Handle<HFRecHitCollection> hfhits;
   try {
     evt.getByLabel(edm::InputTag(srcHF_),hfhits);
   } catch (...) {}  
+
   if (hfhits.isValid()) {
     for(size_t ihit = 0; ihit<hfhits->size(); ++ihit){
       const HFRecHit h = (*hfhits)[ihit];
@@ -89,9 +106,13 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
       if (id.zside()<0) {
         eHfNeg     += energy;
         eHfNegTime += energy * time;
+        if (energy>hfEthresh_)
+          ++eHfNcounts;
       } else {
         eHfPos     += energy;
         eHfPosTime += energy * time;
+        if (energy>hfEthresh_)
+          ++eHfPcounts;
       }
     }
   }
@@ -101,6 +122,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   try {
     evt.getByLabel(edm::InputTag(srcHBHE_),hbhehits);
   } catch (...) {}  
+
   if (hbhehits.isValid()) {
     for(size_t ihit = 0; ihit<hbhehits->size(); ++ihit){
       const HBHERecHit h = (*hbhehits)[ihit];
@@ -120,6 +142,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   try {
     evt.getByLabel(edm::InputTag(srcCastor_),castorhits);
   } catch (...) {}  
+
   if (castorhits.isValid()) {
     for(size_t ihit = 0; ihit<castorhits->size(); ++ihit){
       const CastorRecHit h = (*castorhits)[ihit];
@@ -142,6 +165,7 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
   try {
     evt.getByLabel(edm::InputTag(srcZDC_),zdchits);
   } catch (...) {}  
+
   if (zdchits.isValid()) {
     for(size_t ihit = 0; ihit<zdchits->size(); ++ihit){
       const ZDCRecHit h = (*zdchits)[ihit];
@@ -275,24 +299,70 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
 
   }
 
+  // calo based variables
+  edm::Handle<CaloTowerCollection> towers; 
+  try {
+    evt.getByLabel(edm::InputTag(srcTowers_),towers);
+  } catch (...) {}  
+
+  if (towers.isValid()) {
+    for(CaloTowerCollection::const_iterator cal = towers->begin(); cal != towers->end(); ++cal) {
+      if (cal->energy()<hfETowerh_)
+        continue;
+
+      double tmp = TMath::Cos(cal->theta());
+      double Esub = cal->energy()*(1-tmp);
+      double Eadd = cal->energy()*(1+tmp);
+
+      if (cal->eta()>0) {
+        sumEsubEpPos += Esub;
+        sumEaddEpPos += Eadd;
+      } else if (cal->eta()<0) {
+        sumEsubEpNeg += Esub;
+        sumEaddEpNeg += Eadd;
+      }
+      if (cal->eta()>3) {
+        sumHfEsubEpPos += Esub;
+        sumHfEaddEpPos += Eadd;
+      } else if (cal->eta()<-3) {
+        sumHfEsubEpNeg += Esub;
+        sumHfEaddEpNeg += Eadd;
+      }
+
+      for(unsigned int i = 0; i < cal->constituentsSize(); ++i) {
+        const DetId id = cal->constituent(i);
+        if(id.det() != DetId::Hcal)
+          continue;
+        HcalSubdetector subdet=(HcalSubdetector(id.subdetId()));
+        if(subdet != HcalForward)
+          continue;
+        if (cal->eta()<-3)
+          ++nHfTowersN;
+        if (cal->eta()>+3)
+          ++nHfTowersP;
+      }    
+    }
+  }
 
   // high-purity track fraction
   Handle<reco::TrackCollection> tkRef;
   try {
     evt.getByLabel(edm::InputTag(srcTrk_),tkRef);
   } catch (...) {}  
-  const reco::TrackCollection* tkColl = tkRef.product();
-  
-  int numhighpurity=0;
-  reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::qualityByName("highPurity");
 
-  if(tkColl->size()>0){ 
-    reco::TrackCollection::const_iterator itk = tkColl->begin();
-    reco::TrackCollection::const_iterator itk_e = tkColl->end();
-    for(;itk!=itk_e;++itk){
-      if(itk->quality(trackQuality)) numhighpurity++;
+  if (tkRef.isValid()) {
+
+    const reco::TrackCollection* tkColl = tkRef.product();
+    int numhighpurity=0;
+    reco::TrackBase::TrackQuality trackQuality(reco::TrackBase::qualityByName("highPurity"));
+    if(tkColl->size()>0){ 
+      reco::TrackCollection::const_iterator itk = tkColl->begin();
+      reco::TrackCollection::const_iterator itk_e = tkColl->end();
+      for(;itk!=itk_e;++itk){
+        if(itk->quality(trackQuality)) numhighpurity++;
+      }
+      eHPTrkFrac = (double)numhighpurity/(double)tkColl->size();
     }
-    eHPTrkFrac = (float)numhighpurity/(float)tkColl->size();
   }
 
   // fill EvtSelData object
@@ -300,8 +370,15 @@ void ProducerEvtSelData::produce(Event &evt, const EventSetup &setup)
                                                   eHfNeg,eHfPos,eHfNegTime,eHfPosTime,
                                                   eCaNeg,eCaPos,eCaNegTime,eCaPosTime,
                                                   eZdNeg,eZdPos,eZdNegTime,eZdPosTime,
-						  ePxbHits,ePxHits,eClusVtxQual,eClusVtxDiff,
-						  eHPTrkFrac));
+						  ePxbHits,ePxHits,
+                                                  eClusVtxQual,eClusVtxDiff,
+                                                  eHfPcounts, eHfNcounts,
+                                                  nHfTowersP, nHfTowersN,
+                                                  sumEsubEpPos,  sumEaddEpPos,
+                                                  sumHfEsubEpPos,sumHfEaddEpPos,
+                                                  sumEsubEpNeg,  sumEaddEpNeg,
+                                                  sumHfEsubEpNeg,sumHfEaddEpNeg,
+                                                  eHPTrkFrac));
   evt.put(output);
 }
 

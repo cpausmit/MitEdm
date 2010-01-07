@@ -1,11 +1,13 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterBX.cc,v 1.6 2009/12/17 11:34:05 rougny Exp $
+// $Id: FilterBX.cc,v 1.7 2009/12/18 15:29:05 loizides Exp $
 //
 // FilterBX
 //
 // Filter to select events from specified bunch crossing numbers.
 //
-// Authors: E.Wenger
+// See http://venturia.home.cern.ch/venturia/Collisions2009/2009_collisions_results.htm
+//
+// Authors: C.Loizides, E.Wenger
 //--------------------------------------------------------------------------------------------------
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -85,7 +87,7 @@ bool FilterBX::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
       if ((bx==2824) || (bx==151) || (bx==51))
         accepted=true;
     } else if (type_==2) {
-      if ((bx==2148) || (bx==3042))
+      if ((bx==474) || (bx==1365) || (bx==1930) || (bx==2259))
         accepted=true;
     }
   } else if (irun==124120) {

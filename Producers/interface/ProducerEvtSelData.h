@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerEvtSelData.h,v 1.3 2009/12/08 11:33:23 loizides Exp $
+// $Id: ProducerEvtSelData.h,v 1.4 2010/01/05 16:39:43 edwenger Exp $
 //
 // ProducerEvtSelData
 //
@@ -42,6 +42,9 @@ namespace mitedm
       std::string srcZDC_;    //zdc rec hits
       std::string srcPixels_; //pixel rec hits
       std::string srcVertex_; //vertex (if not set will use pixel counting vertex)
+      std::string srcTowers_; //calo towers
+      double      hfEthresh_; //hf hit energy threshold
+      double      hfETowerh_; //hf calo tower energy threshold
       std::string srcTrk_;    //track collection
   };
 }

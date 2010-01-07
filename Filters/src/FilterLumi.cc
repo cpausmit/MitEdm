@@ -1,10 +1,12 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.11 2009/12/16 23:02:15 loizides Exp $
+// $Id: FilterLumi.cc,v 1.12 2009/12/18 15:29:05 loizides Exp $
 //
 // FilterLumi
 //
 // Filter to filter out unwanted lumi sections from given runs.
 // Runs and lumi sections are hard-coded.
+//
+// See http://venturia.home.cern.ch/venturia/Collisions2009/2009_collisions_results.htm
 //
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
