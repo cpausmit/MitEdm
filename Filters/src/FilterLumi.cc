@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.12 2009/12/18 15:29:05 loizides Exp $
+// $Id: FilterLumi.cc,v 1.13 2010/01/07 17:07:54 loizides Exp $
 //
 // FilterLumi
 //
@@ -72,10 +72,9 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
        (irun!=124027) &&
        (irun!=124030) &&
        (irun!=124120) &&
-       (irun!=124230) 
-       
-       
-        )
+       (irun!=124230) &&
+       (irun!=124275)
+    )
     return true;
 
   bool accepted = false;
@@ -148,8 +147,11 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
   } else if (irun==124230) {
     if(ilum>=26 && ilum<=68)         //paused at 47, resumed 48
       accepted=true;
+  } else if (irun==124275) {
+    if(ilum>=1 && ilum<=30)         
+      accepted=true;
   }
-  
+
   return accepted;
 }
 
