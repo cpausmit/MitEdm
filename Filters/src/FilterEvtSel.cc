@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterEvtSel.cc,v 1.7 2010/01/07 17:07:54 loizides Exp $
+// $Id: FilterEvtSel.cc,v 1.8 2010/01/14 20:26:19 edwenger Exp $
 //
 // FilterEvtSel
 //
@@ -39,7 +39,6 @@ namespace mitedm
     int                 nHfHits_;       //minimum number of hf coincidence hits
     int                 nHfTowers_;     //minimum number of hf coincidence hits
     double              clusterTrunc_;  //maximum vertex compatibility value for event rejection
-
   };
 }
 
@@ -58,7 +57,6 @@ FilterEvtSel::FilterEvtSel(const edm::ParameterSet& iConfig)
     nHfHits_(iConfig.getUntrackedParameter<int>("nHfHits",0)),
     nHfTowers_(iConfig.getUntrackedParameter<int>("nHfTowers",0)),
     clusterTrunc_(iConfig.getUntrackedParameter<double>("clusterTrunc",0))
-
 {
   // Constructor.
 }
@@ -81,8 +79,10 @@ bool FilterEvtSel::filter( edm::Event &iEvent, const edm::EventSetup &iSetup)
   for(unsigned int i=0; i < clusterPars_.size(); i++) {
     polyCut += clusterPars_[i]*pow((double)nPxlHits,(int)i);
   }
-  if(nPxlHits < nhitsTrunc_) polyCut=0; // don't use cut below nhitsTrunc_ pixel hits
-  if(polyCut > clusterTrunc_ && clusterTrunc_ > 0) polyCut=clusterTrunc_; // no cut above clusterTrunc_
+  if(nPxlHits < nhitsTrunc_) 
+    polyCut=0;             // don't use cut below nhitsTrunc_ pixel hits
+  if(polyCut > clusterTrunc_ && clusterTrunc_ > 0) 
+    polyCut=clusterTrunc_; // no cut above clusterTrunc_
 
   bool accepted = true;
 
