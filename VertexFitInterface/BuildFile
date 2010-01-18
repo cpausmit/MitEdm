@@ -1,8 +1,9 @@
 # -*- Makefile -*-
-# $Id: BuildFile,v 1.4 2008/09/17 04:03:50 loizides Exp $
+# $Id: BuildFile,v 1.5 2008/09/27 05:48:26 loizides Exp $
 
 <use name=FWCore/Utilities>
 <use name=DataFormats/TrackReco>
+<use name=TrackingTools/TrajectoryState>
 <use name=MitCommon/DataFormats>
 <use name=MitCommon/MathTools>
 <use name=MitCommon/VertexFit>

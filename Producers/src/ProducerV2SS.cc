@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.19 2009/12/11 17:46:24 bendavid Exp $
+// $Id: ProducerV2SS.cc,v 1.20 2009/12/15 23:27:34 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -15,6 +15,7 @@
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
+#include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
 #include "MitEdm/Producers/interface/ProducerV2SS.h"
 #include <TMath.h>
 
@@ -79,6 +80,31 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
   const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+  
+  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
+  setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
+  const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
+  
+  //construct intermediate collection of TrackParameters in mvf format for vertex fit
+  std::vector<TrackParameters> trkPars1;
+  for (UInt_t i = 0; i<pS1->size(); ++i) {
+    const reco::Track *t = pS1->at(i).track();
+    const reco::TransientTrack ttrk = transientTrackBuilder->build(t);
+    TrackParameters cmsTrk(ttrk);
+    TrackParameters mvfTrk = cmsTrk.mvfTrack(); 
+    trkPars1.push_back(mvfTrk);
+  }
+  
+  std::vector<TrackParameters> trkPars2;
+  if (iStables1_ == iStables2_)
+    trkPars2 = trkPars1;
+  else for (UInt_t i = 0; i<pS2->size(); ++i) {
+    const reco::Track *t = pS2->at(i).track();
+    const reco::TransientTrack ttrk = transientTrackBuilder->build(t);
+    TrackParameters cmsTrk(ttrk);
+    TrackParameters mvfTrk = cmsTrk.mvfTrack(); 
+    trkPars2.push_back(mvfTrk);
+  }
 
   // -----------------------------------------------------------------------------------------------
   // Simple double loop
@@ -94,6 +120,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   //ex.: s1_i and s2_i are same particle as pion and proton
   for (UInt_t i=0; i<pS1->size(); ++i) {
     const StablePart &s1 =  pS1->at(i);
+    const TrackParameters &trkPar1 = trkPars1.at(i);
    
     //const reco::Track * t1 = s1.track();
     
@@ -110,6 +137,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
+      const TrackParameters &trkPar2 = trkPars2.at(j);
 
       if( applyChargeConstraint_ && (s1.charge() + s2.charge() != 0) ) continue;
 
@@ -156,9 +184,9 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
       mithep::MultiVertexFitterD fit;
       fit.init(bfield); // Reset to the magnetic field from the event setup
       fit.setChisqMax(100);
-      MvfInterface fitInt(&fit);
-      fitInt.addTrack(s1.track(),1,s1.mass(),mithep::MultiVertexFitterD::VERTEX_1);
-      fitInt.addTrack(s2.track(),2,s2.mass(),mithep::MultiVertexFitterD::VERTEX_1);
+      
+      fit.addTrack(*trkPar1.pars(),*trkPar1.cMat(),1,s1.mass(),MultiVertexFitterD::VERTEX_1);
+      fit.addTrack(*trkPar2.pars(),*trkPar2.cMat(),2,s2.mass(),MultiVertexFitterD::VERTEX_1);
 
 
       if (fit.fit()){

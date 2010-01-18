@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.21 2009/12/11 17:46:24 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.22 2009/12/15 23:27:34 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -18,6 +18,7 @@
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
+#include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
 #include <TMath.h>
 
 using namespace std;
@@ -36,6 +37,7 @@ ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
   convConstraint_  (cfg.getUntrackedParameter<bool>  ("convConstraint",false)),
   convConstraint3D_(cfg.getUntrackedParameter<bool>  ("convConstraint3D",true)),
   rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0)),
+  useRhoMin_       (cfg.getUntrackedParameter<bool>  ("useRhoMin",true)),
   useHitDropper_   (cfg.getUntrackedParameter<bool>  ("useHitDropper",true)),
   applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false))
 {
@@ -102,6 +104,32 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
   const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
   
+  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
+  setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
+  const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
+  
+  //construct intermediate collection of TrackParameters in mvf format for vertex fit
+  std::vector<TrackParameters> trkPars1;
+  for (UInt_t i = 0; i<pS1->size(); ++i) {
+    const reco::Track *t = pS1->at(i).track();
+    const reco::TransientTrack ttrk = transientTrackBuilder->build(t);
+    TrackParameters cmsTrk(ttrk);
+    TrackParameters mvfTrk = cmsTrk.mvfTrack(); 
+    trkPars1.push_back(mvfTrk);
+  }
+  
+  std::vector<TrackParameters> trkPars2;
+  if (iStables1_ == iStables2_)
+    trkPars2 = trkPars1;
+  else for (UInt_t i = 0; i<pS2->size(); ++i) {
+    const reco::Track *t = pS2->at(i).track();
+    const reco::TransientTrack ttrk = transientTrackBuilder->build(t);
+    TrackParameters cmsTrk(ttrk);
+    TrackParameters mvfTrk = cmsTrk.mvfTrack(); 
+    trkPars2.push_back(mvfTrk);
+  }
+
+  
   // Create the output collection
   auto_ptr<DecayPartCol> pD(new DecayPartCol());
   
@@ -116,7 +144,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     const StablePart &s1 =  pS1->at(i);
     
     const reco::Track * t1 = s1.track();
-        
+    const TrackParameters &trkPar1 = trkPars1.at(i);
+    
     UInt_t j;
     if (iStables1_ == iStables2_)
       j = i+1; 
@@ -132,6 +161,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
 
       //Do fast helix fit to check if there's any hope
       const reco::Track * t2 = s2.track();
+      const TrackParameters &trkPar2 = trkPars2.at(j);
       
       int trackCharge = t1->charge() + t2->charge();
       
@@ -146,15 +176,15 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
 
       int fitStatus = 0;
       MultiVertexFitterD fit;      
-      if ( (!applyChargeConstraint_ || trackCharge==0) && dR0 > rhoMin_) {
+      if ( (!applyChargeConstraint_ || trackCharge==0) && (!useRhoMin_ || dR0 > rhoMin_) ) {
       
         // Vertex fit now, possibly with conversion constraint
         nFits++;
   
         fit.init(bfield); // Reset to the magnetic field from the event setup
-        MvfInterface fitInt(&fit);
-        fitInt.addTrack(s1.track(),1,s1.mass(),MultiVertexFitterD::VERTEX_1);
-        fitInt.addTrack(s2.track(),2,s2.mass(),MultiVertexFitterD::VERTEX_1);
+        
+        fit.addTrack(*trkPar1.pars(),*trkPar1.cMat(),1,s1.mass(),MultiVertexFitterD::VERTEX_1);
+        fit.addTrack(*trkPar2.pars(),*trkPar2.cMat(),2,s2.mass(),MultiVertexFitterD::VERTEX_1);
         if (convConstraint3D_) {
           fit.conversion_3d(MultiVertexFitterD::VERTEX_1);
           //printf("applying 3d conversion constraint\n");
@@ -175,6 +205,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         }
         
         fitStatus = fit.fit();     
+        
       }
         
       if (fitStatus) {

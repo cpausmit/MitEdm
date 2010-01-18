@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TrackParameters.h,v 1.4 2008/09/27 05:48:26 loizides Exp $
+// $Id: TrackParameters.h,v 1.5 2009/03/20 17:13:34 loizides Exp $
 //
 // Description: class TrackParameters
 //
@@ -37,6 +37,7 @@
 #include <TMatrixDSym.h>
 #include <TVectorD.h>
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 namespace mitedm
 {
@@ -50,6 +51,7 @@ namespace mitedm
   {
   public:
     TrackParameters() {}
+    TrackParameters(const reco::TransientTrack &ttrk, TrackConvention tcv = iCms);
     TrackParameters(const reco::Track *trk, TrackConvention tcv = iCms, double bField = 3.8);
     TrackParameters(const TrackParameters &trk);
     ~TrackParameters() {};

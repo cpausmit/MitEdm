@@ -1,4 +1,4 @@
-# $Id: conversions_cfi.py,v 1.6 2009/07/02 15:15:04 bendavid Exp $
+# $Id: conversions_cfi.py,v 1.7 2009/07/12 13:12:06 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,7 +10,8 @@ mvfConversions = cms.EDProducer("ProducerConversions",
     usePVertex       = cms.untracked.bool(True),
     convConstraint   = cms.untracked.bool(False),
     convConstraint3D = cms.untracked.bool(True),
-    rhoMin           = cms.untracked.double(0.9)
+    rhoMin           = cms.untracked.double(0.9),
+    useRhoMin        = cms.untracked.bool(True),
 )
 
 mvfTrackerConversions = mvfConversions.clone(

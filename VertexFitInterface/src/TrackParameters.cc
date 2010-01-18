@@ -1,8 +1,9 @@
-// $Id:$
+// $Id: TrackParameters.cc,v 1.2 2008/09/27 05:48:26 loizides Exp $
 
 #include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
 #include "TMath.h"
 #include "MitEdm/DataFormats/interface/Types.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 using namespace std;
 using namespace TMath;
@@ -10,12 +11,60 @@ using namespace reco;
 using namespace mitedm;
 
 //--------------------------------------------------------------------------------------------------
+TrackParameters::TrackParameters(const TransientTrack &ttrk, const TrackConvention cv) :
+  iConvention_(cv),
+  bField_     (ttrk.field()->inTesla(GlobalPoint(0.,0.,0.)).z()),
+  fCurv_      (0.5 * 0.0029979 * bField_ * -1.0)
+{
+  // Constructor from TransientTrack.  Track parameters are propagated back to PCA to (0,0,0)
+  // in order to be consistent with the later transformation to the mvf helix
+  // parameterization.  Magnetic field is also taken from the TransientTrack in this case.
+
+  TrajectoryStateClosestToPoint traj = ttrk.trajectoryStateClosestToPoint(GlobalPoint(0.,0.,0.));
+  
+  GlobalPoint v = traj.theState().position();
+  math::XYZPoint  pos( v.x(), v.y(), v.z() );
+  GlobalVector p = traj.theState().momentum();
+  math::XYZVector mom( p.x(), p.y(), p.z() );
+ 
+  //construct intermediate reco track object, just so that we can be sure we are using the
+  //correct accessors for the helix parameters
+  reco::Track trk(ttrk.track().chi2(),
+                  ttrk.track().ndof(),
+                  pos, mom, traj.theState().charge(), 
+                  traj.theState().curvilinearError(),
+                  ttrk.track().algo());
+  
+
+  pars_.ResizeTo(5);
+  cMat_.ResizeTo(5,5);
+  if (cv == iCms) {
+    pars_[0] = trk.qoverp();
+    pars_[1] = trk.lambda();
+    pars_[2] = trk.phi();
+    pars_[3] = trk.dxy();
+    pars_[4] = trk.dsz();
+    for (int i=0; i<5; i++) {
+      for (int j=0; j<5; j++)
+        cMat_(i,j) = trk.covariance(i,j);
+    }
+  }
+  else {
+    cout << "TrackParameters::TrackParameters -- Requested transfer: CMS -> MVF convention"
+         << " not yet implemented.\n";
+  }
+}
+
+
+//--------------------------------------------------------------------------------------------------
 TrackParameters::TrackParameters(const Track* trk, const TrackConvention cv, double bField) :
   iConvention_(cv),
   bField_     (bField),
   fCurv_      (0.5 * 0.0029979 * bField_ * -1.0)
 {
-  // Constructor.
+  // Constructor from reco::Track.  WARNING, if the helix parameters and covariance matrix stored
+  // in the track are not corresponding to the PCA to (0,0,0) (NOT the case by default) then one
+  // can get inconsistent results.
 
   pars_.ResizeTo(5);
   cMat_.ResizeTo(5,5);
@@ -67,9 +116,12 @@ TrackParameters TrackParameters::mvfTrack() const
     outTk.setPars(1,fCurv_*pars_[0]/Cos(pars_[1]));  // curvature
     outTk.setPars(2,pars_[4]/Cos(pars_[1]));         // z0
     outTk.setPars(3,pars_[3]);                       // d0
-    outTk.setPars(4,pars_[2]);                       // phi0
-    if (outTk.pars()[4]<0.0)
-      outTk.setPars(4,pars_[2] + 2*Pi());            // phi0 [0,2pi)
+    double phi = pars_[2];
+    while (phi<0.0)
+      phi += 2*Pi();
+    while (phi>2*Pi())
+      phi -= 2*Pi();
+    outTk.setPars(4,phi);            // phi0 [0,2pi)
     // dPidQj(i,j) gives partial dP_i/dQ_j where Pi are the new parameters and Qj are the old ones
     TMatrixD dPidQj(5,5);
     dPidQj(0,1) = 1.0/(Sin(PiOver2() - pars_[1])*Sin(PiOver2() - pars_[1]));
@@ -124,11 +176,14 @@ TrackParameters TrackParameters::cmsTrack() const
     // Apply MVF to CMS conversion
     outTk.setPars(1,ATan(pars_[0]));                        // lambda
     outTk.setPars(0,pars_[1]*Cos(outTk.pars(1))/fCurv_);    // qoverp
-    outTk.setPars(2,pars_[4]);                              // phi
     outTk.setPars(3,pars_[3]);                              // dxy
     outTk.setPars(4,Cos(outTk.pars(1))*pars_[2]);           // dsz
-    if (outTk.pars(2)>Pi())
-      outTk.setPars(2,pars_[4]-2*Pi());                     // phi0 [-pi,pi)
+    double phi = pars_[4];
+    while (phi>Pi())
+      phi -= 2*Pi();                     // phi0 [-pi,pi)
+    while (phi<-Pi())
+      phi += 2*Pi();
+    outTk.setPars(2,phi);                     // phi0 [-pi,pi)
     // dPidQj(i,j) gives partial dP_i/dQ_j where Pi are the new parameters and Qj are the old ones
     TMatrixD dPidQj(5,5);
     dPidQj(1,0) = 1.0/(1.0+pars_[0]*pars_[0]);
