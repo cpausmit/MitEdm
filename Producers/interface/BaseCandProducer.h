@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: BaseCandProducer.h,v 1.1 2008/09/27 05:48:25 loizides Exp $
+// $Id: BaseCandProducer.h,v 1.2 2009/03/20 18:01:47 loizides Exp $
 //
 // BaseCandProducer
 //
@@ -29,7 +29,7 @@ namespace mitedm
       ~BaseCandProducer() {}
     
     protected:
-      void beginJob(const edm::EventSetup&) {}
+      void beginJob() {}
       void produce(edm::Event&, const edm::EventSetup&) = 0;
       void endJob() {}
 
