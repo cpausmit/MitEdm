@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.13 2010/01/07 17:07:54 loizides Exp $
+// $Id: FilterLumi.cc,v 1.14 2010/01/13 13:30:24 loizides Exp $
 //
 // FilterLumi
 //
@@ -73,7 +73,8 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
        (irun!=124030) &&
        (irun!=124120) &&
        (irun!=124230) &&
-       (irun!=124275)
+       (irun!=124275) &&
+       (irun!=132440)
     )
     return true;
 
@@ -149,6 +150,9 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
       accepted=true;
   } else if (irun==124275) {
     if(ilum>=1 && ilum<=30)         
+      accepted=true;
+  } else if (irun==132440) {
+    if(ilum>=123 && ilum <=193)      // first 7 TeV collisions, pixel scan followed
       accepted=true;
   }
 
