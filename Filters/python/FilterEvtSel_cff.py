@@ -1,4 +1,4 @@
-# $Id: FilterEvtSel_cff.py,v 1.8 2010/01/07 17:07:54 loizides Exp $
+# $Id: FilterEvtSel_cff.py,v 1.9 2010/01/14 20:26:18 edwenger Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -39,6 +39,8 @@ hfEvtSelFilter = cms.EDFilter("FilterEvtSel",
     srcEvtSel     = cms.untracked.string("evtSelData")
 )
 
-## looser cuts being tested ##
-#    clusterPars   = cms.untracked.vdouble(0.0,0.0045),
-#    clusterTrunc  = cms.untracked.double(2.0),                             
+## looser cuts to avoid cutting into high multiplicity tails ##
+hfEvtSelFilter.clusterPars   = cms.untracked.vdouble(0.0,0.0045)
+hfEvtSelFilter.clusterTrunc  = cms.untracked.double(2.0)                      
+looseEvtSelFilter.clusterPars   = cms.untracked.vdouble(0.0,0.0045)
+looseEvtSelFilter.clusterTrunc  = cms.untracked.double(2.0) 
