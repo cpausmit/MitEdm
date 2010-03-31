@@ -1,4 +1,4 @@
-# $Id: FilterL1_cff.py,v 1.2 2009/12/09 13:55:36 loizides Exp $
+# $Id: FilterL1_cff.py,v 1.3 2009/12/09 19:52:15 edwenger Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,6 +34,7 @@ L1BscHalo.L1SeedsLogicalExpression = cms.string('36 OR 37 OR 38 OR 39')
 #algo bit 124 - BSC OR + BPTX OR
 L1BscORBptxOR = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
 L1BscORBptxOR.L1TechTriggerSeeding = cms.bool(False)
+L1BscORBptxOR.L1UseL1TriggerObjectMaps = cms.bool(False)
 L1BscORBptxOR.L1SeedsLogicalExpression = cms.string('L1_BscMinBiasOR_BptxPlusORMinus') 
 
 #tech bit 0 - BPTX coincidence  - (same as algo bit 0?)
