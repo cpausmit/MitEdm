@@ -1,4 +1,4 @@
-# $Id: FilterL1_cff.py,v 1.4 2010/03/31 15:44:58 frankma Exp $
+# $Id: FilterL1_cff.py,v 1.5 2010/04/01 10:05:10 edwenger Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -41,7 +41,7 @@ L1BptxAND.L1TechTriggerSeeding = cms.bool(True)
 L1BptxAND.L1SeedsLogicalExpression = cms.string('0') 
 
 #algo bits 80,81 - BPTX OR - (same as tech bit 3 which is prescaled)
-L1BptxOR = theFilter.l1Filter.clone(algorithms = ["L1_BptxMinus OR L1_BptxPlus"])
+L1BptxOR = theFilter.l1Filter.clone(algorithms = ["L1_BptxMinus","L1_BptxPlus"])
 
 #tech bit 9 - HF coincidence
 L1HFcoincidence = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
