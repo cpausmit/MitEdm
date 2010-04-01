@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.14 2010/01/13 13:30:24 loizides Exp $
+// $Id: FilterLumi.cc,v 1.15 2010/03/30 20:31:47 edwenger Exp $
 //
 // FilterLumi
 //
@@ -152,7 +152,7 @@ bool FilterLumi::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
     if(ilum>=1 && ilum<=30)         
       accepted=true;
   } else if (irun==132440) {
-    if(ilum>=123 && ilum <=193)      // first 7 TeV collisions, pixel scan followed
+    if(ilum>=123 && ilum <=375)      // first 7 TeV collisions
       accepted=true;
   }
 
