@@ -1,4 +1,4 @@
-# $Id: conversionElectronsStable_cfi.py,v 1.1 2009/07/02 15:14:52 bendavid Exp $
+# $Id: conversionElectronsStable_cfi.py,v 1.2 2009/07/12 13:12:06 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -40,6 +40,12 @@ mergedElectronsStable = MitEdm.Producers.stablePartMerger_cfi.stablePartMerger.c
   preferCollection = 2,
 )
 
+mergedGeneralGsfStable = MitEdm.Producers.stablePartMerger_cfi.stablePartMerger.clone(
+  StableProducer1 = 'generalElectronsStable',
+  StableProducer2 = 'gsfElectronsStable',
+  preferCollection = 2,
+)
+
 conversionElectronsStable = cms.Sequence(generalElectronsStable*
                                          ckfInOutElectronsStable*
                                          ckfOutInElectronsStable
@@ -49,3 +55,15 @@ mvfConversionElectronsStable = cms.Sequence(gsfElectronsStable*
                                             mergedConversionsStable*
                                             mergedConversionsGeneralStable*
                                             mergedElectronsStable)
+
+electronsStable = cms.Sequence(generalElectronsStable*
+                               ckfInOutElectronsStable*
+                               ckfOutInElectronsStable*
+                               gsfElectronsStable*
+                               mergedConversionsStable*
+                               mergedConversionsGeneralStable*
+                               mergedElectronsStable)
+
+electronsStableFastSim = cms.Sequence(generalElectronsStable*
+                                      gsfElectronsStable*
+                                      mergedGeneralGsfStable)
