@@ -1,6 +1,6 @@
-// $Id: SealModule.cc,v 1.1 2008/10/13 10:39:24 bendavid Exp $
+// $Id: SealModule.cc,v 1.2 2009/07/12 13:11:40 bendavid Exp $
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
@@ -11,5 +11,5 @@
 using namespace mitedm;
 
 DEFINE_FWK_EVENTSETUP_MODULE(HitDropperESProducer);
-EVENTSETUP_DATA_REG(HitDropper);
+TYPELOOKUP_DATA_REG(HitDropper);
 DEFINE_ANOTHER_FWK_MODULE(SimpleTrackListMergerTransient);
