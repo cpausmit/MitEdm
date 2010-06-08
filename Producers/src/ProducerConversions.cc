@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.22 2009/12/15 23:27:34 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.23 2010/01/18 14:41:33 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -118,8 +118,10 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     trkPars1.push_back(mvfTrk);
   }
   
+  bool sameCollection = iStables1_ == iStables2_;
+  
   std::vector<TrackParameters> trkPars2;
-  if (iStables1_ == iStables2_)
+  if (sameCollection)
     trkPars2 = trkPars1;
   else for (UInt_t i = 0; i<pS2->size(); ++i) {
     const reco::Track *t = pS2->at(i).track();
@@ -139,6 +141,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
   
   //printf("S1 size = %i\n", pS1->size());
   
+  std::set<std::pair<edm::Ptr<reco::Track>,edm::Ptr<reco::Track> > > pairSet;
   // Simple double loop
   for (UInt_t i = 0; i<pS1->size(); ++i) {
     const StablePart &s1 =  pS1->at(i);
@@ -147,7 +150,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     const TrackParameters &trkPar1 = trkPars1.at(i);
     
     UInt_t j;
-    if (iStables1_ == iStables2_)
+    if (sameCollection)
       j = i+1; 
     else
       j = 0;
@@ -158,7 +161,18 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
-
+      
+      if (!sameCollection) {
+        std::pair<edm::Ptr<reco::Track>,edm::Ptr<reco::Track> > pair1(s1.trackPtr(),s2.trackPtr());
+        std::pair<edm::Ptr<reco::Track>,edm::Ptr<reco::Track> > pair2(s2.trackPtr(),s1.trackPtr());
+        if (pairSet.find(pair1)!=pairSet.end() || pairSet.find(pair2)!=pairSet.end()) {
+          continue;
+        }
+        
+        pairSet.insert(pair1);
+        pairSet.insert(pair2);
+      }
+      
       //Do fast helix fit to check if there's any hope
       const reco::Track * t2 = s2.track();
       const TrackParameters &trkPar2 = trkPars2.at(j);
@@ -259,13 +273,15 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         
         // Build corrected HitPattern for StableData, removing hits before the fit vertex
         if (useHitDropper_) {
-          reco::HitPattern hits1 = dropper->CorrectedHitsAOD(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
-          reco::HitPattern hits2 = dropper->CorrectedHitsAOD(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);                 
+          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
+          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);                 
    
-          c1.SetHits(hits1);
-          c2.SetHits(hits2);
+          c1.SetHits(hits1.first);
+          c2.SetHits(hits2.first);
           c1.SetHitsFilled();
           c2.SetHitsFilled();
+          c1.SetNWrongHits(hits1.second);
+          c2.SetNWrongHits(hits2.second);
           
           reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track());
           d->setSharedHits(sharedHits);

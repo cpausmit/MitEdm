@@ -1,4 +1,4 @@
-# $Id: conversions_cfi.py,v 1.7 2009/07/12 13:12:06 bendavid Exp $
+# $Id: conversions_cfi.py,v 1.8 2010/01/18 14:41:33 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -17,4 +17,8 @@ mvfConversions = cms.EDProducer("ProducerConversions",
 mvfTrackerConversions = mvfConversions.clone(
     iStables1        = cms.untracked.string('generalElectronsStable'),
     iStables2        = cms.untracked.string('generalElectronsStable'),
+)
+mvfConversionRemoval = mvfConversions.clone(
+    iStables1        = cms.untracked.string('gsfElectronsStable'),
+    iStables2        = cms.untracked.string('mergedElectronsStable'),
 )

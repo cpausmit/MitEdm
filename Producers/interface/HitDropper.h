@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropper.h,v 1.8 2009/10/12 21:41:08 loizides Exp $
+// $Id: HitDropper.h,v 1.9 2009/12/15 23:27:34 bendavid Exp $
 //
 // HitDropper
 //
@@ -40,7 +40,7 @@ namespace mitedm
                                                   Double_t lxyError,
                                                   Double_t lzError,
                                                   Double_t sigmaTolerance=3.0) const;
-      reco::HitPattern              CorrectedHitsAOD(const reco::Track *track,
+      std::pair<reco::HitPattern,uint> CorrectedHitsAOD(const reco::Track *track,
                                                   const ThreeVector &vtxPos,
                                                   const ThreeVector &trkMom,
                                                   Double_t lxyError,

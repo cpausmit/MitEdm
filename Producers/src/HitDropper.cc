@@ -1,4 +1,4 @@
-// $Id: HitDropper.cc,v 1.10 2009/11/02 22:55:58 bendavid Exp $
+// $Id: HitDropper.cc,v 1.11 2009/12/15 23:27:34 bendavid Exp $
 
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -121,7 +121,7 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
 
 
 //--------------------------------------------------------------------------------------------------
-reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
+std::pair<reco::HitPattern,uint> HitDropper::CorrectedHitsAOD(const reco::Track *track,
                                            const ThreeVector &vtxPos,
                                            const ThreeVector &trkMom,
                                            Double_t lxyError,
@@ -150,6 +150,8 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
   inHitPatterns[0] = &track->hitPattern();
   inHitPatterns[1] = &track->trackerExpectedHitsInner();
   inHitPatterns[2] = &track->trackerExpectedHitsOuter();
+  
+  uint nWrongHits = 0;
   
   for (Int_t hp=0; hp<3; ++hp) {
     const reco::HitPattern &inhits = *inHitPatterns[hp];
@@ -205,11 +207,18 @@ reco::HitPattern HitDropper::CorrectedHitsAOD(const reco::Track *track,
           << "Error! Mismatch in copying hit pattern." << std::endl; 
           
         nHits++;
-      } 
+      }
+      else {
+        if (inhits.validHitFilter(hit)) {
+          if (inhits.trackerHitFilter(hit)) {
+            nWrongHits++;
+          }
+        }
+      }
     }
   }
 
-  return hitPattern;
+  return std::pair<reco::HitPattern,uint>(hitPattern,nWrongHits);
 }
 
 reco::HitPattern HitDropper::SharedHits(const reco::Track *t1, const reco::Track *t2) const
