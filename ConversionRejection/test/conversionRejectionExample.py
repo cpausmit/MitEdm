@@ -23,7 +23,7 @@ process.options = cms.untracked.PSet(
 
 # input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/server/02a/bendavid/ttbarSpring10/F65B25B3-AA4E-DF11-AD8A-001E0B5FC422.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_6_1/RelValTTbar/GEN-SIM-RECO/START36_V7-v1/0020/60E04BD6-095D-DF11-92CD-001A92971BD8.root'),
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
@@ -34,9 +34,6 @@ process.GlobalTag.globaltag = 'START36_V9::All'
 
 process.load("MitEdm.Producers.conversionRejection_cff")
 process.load("MitEdm.ConversionRejection.conversionRejectionExample_cfi")
-
-
-#process.MitTreeFiller.TreeWriter.fileName = 'XX-MITDATASET-XX'
 
 process.conv_step  = cms.Path(process.conversionRejection*process.conversionRejectionAnalyzer)
 
