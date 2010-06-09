@@ -1,4 +1,4 @@
-# $Id: conversions_cfi.py,v 1.8 2010/01/18 14:41:33 bendavid Exp $
+# $Id: conversions_cfi.py,v 1.9 2010/06/08 20:17:29 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,4 +21,5 @@ mvfTrackerConversions = mvfConversions.clone(
 mvfConversionRemoval = mvfConversions.clone(
     iStables1        = cms.untracked.string('gsfElectronsStable'),
     iStables2        = cms.untracked.string('mergedElectronsStable'),
+    applyChargeConstraint = cms.untracked.bool(True),
 )
