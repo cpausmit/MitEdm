@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterLumi.cc,v 1.17 2010/04/01 11:08:00 edwenger Exp $
+// $Id: FilterLumi.cc,v 1.18 2010/04/01 11:10:46 frankma Exp $
 //
 // FilterLumi
 //
@@ -11,7 +11,7 @@
 // Authors: C.Loizides
 //--------------------------------------------------------------------------------------------------
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"

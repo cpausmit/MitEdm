@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterEvtSel.cc,v 1.8 2010/01/14 20:26:19 edwenger Exp $
+// $Id: FilterEvtSel.cc,v 1.9 2010/01/15 14:30:27 loizides Exp $
 //
 // FilterEvtSel
 //
@@ -9,7 +9,7 @@
 // Authors: E.Wenger
 //--------------------------------------------------------------------------------------------------
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: FilterBX.cc,v 1.7 2009/12/18 15:29:05 loizides Exp $
+// $Id: FilterBX.cc,v 1.8 2010/01/07 17:07:54 loizides Exp $
 //
 // FilterBX
 //
@@ -10,7 +10,7 @@
 // Authors: C.Loizides, E.Wenger
 //--------------------------------------------------------------------------------------------------
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"

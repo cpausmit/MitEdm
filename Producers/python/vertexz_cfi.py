@@ -1,13 +1,13 @@
-# $Id: conversions_cfi.py,v 1.7 2009/07/12 13:12:06 bendavid Exp $
+# $Id: vertexz_cfi.py,v 1.1 2009/11/30 10:11:41 loizides Exp $
 
 import FWCore.ParameterSet.Config as cms
 
-trackletVertices = cms.EDFilter("VertexZProducer",
+trackletVertices = cms.EDProducer("VertexZProducer",
     pixLayerCombinations = cms.untracked.int32(12),
     doClusVertex         = cms.untracked.bool(False),
 )                                
 
-clusterVertices = cms.EDFilter("VertexZProducer",
+clusterVertices = cms.EDProducer("VertexZProducer",
     pixLayerCombinations = cms.untracked.int32(12),
     doClusVertex         = cms.untracked.bool(True),
 )                                
