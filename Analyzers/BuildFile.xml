@@ -1,0 +1,16 @@
+<use   name="root"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/GsfTrackReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="MitCommon/DataFormats"/>
+<use   name="MitCommon/MathTools"/>
+<use   name="MitEdm/DataFormats"/>
+<use   name="MitEdm/ConversionRejection"/>
+<flags   EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>

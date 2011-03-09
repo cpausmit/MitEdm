@@ -1,8 +1,0 @@
-# -*- Makefile -*-
-# $Id: BuildFile,v 1.2 2008/07/29 13:37:46 loizides Exp $
-
-<use name=root>
-#<flags CXXFLAGS="-g">
-<export>
-   <lib name=MitEdmAnalysisDataFormats>
-</export>

@@ -1,0 +1,9 @@
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="MitCommon/DataFormats"/>
+<use   name="MitCommon/MathTools"/>
+<use   name="MitCommon/VertexFit"/>
+<export>
+  <lib   name="1"/>
+</export>
