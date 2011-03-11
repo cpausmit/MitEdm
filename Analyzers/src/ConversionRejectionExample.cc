@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: None.cc,v 1.3 2009/12/02 20:39:15 loizides Exp $
+// $Id: ConversionRejectionExample.cc,v 1.1 2010/06/08 23:30:47 bendavid Exp $
 //
 // ConversionRejectionExample
 //
@@ -64,7 +64,7 @@ void ConversionRejectionExample::analyze(const edm::Event &e, const edm::EventSe
     std::vector<edm::Ptr<DecayPart> > goodConversions = convMatcher.goodMatchedConversions(*it,hConversions);
     for (std::vector<edm::Ptr<DecayPart> >::const_iterator jt = goodConversions.begin(); jt!=goodConversions.end(); ++jt) {
       const DecayPart *conv = jt->get();
-      printf("Good Matched Conversion %i:\n",jt-goodConversions.begin());
+      printf("Good Matched Conversion %i:\n",(int)(jt-goodConversions.begin()));
       printf("  radius = %5f\n",conv->position().rho());
       printf("  lxy    = %5f\n",conv->lxy());
       printf("  lz     = %5f\n",conv->lz());
@@ -91,7 +91,7 @@ void ConversionRejectionExample::analyze(const edm::Event &e, const edm::EventSe
     std::vector<edm::Ptr<DecayPart> > allConversions = convMatcher.allMatchedConversions(*it,hConversions);
     for (std::vector<edm::Ptr<DecayPart> >::const_iterator jt = allConversions.begin(); jt!=allConversions.end(); ++jt) {
       const DecayPart *conv = jt->get();
-      printf("Matched Conversion %i:\n",jt-allConversions.begin());
+      printf("Matched Conversion %i:\n",(int)(jt-allConversions.begin()));
       printf("  radius = %5f\n",conv->position().rho());
       printf("  prob   = %5f\n",TMath::Prob(conv->chi2(),conv->ndof()));
     }
