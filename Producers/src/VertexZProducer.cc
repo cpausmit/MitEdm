@@ -1,4 +1,4 @@
-// $Id: VertexZProducer.cc,v 1.12 2009/11/29 10:19:06 loizides Exp $
+// $Id: VertexZProducer.cc,v 1.1 2009/11/30 10:11:41 loizides Exp $
 
 #include "MitEdm/Producers/interface/VertexZProducer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -20,7 +20,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h" 
 #include <TString.h>
 
 using namespace std;
