@@ -1,6 +1,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/GsfTrackReco"/>
 <use   name="MitCommon/DataFormats"/>
+<lib   name="EG"/>
 <export>
   <lib   name="1"/>
 </export>
