@@ -1,4 +1,4 @@
-# $Id: conversionElectronsStable_cfi.py,v 1.2 2009/07/12 13:12:06 bendavid Exp $
+# $Id: conversionElectronsStable_cfi.py,v 1.3 2010/04/27 14:26:57 bendavid Exp $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -19,6 +19,11 @@ ckfOutInElectronsStable = cms.EDProducer("ProducerStable",
 
 gsfElectronsStable = cms.EDProducer("ProducerStable",
     iTracks = cms.untracked.string('electronGsfTracks'),
+    oPid    = cms.untracked.int32(11)
+)
+
+conversionStepElectronsStable = cms.EDProducer("ProducerStable",
+    iTracks = cms.untracked.string('conversionStepTracks'),
     oPid    = cms.untracked.int32(11)
 )
 
@@ -60,6 +65,7 @@ electronsStable = cms.Sequence(generalElectronsStable*
                                ckfInOutElectronsStable*
                                ckfOutInElectronsStable*
                                gsfElectronsStable*
+                               conversionStepElectronsStable*
                                mergedConversionsStable*
                                mergedConversionsGeneralStable*
                                mergedElectronsStable)
