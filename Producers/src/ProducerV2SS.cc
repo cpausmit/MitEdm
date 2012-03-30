@@ -1,4 +1,4 @@
-// $Id: ProducerV2SS.cc,v 1.21 2010/01/18 14:41:33 bendavid Exp $
+// $Id: ProducerV2SS.cc,v 1.22 2010/06/08 20:17:30 bendavid Exp $
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -130,11 +130,8 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     else
       j = 0;
     
-    TrajectoryStateTransform tsTransform;
-    
-    FreeTrajectoryState initialState1 = tsTransform.initialFreeState(*s1.track(),&*magneticField);
-  
-    
+    FreeTrajectoryState initialState1 = trajectoryStateTransform::initialFreeState(*s1.track(),&*magneticField);
+
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
       const TrackParameters &trkPar2 = trkPars2.at(j);
@@ -149,7 +146,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
       double dR0 = -999;
       double mass0 = 0.0;
       
-      FreeTrajectoryState initialState2 = tsTransform.initialFreeState(*s2.track(),&*magneticField);
+      FreeTrajectoryState initialState2 = trajectoryStateTransform::initialFreeState(*s2.track(),&*magneticField);
       helixIntersector.calculate(initialState1, initialState2);
       if (helixIntersector.status()) {
         dZ0 = fabs(helixIntersector.points().first.z() - helixIntersector.points().second.z());

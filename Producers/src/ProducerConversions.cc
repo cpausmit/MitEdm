@@ -1,4 +1,4 @@
-// $Id: ProducerConversions.cc,v 1.23 2010/01/18 14:41:33 bendavid Exp $
+// $Id: ProducerConversions.cc,v 1.24 2010/06/08 20:17:30 bendavid Exp $
 
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -155,9 +155,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     else
       j = 0;
     
-    TrajectoryStateTransform tsTransform;
-    
-    FreeTrajectoryState initialState1 = tsTransform.initialFreeState(*s1.track(),&*magneticField);
+
+    FreeTrajectoryState initialState1 = trajectoryStateTransform::initialFreeState(*s1.track(),&*magneticField);
     
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
@@ -182,7 +181,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
       double dR0 = 0.0;
       
       if (!applyChargeConstraint_ || trackCharge==0) {
-        FreeTrajectoryState initialState2 = tsTransform.initialFreeState(*s2.track(),&*magneticField);
+	FreeTrajectoryState initialState2 = trajectoryStateTransform::initialFreeState(*s2.track(),&*magneticField);
         helixIntersector.calculate(initialState1, initialState2);
         if (helixIntersector.status())
           dR0 = helixIntersector.crossingPoint().perp();

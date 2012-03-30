@@ -1,4 +1,4 @@
-// $Id: SimpleTrackListMergerTransient.cc,v 1.2 2009/07/15 20:38:24 loizides Exp $
+// $Id: SimpleTrackListMergerTransient.cc,v 1.3 2009/10/04 12:49:05 bendavid Exp $
 
 #include <memory>
 #include <string>
@@ -37,7 +37,7 @@ namespace mitedm
 	pID=reinterpret_cast<const SiStripRecHit2D *>(hit)->cluster().id();
       } else if (type == typeid(SiStripMatchedRecHit2D)) {
 	const SiStripMatchedRecHit2D *mhit = reinterpret_cast<const SiStripMatchedRecHit2D *>(hit);
-	pID=mhit->monoHit()->cluster().id();
+	pID=mhit->monoHit().cluster().id();
       } else if (type == typeid(ProjectedSiStripRecHit2D)) {
 	const ProjectedSiStripRecHit2D *phit = 
           reinterpret_cast<const ProjectedSiStripRecHit2D *>(hit);
