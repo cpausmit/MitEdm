@@ -572,6 +572,7 @@ void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRT
   float shift = 0.;
   const float invsumw = 1.0/sumw;
   for (std::vector<GBREvent*>::const_iterator it = evts.begin(); it!=evts.end(); ++it) {
+    float weight = (*it)->Weight();
     float diff = (*it)->Target() - median;
     
     if (std::abs(diff) > transition) {
@@ -579,7 +580,7 @@ void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRT
       else diff = transition;
     }
     
-    shift += invsumw*diff; 
+    shift += weight*invsumw*diff; 
   
   }
   
