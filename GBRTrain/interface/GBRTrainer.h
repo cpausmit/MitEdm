@@ -38,7 +38,7 @@
   class GBREvent;
   
   class GBRTrainer {
-
+    
     public:
 
        GBRTrainer();
@@ -50,7 +50,9 @@
        void SetTrainingCut(std::string cut) { fTrainingCut = cut;        }
        void SetMinEvents(int n)             { fMinEvents = n;            }
        void SetShrinkage(float x)           { fShrinkage = x;            }
-       
+       void SetMinCutSignificance(float x)  { fMinCutSignificance = x;   }
+       void SetTransitionQuantile(float x)  { fTransitionQuantile = x;   }
+      
        const GBRForest *TrainForest(int ntrees);
        
     protected:
@@ -66,35 +68,46 @@
       std::string               fTargetVar;
       int                       fMinEvents;
       float                     fShrinkage;
-      std::vector<std::vector<float> > fQuantileMaps;
+      //std::vector<std::vector<float> > fQuantileMaps;
       int                       fNQuantiles;
       unsigned int              fNBinsMax;
       float                     fTransitionQuantile;
-      
-      float *sepgains;
-      float *cutvals;  
-      int *nlefts;
-      int *nrights;
-      float *sumwlefts;
-      float *sumwrights;  
-      int   *bestbins;
+      float                     fMinCutSignificance;
       
       
-      float **ws;
-      int **ns;
-      float **tgts;
-      float **tgt2s;
-      float **sumws;
-      int **sumns;
-      float **sumtgts;
-      float **sumtgt2s;
-      float **varvals;
-      float **bsepgains;
+      float *_sepgains;
+      float *_sepgainsigs;
+      float *_cutvals;  
+      int *_nlefts;
+      int *_nrights;
+      float *_sumwlefts;
+      float *_sumwrights;  
+      float *_sumtgtlefts;
+      float *_sumtgtrights;
+      float *_leftvars;
+      float *_rightvars;      
+      float *_fullvars;
+      int   *_bestbins;
       
-      int **quants;
-      int **bins;
       
-      //float *targets;
-  
+      float **_ws;
+      float **_ws2;
+      int **_ns;
+      float **_tgts;
+      float **_tgt2s;
+      float **_sumws;
+      float **_sumws2;      
+      int **_sumns;
+      float **_sumtgts;
+      float **_sumtgt2s;
+      float **_varvals;
+      float **_bsepgains;
+      float **_bsepgainsigs;      
+      
+      int **_quants;
+      int **_bins;
+      
+      float **fQuantileMaps;
+      
   };
 #endif

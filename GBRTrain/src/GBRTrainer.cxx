@@ -4,7 +4,7 @@
 #include "TTree.h"
 #include "TTreeFormula.h"
 #include <assert.h>
-
+#include <malloc.h>
 
 //_______________________________________________________________________
 GBRTrainer::GBRTrainer() : 
@@ -14,8 +14,9 @@ GBRTrainer::GBRTrainer() :
   fNQuantiles(std::numeric_limits<unsigned short>::max()+1),
   fNBinsMax(128),
   fTransitionQuantile(0.7),
-  sepgains(0),
-  ws(0)
+  fMinCutSignificance(-99.0),
+  _sepgains(0),
+  _ws(0)
 {
 
 }
@@ -26,49 +27,64 @@ GBRTrainer::~GBRTrainer()
   fTree = 0;
 
   //clear arrays
-  if (sepgains) {
-    delete[] sepgains;
-    delete[] cutvals;
-    delete[] nlefts;
-    delete[] nrights;
-    delete[] sumwlefts;
-    delete[] sumwrights;
-    delete[] bestbins;  
+  if (_sepgains) {
+    delete[] _sepgains;
+    delete[] _cutvals;
+    delete[] _nlefts;
+    delete[] _nrights;
+    delete[] _sumwlefts;
+    delete[] _sumwrights;
+    delete[] _sumtgtlefts;
+    delete[] _sumtgtrights;
+    delete[] _leftvars;
+    delete[] _rightvars;
+    delete[] _fullvars;
+    delete[] _bestbins;  
   }
   
-  if (ws) {
+  if (_ws) {
 
     for (unsigned int ivar=0; ivar<fInputVars.size(); ++ivar) {
-      delete[] ws[ivar];
-      delete[] ns[ivar];
-      delete[] tgts[ivar];
-      delete[] tgt2s[ivar];
+      delete[] _ws[ivar];
+      delete[] _ws2[ivar];
+      delete[] _ns[ivar];
+      delete[] _tgts[ivar];
+      delete[] _tgt2s[ivar];
       
-      delete[] sumws[ivar];
-      delete[] sumns[ivar];
-      delete[] sumtgts[ivar];
-      delete[] sumtgt2s[ivar];
-      delete[] varvals[ivar];   
-      delete[] bsepgains[ivar];
+      delete[] _sumws[ivar];
+      delete[] _sumws2[ivar];
+      delete[] _sumns[ivar];
+      delete[] _sumtgts[ivar];
+      delete[] _sumtgt2s[ivar];
+      delete[] _varvals[ivar];   
+      delete[] _bsepgains[ivar];
+      delete[] _bsepgainsigs[ivar];
       
-      delete[] quants[ivar];
-      delete[] bins[ivar];
+      
+      delete[] _quants[ivar];
+      delete[] _bins[ivar];
+      
+      delete[] fQuantileMaps[ivar];
     }
     
-    delete[] ws;
-    delete[] ns;
-    delete[] tgts;
-    delete[] tgt2s;
+    delete[] _ws;
+    delete[] _ws2;
+    delete[] _ns;
+    delete[] _tgts;
+    delete[] _tgt2s;
     
-    delete[] sumws;
-    delete[] sumns;
-    delete[] sumtgts;
-    delete[] sumtgt2s;
-    delete[] varvals;  
-    delete[] bsepgains;
+    delete[] _sumws;
+    delete[] _sumws2;
+    delete[] _sumns;
+    delete[] _sumtgts;
+    delete[] _sumtgt2s;
+    delete[] _varvals;  
+    delete[] _bsepgains;
     
-    delete[] quants;
-    delete[] bins;
+    delete[] _quants;
+    delete[] _bins;
+    
+    delete[] fQuantileMaps;
   }
   
 }
@@ -93,8 +109,10 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
   
   Long64_t nev = 0;  
   
+  printf("first loop, count events\n");
   //loop over tree to count training events with non-zero weight;
   for (Long64_t iev=0; iev<fTree->GetEntries(); ++iev) {
+    if (iev%100000==0) printf("%i\n",int(iev));
     fTree->LoadTree(iev);
     if (cutform.EvalInstance()!=0.) {
       ++nev;
@@ -104,53 +122,70 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
   printf("nev = %i, nvar = %i\n",int(nev),nvars);
 
   //initialize arrays
-  
-  sepgains = new float[nvars];
-  cutvals = new float[nvars];
-  nlefts = new int[nvars];
-  nrights = new int[nvars];
-  sumwlefts = new float[nvars];
-  sumwrights = new float[nvars];
-  bestbins = new int[nvars];
 
-  ws = new float*[nvars];
-  ns = new int*[nvars];
-  tgts = new float*[nvars];
-  tgt2s = new float*[nvars];  
-  sumws = new float*[nvars];
-  sumns = new int*[nvars];
-  sumtgts = new float*[nvars];
-  sumtgt2s = new float*[nvars];
-  varvals = new float*[nvars];    
-  bsepgains = new float*[nvars];
+  _sepgains = new float[nvars];
+  _sepgainsigs = new float[nvars];
+  _cutvals = new float[nvars];
+  _nlefts = new int[nvars];
+  _nrights = new int[nvars];
+  _sumwlefts = new float[nvars];
+  _sumwrights = new float[nvars];
+  _sumtgtlefts = new float[nvars];
+  _sumtgtrights = new float[nvars];
+  _leftvars = new float[nvars];
+  _rightvars = new float[nvars];  
+  _fullvars = new float[nvars];  
+  _bestbins = new int[nvars];
+
+  _ws = new float*[nvars];
+  _ws2 = new float*[nvars];
+  _ns = new int*[nvars];
+  _tgts = new float*[nvars];
+  _tgt2s = new float*[nvars];  
+  _sumws = new float*[nvars];
+  _sumws2 = new float*[nvars];
+  _sumns = new int*[nvars];
+  _sumtgts = new float*[nvars];
+  _sumtgt2s = new float*[nvars];
+  _varvals = new float*[nvars];    
+  _bsepgains = new float*[nvars];
+  _bsepgainsigs = new float*[nvars];
   
-  quants = new int*[nvars];
-  bins = new int*[nvars];
+  _quants = new int*[nvars];
+  _bins = new int*[nvars];
+  
+  fQuantileMaps = new float*[nvars];
   
   for (int ivar=0; ivar<nvars; ++ivar) {
-    ws[ivar] = new float[fNBinsMax];
-    ns[ivar] = new int[fNBinsMax];
-    tgts[ivar] = new float[fNBinsMax];
-    tgt2s[ivar] = new float[fNBinsMax];  
-    sumws[ivar] = new float[fNBinsMax];
-    sumns[ivar] = new int[fNBinsMax];
-    sumtgts[ivar] = new float[fNBinsMax];
-    sumtgt2s[ivar] = new float[fNBinsMax];
-    varvals[ivar] = new float[fNBinsMax];  
-    bsepgains[ivar] = new float[fNBinsMax];      
+    _ws[ivar] = new float[fNBinsMax];
+    _ws2[ivar] = new float[fNBinsMax];    
+    _ns[ivar] = new int[fNBinsMax];
+    _tgts[ivar] = new float[fNBinsMax];
+    _tgt2s[ivar] = new float[fNBinsMax];  
+    _sumws[ivar] = new float[fNBinsMax];
+    _sumws2[ivar] = new float[fNBinsMax];
+    _sumns[ivar] = new int[fNBinsMax];
+    _sumtgts[ivar] = new float[fNBinsMax];
+    _sumtgt2s[ivar] = new float[fNBinsMax];
+    _varvals[ivar] = new float[fNBinsMax];  
+    _bsepgains[ivar] = new float[fNBinsMax];      
+    _bsepgainsigs[ivar] = new float[fNBinsMax];      
     
-    quants[ivar] = new int[nev];
-    bins[ivar] = new int[nev];
+    _quants[ivar] = new int[nev];
+    _bins[ivar] = new int[nev];
+    
+    fQuantileMaps[ivar] = new float[fNQuantiles];
   }
-    
-  
+      
   std::vector<GBREvent*> evts;
   evts.reserve(nev);
   
   double sumw = 0.;
   
+  printf("second loop, fill events in memory\n");
   //loop over tree to fill arrays and event vector
   for (Long64_t iev=0; iev<fTree->GetEntries(); ++iev) {
+    if (iev%100000==0) printf("%i\n",int(iev));
     fTree->LoadTree(iev);
     
     float weight = cutform.EvalInstance();
@@ -173,7 +208,7 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
   }
   
   //map of input variable quantiles to values
-  fQuantileMaps.resize(nvars, std::vector<float>(fNQuantiles));
+  //fQuantileMaps.resize(nvars, std::vector<float>(fNQuantiles));
   
   //parallelize building of quantiles for each input variable
   //(sorting of event pointer vector is cpu-intensive)
@@ -274,6 +309,9 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
     //train a single tree recursively from the root node
     TrainTree(evts,sumw,tree,nvars,transition);
     
+    //stop training if root node is already terminal
+    if (itree==(ntrees-1) || tree.LeftIndices().size()==0 || tree.LeftIndices().front()==tree.RightIndices().front()) break;
+    
     //recompute transition point and transformed target
     std::sort(evts.begin(),evts.end(),GBRAbsTargetCMP());
     transumw = 0.;
@@ -310,15 +348,17 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
   //index of best cut variable
   int bestvar = 0;
 
+  //float *__restrict *__restrict__ sumws = _sumws;  
+  
   //trivial open-mp based multithreading of loop over input variables
   //The loop is thread safe since each iteration writes into its own
   //elements of the 2-d arrays
 #pragma omp parallel for
   for (int ivar=0; ivar<nvars; ++ivar) {
-
+    
     //fill temporary array of quantiles (to allow auto-vectorization of later loops)
     for (int iev = 0; iev<nev; ++iev) {
-      quants[ivar][iev] = evts[iev]->Quantile(ivar);
+      _quants[ivar][iev] = evts[iev]->Quantile(ivar);
     }
     
     int minquant = std::numeric_limits<int>::max();
@@ -327,8 +367,8 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     //find max and min quantiles in the input events
     //(this loop should be vectorized by gcc with reasonable optimization options)
     for (int iev = 0; iev<nev; ++iev) {
-      if (quants[ivar][iev]<minquant) minquant = quants[ivar][iev];
-      if (quants[ivar][iev]>maxquant) maxquant = quants[ivar][iev];
+      if (_quants[ivar][iev]<minquant) minquant = _quants[ivar][iev];
+      if (_quants[ivar][iev]>maxquant) maxquant = _quants[ivar][iev];
     }    
     
     //calculate offset and scaling (powers of 2) to reduce the total number of quantiles
@@ -350,21 +390,22 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     //and variable cut values
     //This loop should auto-vectorize in appropriate compiler/settings
     for (unsigned int ibin=0; ibin<nbins; ++ibin) {
-      ws[ivar][ibin] = 0.;
-      ns[ivar][ibin] = 0;
-      tgts[ivar][ibin] = 0.;
-      tgt2s[ivar][ibin] = 0.;
+      _ws[ivar][ibin] = 0.;
+      _ws2[ivar][ibin] = 0.;
+      _ns[ivar][ibin] = 0;
+      _tgts[ivar][ibin] = 0.;
+      _tgt2s[ivar][ibin] = 0.;
       
       int quant = ((1+ibin)<<pscale) + offset - 1;
       
-      varvals[ivar][ibin] = fQuantileMaps[ivar][quant];
+      _varvals[ivar][ibin] = fQuantileMaps[ivar][quant];
 
     }
     
     //compute reduced bin value for each event using bit-shift operations
     //This loop should auto-vectorize in appropriate compiler/settings
     for (int iev=0;iev<nev;++iev) {
-      bins[ivar][iev] = (quants[ivar][iev]-offset)>>pscale;
+      _bins[ivar][iev] = (_quants[ivar][iev]-offset)>>pscale;
     }
 
      
@@ -378,37 +419,44 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     //this loop)
     
     for (int iev=0;iev<nev;++iev) {
-      int ibin = bins[ivar][iev];
+      int ibin = _bins[ivar][iev];
       
-      ws[ivar][ibin] += evts[iev]->Weight();
-      ++ns[ivar][ibin];
-      tgts[ivar][ibin] += evts[iev]->WeightedTransTarget();
-      tgt2s[ivar][ibin] += evts[iev]->WeightedTransTarget2();
+      _ws[ivar][ibin] += evts[iev]->Weight();
+      _ws2[ivar][ibin] += evts[iev]->Weight()*evts[iev]->Weight();
+      ++_ns[ivar][ibin];
+      _tgts[ivar][ibin] += evts[iev]->WeightedTransTarget();
+      _tgt2s[ivar][ibin] += evts[iev]->WeightedTransTarget2();
 
     } 
  
     //convert differential arrays to cumulative arrays by summing over
     //each element
     //loop cannot be vectorized because this is an iterative calculation
-    sumws[ivar][0] = ws[ivar][0];
-    sumns[ivar][0] = ns[ivar][0];
-    sumtgts[ivar][0] = tgts[ivar][0];
-    sumtgt2s[ivar][0] = tgt2s[ivar][0];    
+    _sumws[ivar][0] = _ws[ivar][0];
+    _sumws2[ivar][0] = _ws2[ivar][0];
+    _sumns[ivar][0] = _ns[ivar][0];
+    _sumtgts[ivar][0] = _tgts[ivar][0];
+    _sumtgt2s[ivar][0] = _tgt2s[ivar][0];    
     
     for (unsigned int ibin=1; ibin<nbins; ++ibin) {      
-      sumws[ivar][ibin] = sumws[ivar][ibin-1] + ws[ivar][ibin];
-      sumns[ivar][ibin] = sumns[ivar][ibin-1] + ns[ivar][ibin];
-      sumtgts[ivar][ibin] = sumtgts[ivar][ibin-1] + tgts[ivar][ibin];
-      sumtgt2s[ivar][ibin] = sumtgt2s[ivar][ibin-1] + tgt2s[ivar][ibin];  
+      _sumws[ivar][ibin] = _sumws[ivar][ibin-1] + _ws[ivar][ibin];
+      _sumws2[ivar][ibin] = _sumws2[ivar][ibin-1] + _ws2[ivar][ibin];
+      _sumns[ivar][ibin] = _sumns[ivar][ibin-1] + _ns[ivar][ibin];
+      _sumtgts[ivar][ibin] = _sumtgts[ivar][ibin-1] + _tgts[ivar][ibin];
+      _sumtgt2s[ivar][ibin] = _sumtgt2s[ivar][ibin-1] + _tgt2s[ivar][ibin];  
     }
     
     //int n = sumns[ivar][nbins-1];
-    float sumw = sumws[ivar][nbins-1];
-    float sumtgt = sumtgts[ivar][nbins-1];
-    float sumtgt2 = sumtgt2s[ivar][nbins-1];      
+    float sumw = _sumws[ivar][nbins-1];
+    float sumw2 = _sumws2[ivar][nbins-1];
+    float sumtgt = _sumtgts[ivar][nbins-1];
+    float sumtgt2 = _sumtgt2s[ivar][nbins-1];      
     
     //weighted variance of target in full dataset
     float fullvariance = sumtgt2 - sumtgt*sumtgt/sumw;
+    float fullvariancevar = fullvariance*fullvariance/sumw2/sumw2;
+    
+    _fullvars[ivar] = fullvariance;
     
    // printf("fullrms = %5f, sumtgt2 = %5f, sumtgt = %5f, sumw = %5f\n",fullrms,sumtgt2,sumtgt,sumw);
     
@@ -423,40 +471,53 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     
     //loop over all bins and compute improvement in weighted variance of target for each split
     //This loop is relatively expensive and should auto-vectorize in the appropriate compiler/settings
-    for (unsigned int ibin=0; ibin<nbins; ++ibin) {
-      float leftvariance = sumtgt2s[ivar][ibin] - sumtgts[ivar][ibin]*sumtgts[ivar][ibin]/sumws[ivar][ibin];
-      float rightsumw = sumw - sumws[ivar][ibin];
-      float righttgtsum = sumtgt - sumtgts[ivar][ibin];
-      float righttgt2sum = sumtgt2 - sumtgt2s[ivar][ibin];
+    for (unsigned int ibin=0; ibin<nbins; ++ibin) {      
+      float leftvariance = _sumtgt2s[ivar][ibin] - _sumtgts[ivar][ibin]*_sumtgts[ivar][ibin]/_sumws[ivar][ibin];
+      //float leftvariancevar = leftvariance*leftvariance/sumws2[ivar][ibin]/sumws2[ivar][ibin];
+       
+      float rightsumw = sumw - _sumws[ivar][ibin];
+      float rightsumw2 = sumw2 - _sumws2[ivar][ibin];
+      float righttgtsum = sumtgt - _sumtgts[ivar][ibin];
+      float righttgt2sum = sumtgt2 - _sumtgt2s[ivar][ibin];
       float rightvariance = righttgt2sum - righttgtsum*righttgtsum/rightsumw;
+      //float rightvariancevar = rightvariance*rightvariance/rightsumw2/rightsumw2;
+      
       
       //weighted improvement in variance from this split
-      bsepgains[ivar][ibin] = fullvariance - rightvariance - leftvariance;
+      _bsepgains[ivar][ibin] = fullvariance - rightvariance - leftvariance;
+      //bsepgainsigs[ivar][ibin] = bsepgains[ivar][ibin]/sqrt(leftvariancevar+rightvariancevar+fullvariancevar);
+      _bsepgainsigs[ivar][ibin] = sqrt((_sumtgts[ivar][ibin]/_sumws[ivar][ibin] - righttgtsum/rightsumw)*(_sumtgts[ivar][ibin]/_sumws[ivar][ibin] - righttgtsum/rightsumw)/(leftvariance/_sumws[ivar][ibin]/_sumws2[ivar][ibin] + rightvariance/rightsumw/rightsumw2));
     }
     
     //loop over computed variance improvements and select best split, respecting also minimum number of events per node
     //This loop cannot auto-vectorize, at least in gcc 4.6x due to the mixed type conditional, but it's relatively fast
     //in any case
     for (unsigned int ibin=0; ibin<nbins; ++ibin) {   
-      if (sumns[ivar][ibin]>=fMinEvents && (nev-sumns[ivar][ibin])>=fMinEvents && bsepgains[ivar][ibin]>maxsepgain) {
-	maxsepgain = bsepgains[ivar][ibin];
+      //if (sumns[ivar][ibin]>=fMinEvents && (nev-sumns[ivar][ibin])>=fMinEvents && bsepgains[ivar][ibin]>maxsepgain) {
+	if (_sumns[ivar][ibin]>=fMinEvents && (nev-_sumns[ivar][ibin])>=fMinEvents && _bsepgains[ivar][ibin]>maxsepgain && _bsepgainsigs[ivar][ibin]>fMinCutSignificance) {
+	maxsepgain = _bsepgains[ivar][ibin];
         bestbin = ibin;
       }
     }
      
-    cutval = varvals[ivar][bestbin];
-    nleft = sumns[ivar][bestbin];
+    cutval = _varvals[ivar][bestbin];
+    nleft = _sumns[ivar][bestbin];
     nright = nev - nleft;
-    sumwleft = sumws[ivar][bestbin];
+    sumwleft = _sumws[ivar][bestbin];
     sumwright = sumw - sumwleft;        
     
-    sepgains[ivar] = maxsepgain;
-    cutvals[ivar] = cutval;
-    nlefts[ivar] = nleft;
-    nrights[ivar] = nright;
-    sumwlefts[ivar] = sumwleft;
-    sumwrights[ivar] = sumwright;
-    bestbins[ivar] = bestbin;
+    _sepgains[ivar] = maxsepgain;
+    _sepgainsigs[ivar] = _bsepgainsigs[ivar][bestbin];
+    _cutvals[ivar] = cutval;
+    _nlefts[ivar] = nleft;
+    _nrights[ivar] = nright;
+    _sumwlefts[ivar] = sumwleft;
+    _sumwrights[ivar] = sumwright;
+    _sumtgtlefts[ivar] = _sumtgts[ivar][bestbin];
+    _sumtgtrights[ivar] = sumtgt - _sumtgts[ivar][bestbin];
+    _leftvars[ivar] = _sumtgt2s[ivar][bestbin] - _sumtgts[ivar][bestbin]*_sumtgts[ivar][bestbin]/_sumws[ivar][bestbin];
+    _rightvars[ivar] = (sumtgt2-_sumtgt2s[ivar][bestbin]) - (sumtgt-_sumtgts[ivar][bestbin])*(sumtgt-_sumtgts[ivar][bestbin])/(sumw-_sumws[ivar][bestbin]);
+    _bestbins[ivar] = bestbin;
         
   }
   
@@ -464,8 +525,8 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
   
   float globalsepgain = -std::numeric_limits<float>::max();
   for (int ivar=0; ivar<nvars; ++ivar) {
-    if (sepgains[ivar]>globalsepgain) {
-      globalsepgain = sepgains[ivar];
+    if (_sepgains[ivar]>globalsepgain) {
+      globalsepgain = _sepgains[ivar];
       bestvar = ivar;
     }
   }    
@@ -473,7 +534,15 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
   //if no appropriate split found, make this node terminal
   if (globalsepgain<=0.) {
     //no valid split found, making this node a leaf node
-    //printf("globalsepgain = %5f, no valid split\n",globalsepgain);
+    printf("thisidx = %i, globalsepgain = %5f, no valid split\n",thisidx, globalsepgain);
+    tree.CutIndices().push_back(0);
+    tree.CutVals().push_back(0);
+    tree.LeftIndices().push_back(0);   
+    tree.RightIndices().push_back(0);    
+    
+    tree.RightIndices()[thisidx] = -tree.Responses().size();
+    tree.LeftIndices()[thisidx] = -tree.Responses().size();
+    
     BuildLeaf(evts,sumwtotal,tree,transition);
     return;
   }
@@ -491,7 +560,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
   double sumwright = 0.;
   
   for (std::vector<GBREvent*>::const_iterator it = evts.begin(); it!=evts.end(); ++it) {
-    if ((*it)->Var(bestvar)>cutvals[bestvar]) {
+    if ((*it)->Var(bestvar)>_cutvals[bestvar]) {
       ++nright;
       sumwright += (*it)->Weight();
       rightevts.push_back(*it);
@@ -503,14 +572,23 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     }    
   }
  
- // printf("thisidx = %i, bestvar = %i, cutval = %5f, n = %i, nleft = %i, nright = %i\n",thisidx,bestvar,cutvals[bestvar],nev,nlefts[bestvar],nrights[bestvar]);
+  float fullres = sqrt(_fullvars[bestvar]/sumwtotal);
+  float leftres = sqrt(_leftvars[bestvar]/sumwleft);
+  float rightres = sqrt(_rightvars[bestvar]/sumwright);
+ 
+  float fullmean = (_sumtgtlefts[bestvar] + _sumtgtrights[bestvar])/sumwtotal;
+  float leftmean = _sumtgtlefts[bestvar]/sumwleft;
+  float rightmean = _sumtgtrights[bestvar]/sumwright;
   
-  assert(nlefts[bestvar]==nleft);
-  assert(nrights[bestvar]==nright);
+  
+  printf("thisidx = %i, bestvar = %i, cutval = %5f, n = %i, nleft = %i, nright = %i, fullres = %5f, leftres = %5f, rightres = %5f, fullmean = %5f, leftmean = %5f, rightmrean = %5f, leftsepgain = %5f, sepgainsig = %5f\n",thisidx,bestvar,_cutvals[bestvar],nev,_nlefts[bestvar],_nrights[bestvar],fullres,leftres,rightres,fullmean, leftmean, rightmean, _sepgains[bestvar],_sepgainsigs[bestvar]);
+  
+  assert(_nlefts[bestvar]==nleft);
+  assert(_nrights[bestvar]==nright);
   
   //fill intermediate node
   tree.CutIndices().push_back(bestvar);
-  tree.CutVals().push_back(cutvals[bestvar]);
+  tree.CutVals().push_back(_cutvals[bestvar]);
   tree.LeftIndices().push_back(0);   
   tree.RightIndices().push_back(0);  
   
@@ -555,7 +633,7 @@ void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRT
 
   //printf("building leaf\n");
   
-  //int thisidx = -tree.Responses().size();
+  int thisidx = -tree.Responses().size();
   //printf("thisidx = %i\n",thisidx);
   
  
@@ -592,7 +670,7 @@ void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRT
     (*it)->SetTarget((*it)->Target()-response);
   }
   
-  //printf("thisidx = %i, n = %i, response = %5f\n", thisidx, int(evts.size()) ,response);
+  printf("thisidx = %i, n = %i, response = %5f\n", thisidx, int(evts.size()) ,response);
   
 }
 
