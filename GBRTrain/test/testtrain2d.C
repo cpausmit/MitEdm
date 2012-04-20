@@ -32,9 +32,14 @@ void testtrain2d() {
   //expanded form is written out here, but you can see that the second term for the pll component is just 1
   //if the phi measurement would be perfect, then the perpendicular target component is strictly 0 and
   //the whole thing reduces nearly identically to the 1d response regression (modulo some places where the mean is computed instead of the median)
-  train->SetTargetXVar("(ph.genpt*cos(ph.genphi-ph.scphi) - ph.scrawe/cosh(ph.sceta))/(ph.scrawe/cosh(ph.sceta))");
-  train->SetTargetYVar("ph.genpt*sin(ph.genphi-ph.scphi)/(ph.scrawe/cosh(ph.sceta))");
+//   train->SetTargetXVar("(ph.genpt*cos(ph.genphi-ph.scphi) - ph.scrawe/cosh(ph.sceta))/(ph.scrawe/cosh(ph.sceta))");
+//   train->SetTargetYVar("ph.genpt*sin(ph.genphi-ph.scphi)/(ph.scrawe/cosh(ph.sceta))");
 
+  //even better version, adapted from the above, but removing the unnecessary subtraction of the uncorrected supercluster vector
+  train->SetTargetXVar("ph.genpt*cos(ph.genphi-ph.scphi)/(ph.scrawe/cosh(ph.sceta))");
+  train->SetTargetYVar("ph.genpt*sin(ph.genphi-ph.scphi)/(ph.scrawe/cosh(ph.sceta))");
+  
+  
   std::vector<std::string> *varsf = new std::vector<std::string>;
   
   varsf->push_back("ph.scrawe");
