@@ -46,7 +46,8 @@
        
        void AddInputVar(std::string var)    { fInputVars.push_back(var); }
        void SetTargetVar(std::string var)   { fTargetVar = var;          }
-       void SetTree(TTree *tree)            { fTree = tree;              }
+       //void SetTree(TTree *tree)            { fTree = tree;              }
+       void AddTree(TTree *tree, double w=1.0) { fTrees.push_back(tree); fTreeWeights.push_back(w); }
        void SetTrainingCut(std::string cut) { fTrainingCut = cut;        }
        void SetMinEvents(int n)             { fMinEvents = n;            }
        void SetShrinkage(float x)           { fShrinkage = x;            }
@@ -62,7 +63,8 @@
       void TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal, GBRTree &tree, int nvars, double transition);      
       void BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRTree &tree, double transition);
       
-      TTree                    *fTree;
+      std::vector<TTree*>       fTrees;
+      std::vector<double>       fTreeWeights;
       std::string               fTrainingCut;
       std::vector<std::string>  fInputVars;  
       std::string               fTargetVar;

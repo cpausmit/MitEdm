@@ -8,7 +8,6 @@
 
 //_______________________________________________________________________
 GBRTrainer::GBRTrainer() : 
-  fTree(0),
   fMinEvents(2000),
   fShrinkage(0.1),
   fNQuantiles(std::numeric_limits<unsigned short>::max()+1),
@@ -24,7 +23,6 @@ GBRTrainer::GBRTrainer() :
 //_______________________________________________________________________
 GBRTrainer::~GBRTrainer() 
 {
-  fTree = 0;
 
   //clear arrays
   if (_sepgains) {
@@ -94,28 +92,21 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
 {
   
   const int nvars = fInputVars.size();
-  
-  
-  //initialize TTreeFormulas to read variables from TTree
-  std::vector<TTreeFormula*> inputforms;
-  for (std::vector<std::string>::const_iterator it = fInputVars.begin(); 
-       it != fInputVars.end(); ++it) {
-    inputforms.push_back(new TTreeFormula(it->c_str(),it->c_str(),fTree));
-  }
-  
-  TTreeFormula targetform(fTargetVar.c_str(),fTargetVar.c_str(),fTree);
-  TTreeFormula cutform(fTrainingCut.c_str(),fTrainingCut.c_str(),fTree);
-  
-  
+    
   Long64_t nev = 0;  
   
   printf("first loop, count events\n");
-  //loop over tree to count training events with non-zero weight;
-  for (Long64_t iev=0; iev<fTree->GetEntries(); ++iev) {
-    if (iev%100000==0) printf("%i\n",int(iev));
-    fTree->LoadTree(iev);
-    if (cutform.EvalInstance()!=0.) {
-      ++nev;
+  //loop over trees to count training events with non-zero weight;
+  for (unsigned int itree=0; itree<fTrees.size(); ++itree) {
+    TTree *tree = fTrees[itree];
+    TTreeFormula targetform(fTargetVar.c_str(),fTargetVar.c_str(),tree);
+    TTreeFormula cutform(fTrainingCut.c_str(),fTrainingCut.c_str(),tree);
+    for (Long64_t iev=0; iev<tree->GetEntries(); ++iev) {
+      if (iev%100000==0) printf("%i\n",int(iev));
+      tree->LoadTree(iev);
+      if ((fTreeWeights[itree]*cutform.EvalInstance())!=0.) {
+        ++nev;
+      }
     }
   }
   
@@ -183,28 +174,42 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
   double sumw = 0.;
   
   printf("second loop, fill events in memory\n");
-  //loop over tree to fill arrays and event vector
-  for (Long64_t iev=0; iev<fTree->GetEntries(); ++iev) {
-    if (iev%100000==0) printf("%i\n",int(iev));
-    fTree->LoadTree(iev);
+  //loop over trees to fill arrays and event vector
+  
+  for (unsigned int itree=0; itree<fTrees.size(); ++itree) {
+    TTree *tree = fTrees[itree];
     
-    float weight = cutform.EvalInstance();
-    
-    if (weight==0.) continue; //skip events with 0 weight
-    
-    sumw += weight;
-    
-    evts.push_back(new GBREvent(nvars));
-    GBREvent *evt = evts.back();
-    evt->SetWeight(weight);
-    evt->SetTarget(targetform.EvalInstance());
-    
-    //printf("target = %5f\n",targetform.EvalInstance());
-    
-    for (int i=0; i<nvars; ++i) {
-      evt->SetVar(i,inputforms[i]->EvalInstance());
+    //initialize TTreeFormulas to read variables from TTree
+    std::vector<TTreeFormula*> inputforms;
+    for (std::vector<std::string>::const_iterator it = fInputVars.begin(); 
+        it != fInputVars.end(); ++it) {
+      inputforms.push_back(new TTreeFormula(it->c_str(),it->c_str(),tree));
     }
+    
+    TTreeFormula targetform(fTargetVar.c_str(),fTargetVar.c_str(),tree);
+    TTreeFormula cutform(fTrainingCut.c_str(),fTrainingCut.c_str(),tree);  
+    for (Long64_t iev=0; iev<tree->GetEntries(); ++iev) {
+      if (iev%100000==0) printf("%i\n",int(iev));
+      tree->LoadTree(iev);
+      
+      float weight = fTreeWeights[itree]*cutform.EvalInstance();
+      
+      if (weight==0.) continue; //skip events with 0 weight
+      
+      sumw += weight;
+      
+      evts.push_back(new GBREvent(nvars));
+      GBREvent *evt = evts.back();
+      evt->SetWeight(weight);
+      evt->SetTarget(targetform.EvalInstance());
+      
+      //printf("target = %5f\n",targetform.EvalInstance());
+      
+      for (int i=0; i<nvars; ++i) {
+        evt->SetVar(i,inputforms[i]->EvalInstance());
+      }
 
+    }
   }
   
   //map of input variable quantiles to values
@@ -293,7 +298,7 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
   }    
 
   
-  printf("sumw = %5f, median = %5f, transition = %5f\n",sumw, median,transition);
+  printf("nev = %i, sumw = %5f, median = %5f, transition = %5f\n",int(nev), sumw, median,transition);
   
   //loop over requested number of trees
   for (int itree=0; itree<ntrees; ++itree) {
@@ -486,13 +491,15 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
       //weighted improvement in variance from this split
       _bsepgains[ivar][ibin] = fullvariance - rightvariance - leftvariance;
       //bsepgainsigs[ivar][ibin] = bsepgains[ivar][ibin]/sqrt(leftvariancevar+rightvariancevar+fullvariancevar);
-      _bsepgainsigs[ivar][ibin] = sqrt((_sumtgts[ivar][ibin]/_sumws[ivar][ibin] - righttgtsum/rightsumw)*(_sumtgts[ivar][ibin]/_sumws[ivar][ibin] - righttgtsum/rightsumw)/(leftvariance/_sumws[ivar][ibin]/_sumws2[ivar][ibin] + rightvariance/rightsumw/rightsumw2));
+      //_bsepgainsigs[ivar][ibin] = sqrt((_sumtgts[ivar][ibin]/_sumws[ivar][ibin] - righttgtsum/rightsumw)*(_sumtgts[ivar][ibin]/_sumws[ivar][ibin] - righttgtsum/rightsumw)/(leftvariance/_sumws[ivar][ibin]/_sumws2[ivar][ibin] + rightvariance/rightsumw/rightsumw2));
+      _bsepgainsigs[ivar][ibin] = sqrt((_sumtgts[ivar][ibin]/_sumws[ivar][ibin] - righttgtsum/rightsumw)*(_sumtgts[ivar][ibin]/_sumws[ivar][ibin] - righttgtsum/rightsumw)/(leftvariance/_sumws[ivar][ibin]/_sumws[ivar][ibin]/_sumws[ivar][ibin]*_sumws2[ivar][ibin] + rightvariance/rightsumw/rightsumw/rightsumw*rightsumw2));
     }
     
     //loop over computed variance improvements and select best split, respecting also minimum number of events per node
     //This loop cannot auto-vectorize, at least in gcc 4.6x due to the mixed type conditional, but it's relatively fast
     //in any case
     for (unsigned int ibin=0; ibin<nbins; ++ibin) {   
+        //printf("sumnleft = %i, sumnright = %i, sepgain = %5f, sepgainsig = %5f\n",_sumns[ivar][ibin], (nev-_sumns[ivar][ibin]),_bsepgains[ivar][ibin],_bsepgainsigs[ivar][ibin]);
       //if (sumns[ivar][ibin]>=fMinEvents && (nev-sumns[ivar][ibin])>=fMinEvents && bsepgains[ivar][ibin]>maxsepgain) {
 	if (_sumns[ivar][ibin]>=fMinEvents && (nev-_sumns[ivar][ibin])>=fMinEvents && _bsepgains[ivar][ibin]>maxsepgain && _bsepgainsigs[ivar][ibin]>fMinCutSignificance) {
 	maxsepgain = _bsepgains[ivar][ibin];
@@ -534,7 +541,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
   //if no appropriate split found, make this node terminal
   if (globalsepgain<=0.) {
     //no valid split found, making this node a leaf node
-    printf("thisidx = %i, globalsepgain = %5f, no valid split\n",thisidx, globalsepgain);
+    //printf("thisidx = %i, globalsepgain = %5f, no valid split\n",thisidx, globalsepgain);
     tree.CutIndices().push_back(0);
     tree.CutVals().push_back(0);
     tree.LeftIndices().push_back(0);   
@@ -581,7 +588,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
   float rightmean = _sumtgtrights[bestvar]/sumwright;
   
   
-  printf("thisidx = %i, bestvar = %i, cutval = %5f, n = %i, nleft = %i, nright = %i, fullres = %5f, leftres = %5f, rightres = %5f, fullmean = %5f, leftmean = %5f, rightmrean = %5f, leftsepgain = %5f, sepgainsig = %5f\n",thisidx,bestvar,_cutvals[bestvar],nev,_nlefts[bestvar],_nrights[bestvar],fullres,leftres,rightres,fullmean, leftmean, rightmean, _sepgains[bestvar],_sepgainsigs[bestvar]);
+  //printf("thisidx = %i, bestvar = %i, cutval = %5f, n = %i, nleft = %i, nright = %i, fullres = %5f, leftres = %5f, rightres = %5f, fullmean = %5f, leftmean = %5f, rightmrean = %5f, leftsepgain = %5f, sepgainsig = %5f\n",thisidx,bestvar,_cutvals[bestvar],nev,_nlefts[bestvar],_nrights[bestvar],fullres,leftres,rightres,fullmean, leftmean, rightmean, _sepgains[bestvar],_sepgainsigs[bestvar]);
   
   assert(_nlefts[bestvar]==nleft);
   assert(_nrights[bestvar]==nright);
@@ -670,7 +677,7 @@ void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRT
     (*it)->SetTarget((*it)->Target()-response);
   }
   
-  printf("thisidx = %i, n = %i, response = %5f\n", thisidx, int(evts.size()) ,response);
+  //printf("thisidx = %i, n = %i, response = %5f\n", thisidx, int(evts.size()) ,response);
   
 }
 
