@@ -210,6 +210,12 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
       }
 
     }
+
+    for (std::vector<TTreeFormula*>::const_iterator it = inputforms.begin(); 
+        it != inputforms.end(); ++it) {
+      delete *it;
+    }
+
   }
   
   //map of input variable quantiles to values
@@ -316,6 +322,21 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
     
     //stop training if root node is already terminal
     if (itree==(ntrees-1) || tree.LeftIndices().size()==0 || tree.LeftIndices().front()==tree.RightIndices().front()) break;
+    
+    //check for border case where training converges to a two node tree with a statistically significant mean offset but the same median
+    //in which case significance cutoff never converges to the single node tree case we checked above
+    if (tree.Responses().size()==2) {
+      int numidenticaltrees = 1;
+      int jtree = itree-1;
+      int bestvar = tree.CutIndices().front();
+      float cutval = tree.CutVals().front();
+      while (jtree>=0 && forest->Trees().at(jtree).Responses().size()==2 && forest->Trees().at(jtree).CutIndices().front()==bestvar && forest->Trees().at(jtree).CutVals().front()==cutval) {
+	++numidenticaltrees;
+	--jtree;
+      }
+      printf("numidenticaltrees = %i\n",numidenticaltrees);
+      if ( numidenticaltrees > (1.0/fShrinkage) ) break;
+    }
     
     //recompute transition point and transformed target
     std::sort(evts.begin(),evts.end(),GBRAbsTargetCMP());
