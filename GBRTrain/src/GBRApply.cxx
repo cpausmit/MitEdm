@@ -62,6 +62,11 @@ TTree *GBRApply::ApplyAsFriend(TTree *intree, const GBRForest *forest, const std
   delete[] vals;
   
   intree->AddFriend(friendtree);
+
+  //the branch addresses are set to local variables in this function
+  //these local variables go out of scope after this function finishes
+  //so we need to reset the branch addresses before returning
+  friendtree->ResetBranchAddresses();
   return friendtree;
   
 }
