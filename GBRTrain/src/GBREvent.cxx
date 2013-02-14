@@ -8,7 +8,8 @@ GBREvent::GBREvent(int nvars) :
   fTransTarget(0.0),
   fWeight(1.0),
   fWeightedTransTarget(0.),
-  fWeightedTransTarget2(0.)
+  fWeightedTransTarget2(0.),
+  fClass(0)
 {
 
 }

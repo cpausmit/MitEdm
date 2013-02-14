@@ -409,8 +409,8 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
 //    int scale = 1<<pscale;
     
     //final number of bins (guaranteed to be <= fNBinsMax) for best split search
-    const unsigned int nbins = ((maxquant-offset)>>pscale) + 1;
-    
+    const unsigned int nbins = ((maxquant-offset)>>pscale);
+    assert(nbins<=fNBinsMax);
 
     //zero arrays where necessary and compute map between bin numbers
     //and variable cut values
@@ -423,6 +423,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
       _tgt2s[ivar][ibin] = 0.;
       
       int quant = ((1+ibin)<<pscale) + offset - 1;
+      assert(quant<fNQuantiles);
       
       _varvals[ivar][ibin] = fQuantileMaps[ivar][quant];
 
