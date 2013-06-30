@@ -397,6 +397,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
       if (_quants[ivar][iev]>maxquant) maxquant = _quants[ivar][iev];
     }    
     
+
     //calculate offset and scaling (powers of 2) to reduce the total number of quantiles
     //to the fNBinsMax for the search for the best split value
     int offset = minquant;
@@ -404,14 +405,13 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     unsigned int pscale = 0;
     while (bincount>fNBinsMax) {
       ++pscale;
-      bincount >>= 1;
+      //bincount >>= 1;
+      bincount = ((maxquant-offset)>>pscale) + 1;
     }    
-//    int scale = 1<<pscale;
-    
-    //final number of bins (guaranteed to be <= fNBinsMax) for best split search
-    const unsigned int nbins = ((maxquant-offset)>>pscale);
-    assert(nbins<=fNBinsMax);
 
+    const unsigned int nbins = ((maxquant-offset)>>pscale) + 1;
+    assert(nbins<=fNBinsMax);
+    
     //zero arrays where necessary and compute map between bin numbers
     //and variable cut values
     //This loop should auto-vectorize in appropriate compiler/settings
@@ -423,7 +423,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
       _tgt2s[ivar][ibin] = 0.;
       
       int quant = ((1+ibin)<<pscale) + offset - 1;
-      assert(quant<fNQuantiles);
+      if (quant>=fNQuantiles) quant = fNQuantiles-1;
       
       _varvals[ivar][ibin] = fQuantileMaps[ivar][quant];
 
