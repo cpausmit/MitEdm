@@ -4,6 +4,7 @@
 
 #include "MitEdm/Tools/interface/VertexReProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -15,17 +16,11 @@ VertexReProducer::VertexReProducer(const edm::Handle<reco::VertexCollection> &ha
 {
     const edm::Provenance *prov = handle.provenance();
     if (prov == 0) throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
-    edm::ParameterSetID psid = prov->psetID();
 
-    edm::pset::Registry *psregistry = edm::pset::Registry::instance();
-    edm::ParameterSet psetFromProvenance;
-    if (!psregistry->getMapped(psid, psetFromProvenance)) 
-        throw cms::Exception("CorruptData") << "Vertex handle parameter set ID id = " << psid;
+    if (edm::moduleName(*prov) != "PrimaryVertexProducer") 
+        throw cms::Exception("Configuration") << "Vertices to re-produce don't come from a PrimaryVertexProducer, but from a " << edm::moduleName(*prov) <<".\n";
 
-    if (prov->moduleName() != "PrimaryVertexProducer") 
-        throw cms::Exception("Configuration") << "Vertices to re-produce don't come from a PrimaryVertexProducer, but from a " << prov->moduleName() <<".\n";
-
-    configure(psetFromProvenance); 
+    configure(edm::parameterSet(*prov)); 
 
     // Now we also dig out the ProcessName used for the reco::Tracks and reco::Vertices
     std::vector<edm::BranchID> parents = prov->parents();
@@ -71,5 +66,5 @@ VertexReProducer::makeVertices(const reco::TrackCollection &tracks,
         t_tks.back().setBeamSpot(bs);
     }
 
-    return algo_->vertices(t_tks, bs);
+    return algo_->vertices(t_tks, bs, "");
 }
