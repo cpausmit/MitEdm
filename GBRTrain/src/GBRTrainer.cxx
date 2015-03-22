@@ -481,7 +481,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     
     //weighted variance of target in full dataset
     float fullvariance = sumtgt2 - sumtgt*sumtgt/sumw;
-    float fullvariancevar = fullvariance*fullvariance/sumw2/sumw2;
+    //    float fullvariancevar = fullvariance*fullvariance/sumw2/sumw2;
     
     _fullvars[ivar] = fullvariance;
     
@@ -601,14 +601,13 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     }    
   }
  
-  float fullres = sqrt(_fullvars[bestvar]/sumwtotal);
-  float leftres = sqrt(_leftvars[bestvar]/sumwleft);
-  float rightres = sqrt(_rightvars[bestvar]/sumwright);
+  // float fullres = sqrt(_fullvars[bestvar]/sumwtotal);
+  // float leftres = sqrt(_leftvars[bestvar]/sumwleft);
+  // float rightres = sqrt(_rightvars[bestvar]/sumwright);
  
-  float fullmean = (_sumtgtlefts[bestvar] + _sumtgtrights[bestvar])/sumwtotal;
-  float leftmean = _sumtgtlefts[bestvar]/sumwleft;
-  float rightmean = _sumtgtrights[bestvar]/sumwright;
-  
+  // float fullmean = (_sumtgtlefts[bestvar] + _sumtgtrights[bestvar])/sumwtotal;
+  // float leftmean = _sumtgtlefts[bestvar]/sumwleft;
+  // float rightmean = _sumtgtrights[bestvar]/sumwright;
   
   //printf("thisidx = %i, bestvar = %i, cutval = %5f, n = %i, nleft = %i, nright = %i, fullres = %5f, leftres = %5f, rightres = %5f, fullmean = %5f, leftmean = %5f, rightmrean = %5f, leftsepgain = %5f, sepgainsig = %5f\n",thisidx,bestvar,_cutvals[bestvar],nev,_nlefts[bestvar],_nrights[bestvar],fullres,leftres,rightres,fullmean, leftmean, rightmean, _sepgains[bestvar],_sepgainsigs[bestvar]);
   
@@ -662,7 +661,7 @@ void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRT
 
   //printf("building leaf\n");
   
-  int thisidx = -tree.Responses().size();
+  //  int thisidx = -tree.Responses().size();
   //printf("thisidx = %i\n",thisidx);
   
  

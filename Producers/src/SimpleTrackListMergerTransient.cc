@@ -10,6 +10,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,7 +19,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 
 using namespace mitedm;
 
@@ -41,7 +42,7 @@ namespace mitedm
       } else if (type == typeid(ProjectedSiStripRecHit2D)) {
 	const ProjectedSiStripRecHit2D *phit = 
           reinterpret_cast<const ProjectedSiStripRecHit2D *>(hit);
-	pID=(&phit->originalHit())->cluster().id();
+	pID=phit->omniClusterRef().cluster_strip().id();
       } else throw cms::Exception("Unknown RecHit Type") 
                << "RecHit of type " << type.name() 
                << " not supported. (use c++filt to demangle the name)";
@@ -85,15 +86,6 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
 
   uint removeDuplicates = conf_.getParameter<bool>("removeDuplicates");
   uint preferCollection = conf_.getParameter<uint>("preferCollection");
-
-  // New track quality should be read from the file
-  std::string qualityStr = conf_.getParameter<std::string>("newQuality");
-  reco::TrackBase::TrackQuality qualityToSet;
-  if (qualityStr != "") {
-    qualityToSet = reco::TrackBase::qualityByName(conf_.getParameter<std::string>("newQuality"));
-  }
-  else 
-    qualityToSet = reco::TrackBase::undefQuality;
 
   // extract tracker geometry
   //
