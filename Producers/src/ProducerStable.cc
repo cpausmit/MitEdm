@@ -49,16 +49,15 @@ void ProducerStable::produce(Event &evt, const EventSetup &setup)
     const mitedm::TrackPtr thePtr = iTrks.ptrAt(it - iTrks.begin());
     StablePart *s = new StablePart(oPid_,thePtr);
     if (0)
-      printf(" Track: %14.8f, %14.8f, %14.8f\n",it->pt(),it->phi(),it->eta());
+      printf(" Track(%s): %14.8f, %14.8f, %14.8f\n",iTracks_.data(),it->pt(),it->phi(),it->eta());
     pS->push_back(*s);
     delete s;
   }
 
   // Write the collection even if it is empty
-  if (0) {
-    cout << " Stable::produce - " << pS->size() << " entries collection created -"
-         << " (Pid: " << oPid_ << ")\n";
-  }
+  if (0)
+    cout << " Stable::produce(" << iTracks_.data()
+	 << ") - " << pS->size() << " entries collection created -" << " (Pid: " << oPid_ << ")\n";
   evt.put(pS);
 }
 

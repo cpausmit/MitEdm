@@ -1,5 +1,3 @@
-// $Id: ProducerConversionsKinematic.cc,v 1.1 2010/06/23 13:12:55 bendavid Exp $
-
 #include "MitEdm/Producers/interface/ProducerConversionsKinematic.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -64,7 +62,7 @@ ProducerConversionsKinematic::ProducerConversionsKinematic(const ParameterSet& c
   rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0)),
   useRhoMin_       (cfg.getUntrackedParameter<bool>  ("useRhoMin",true)),
   useHitDropper_   (cfg.getUntrackedParameter<bool>  ("useHitDropper",true)),
-  applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false))
+  applyChargeConstraint_(cfg.getUntrackedParameter<bool>("applyChargeConstraint",false))
 {
   // Constructor.
 
@@ -102,15 +100,17 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
   setup.get<HitDropperRecord>().get("HitDropper",hDropper);
   const HitDropper *dropper = hDropper.product();
   
-  //Get Magnetic Field from event setup, taking value at (0,0,0)
+  // Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
+
+  //const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
   
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   setup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
   const TransientTrackBuilder *transientTrackBuilder = hTransientTrackBuilder.product();
   
-  //construct intermediate collection of TrackParameters in mvf format for vertex fit
+  // Construct intermediate collection of TrackParameters in mvf format for vertex fit
   std::vector<reco::TransientTrack> ttrks1;
   for (UInt_t i = 0; i<pS1->size(); ++i) {
     const reco::Track *t = pS1->at(i).track();
@@ -202,6 +202,9 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
       }
 
       double prob = -99.0;
+
+      //int fitStatus = 0;
+
       RefCountedKinematicTree myTree;
       RefCountedKinematicVertex gamma_dec_vertex;
       RefCountedKinematicParticle the_photon;
@@ -210,6 +213,8 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
         // Vertex fit now, possibly with conversion constraint
         nFits++;
 
+        //bool cmsFitStatus = false;    
+            
         float sigma = 0.00000000001;
         float chi = 0.;
         float ndf = 0.;
@@ -222,13 +227,12 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
         KinematicParticleFactoryFromTransientTrack pFactory;
 
         vector<RefCountedKinematicParticle> particles;
-
-    
         
         particles.push_back(pFactory.particle (ttrk1,s1.mass(),chi,ndf,sigma));
         particles.push_back(pFactory.particle (ttrk2,s2.mass(),chi,ndf,sigma));
 
-        MultiTrackKinematicConstraint *constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
+        MultiTrackKinematicConstraint *constr =
+	  new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
         //MultiTrackKinematicConstraint *constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::Phi);
         
 //        ParticleMass pmass(kmass);
@@ -239,9 +243,6 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
         //RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
         //RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr, &initialFitPoint);
         //RefCountedKinematicTree myTree = kcvFitter.fit(particles);
-        
-        
-
 
         //if (cdfProb>1e-6) {
           myTree = kcvFitter.fit(particles, constr);
@@ -251,14 +252,19 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
         
         
 
-        if( myTree->isValid() ) {
-            myTree->movePointerToTheTop();                                                                                
+	  if (myTree->isValid()) {
+            myTree->movePointerToTheTop();
             the_photon = myTree->currentParticle();                                           
-            if (the_photon->currentState().isValid()){                                                                    
-                //const ParticleMass photon_mass = the_photon->currentState().mass();                                                                      
-                gamma_dec_vertex = myTree->currentDecayVertex();                                                          
-                if( gamma_dec_vertex->vertexIsValid() ){         
-                    //const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
+
+            if (the_photon->currentState().isValid()) {
+                //const ParticleMass photon_mass = the_photon->currentState().mass();
+                gamma_dec_vertex = myTree->currentDecayVertex();
+
+                if (gamma_dec_vertex->vertexIsValid()){         
+		  //cmsFitStatus = true;
+
+                    //const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(),
+		    //                                             gamma_dec_vertex->degreesOfFreedom());
                     double cmsChi2 = gamma_dec_vertex->chiSquared();
                     double cmsNdof = gamma_dec_vertex->degreesOfFreedom();
                     //cmsR  = gamma_dec_vertex->position().perp();

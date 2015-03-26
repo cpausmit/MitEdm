@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <malloc.h>
 
-//_______________________________________________________________________
+//__________________________________________________________________________________________________
 GBRTrainer::GBRTrainer() : 
   fMinEvents(2000),
   fShrinkage(0.1),
@@ -20,7 +20,7 @@ GBRTrainer::GBRTrainer() :
 
 }
 
-//_______________________________________________________________________
+//__________________________________________________________________________________________________
 GBRTrainer::~GBRTrainer() 
 {
 
@@ -41,7 +41,6 @@ GBRTrainer::~GBRTrainer()
   }
   
   if (_ws) {
-
     for (unsigned int ivar=0; ivar<fInputVars.size(); ++ivar) {
       delete[] _ws[ivar];
       delete[] _ws2[ivar];
@@ -58,13 +57,11 @@ GBRTrainer::~GBRTrainer()
       delete[] _bsepgains[ivar];
       delete[] _bsepgainsigs[ivar];
       
-      
       delete[] _quants[ivar];
       delete[] _bins[ivar];
       
       delete[] fQuantileMaps[ivar];
     }
-    
     delete[] _ws;
     delete[] _ws2;
     delete[] _ns;
@@ -84,10 +81,9 @@ GBRTrainer::~GBRTrainer()
     
     delete[] fQuantileMaps;
   }
-  
 }
 
-//_______________________________________________________________________
+//__________________________________________________________________________________________________
 const GBRForest *GBRTrainer::TrainForest(int ntrees)
 {
   
@@ -208,14 +204,12 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
       for (int i=0; i<nvars; ++i) {
         evt->SetVar(i,inputforms[i]->EvalInstance());
       }
-
     }
 
     for (std::vector<TTreeFormula*>::const_iterator it = inputforms.begin(); 
         it != inputforms.end(); ++it) {
       delete *it;
     }
-
   }
   
   //map of input variable quantiles to values
@@ -239,29 +233,21 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
       float val = evtsvarsort[iev]->Var(ivar);
     
       //ensure that events with numerically identical values receive the same quantile
-      if (iev>0 && val==evtsvarsort[iev-1]->Var(ivar)) quant = evtsvarsort[iev-1]->Quantile(ivar);
-    
+      if (iev>0 && val==evtsvarsort[iev-1]->Var(ivar))
+	quant = evtsvarsort[iev-1]->Quantile(ivar);
       evtsvarsort[iev]->SetQuantile(ivar,quant);
-    
       tmpmap[quant] = val;
-    
     }
-    
 
     for (int i=0; i<fNQuantiles; ++i) {
       std::map<int,float,std::greater<float> >::const_iterator mit = tmpmap.lower_bound(i);
-      
       float val;
-      if (mit!=tmpmap.end()) val = mit->second;
-      else val = -std::numeric_limits<float>::max();
-      
+      if (mit!=tmpmap.end())
+	val = mit->second;
+      else
+	val = -std::numeric_limits<float>::max();
       fQuantileMaps[ivar][i] = val;
-      
-      
     }
-    
-    
-    
   }
     
   //sort events by target and compute median
@@ -362,9 +348,10 @@ const GBRForest *GBRTrainer::TrainForest(int ntrees)
   
 }
 
-//_______________________________________________________________________
-void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal, GBRTree &tree, int nvars, double transition) {
-  
+//__________________________________________________________________________________________________
+void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal, GBRTree &tree,
+			   int nvars, double transition)
+{
   //index of current intermediate node
   int thisidx = tree.CutIndices().size();    
   
@@ -426,7 +413,6 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
       if (quant>=fNQuantiles) quant = fNQuantiles-1;
       
       _varvals[ivar][ibin] = fQuantileMaps[ivar][quant];
-
     }
     
     //compute reduced bin value for each event using bit-shift operations
@@ -434,8 +420,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     for (int iev=0;iev<nev;++iev) {
       _bins[ivar][iev] = (_quants[ivar][iev]-offset)>>pscale;
     }
-
-     
+    
     //compute summed quantities differential in each bin
     //(filling 'histograms')
     //This loop is one of the most expensive in the algorithm for large training samples
@@ -481,7 +466,8 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     
     //weighted variance of target in full dataset
     float fullvariance = sumtgt2 - sumtgt*sumtgt/sumw;
-    //    float fullvariancevar = fullvariance*fullvariance/sumw2/sumw2;
+
+    //float fullvariancevar = fullvariance*fullvariance/sumw2/sumw2;
     
     _fullvars[ivar] = fullvariance;
     
@@ -547,11 +533,8 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     _leftvars[ivar] = _sumtgt2s[ivar][bestbin] - _sumtgts[ivar][bestbin]*_sumtgts[ivar][bestbin]/_sumws[ivar][bestbin];
     _rightvars[ivar] = (sumtgt2-_sumtgt2s[ivar][bestbin]) - (sumtgt-_sumtgts[ivar][bestbin])*(sumtgt-_sumtgts[ivar][bestbin])/(sumw-_sumws[ivar][bestbin]);
     _bestbins[ivar] = bestbin;
-        
   }
-  
-
-  
+ 
   float globalsepgain = -std::numeric_limits<float>::max();
   for (int ivar=0; ivar<nvars; ++ivar) {
     if (_sepgains[ivar]>globalsepgain) {
@@ -601,14 +584,12 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     }    
   }
  
-  // float fullres = sqrt(_fullvars[bestvar]/sumwtotal);
-  // float leftres = sqrt(_leftvars[bestvar]/sumwleft);
-  // float rightres = sqrt(_rightvars[bestvar]/sumwright);
- 
-  // float fullmean = (_sumtgtlefts[bestvar] + _sumtgtrights[bestvar])/sumwtotal;
-  // float leftmean = _sumtgtlefts[bestvar]/sumwleft;
-  // float rightmean = _sumtgtrights[bestvar]/sumwright;
-  
+  //float fullres   = sqrt(_fullvars[bestvar]/sumwtotal);
+  //float leftres   = sqrt(_leftvars[bestvar]/sumwleft);
+  //float rightres  = sqrt(_rightvars[bestvar]/sumwright);
+  //float fullmean  = (_sumtgtlefts[bestvar] + _sumtgtrights[bestvar])/sumwtotal;
+  //float leftmean  = _sumtgtlefts[bestvar]/sumwleft;
+  //float rightmean = _sumtgtrights[bestvar]/sumwright;
   //printf("thisidx = %i, bestvar = %i, cutval = %5f, n = %i, nleft = %i, nright = %i, fullres = %5f, leftres = %5f, rightres = %5f, fullmean = %5f, leftmean = %5f, rightmrean = %5f, leftsepgain = %5f, sepgainsig = %5f\n",thisidx,bestvar,_cutvals[bestvar],nev,_nlefts[bestvar],_nrights[bestvar],fullres,leftres,rightres,fullmean, leftmean, rightmean, _sepgains[bestvar],_sepgainsigs[bestvar]);
   
   assert(_nlefts[bestvar]==nleft);
@@ -652,19 +633,10 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
   
 }
 
-  
-  
-
-
-//_______________________________________________________________________
-void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRTree &tree, double transition) {
-
-  //printf("building leaf\n");
-  
-  //  int thisidx = -tree.Responses().size();
-  //printf("thisidx = %i\n",thisidx);
-  
- 
+//__________________________________________________________________________________________________
+void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts,
+			   double sumw, GBRTree &tree, double transition)
+{
   float medsumw = 0;
   float median = 0.;  
   for (std::vector<GBREvent*>::const_iterator it = evts.begin(); it!=evts.end(); ++it) {    
@@ -697,9 +669,6 @@ void GBRTrainer::BuildLeaf(const std::vector<GBREvent*> &evts, double sumw, GBRT
   for (std::vector<GBREvent*>::const_iterator it = evts.begin(); it!=evts.end(); ++it) {
     (*it)->SetTarget((*it)->Target()-response);
   }
-  
-  //printf("thisidx = %i, n = %i, response = %5f\n", thisidx, int(evts.size()) ,response);
-  
 }
 
 
