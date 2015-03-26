@@ -1,7 +1,6 @@
 //--------
 // code copied from /UserCode/Mangano/WWAnalysis/Tools/interface/VertexReProducer.h
 //--------
-
 #ifndef MITEDM_TOOLS_VERTEXREPRODUCER_H
 #define MITEDM_TOOLS_VERTEXREPRODUCER_H
 
@@ -9,6 +8,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,14 +35,12 @@ class VertexReProducer
 
       /// Get the InputTag of the BeamSpot used in the VertexProducer
       const edm::InputTag &	inputBeamSpot() const { return beamSpotTag_; }
-  private:
-      void configure(const edm::ParameterSet &iConfig) ;
 
+  private:
+      void              configure(const edm::ParameterSet &iConfig);
       edm::ParameterSet config_;
       edm::InputTag	tracksTag_;
       edm::InputTag	beamSpotTag_;
       std::auto_ptr<PrimaryVertexProducerAlgorithm> algo_;
 };
-
-
 #endif

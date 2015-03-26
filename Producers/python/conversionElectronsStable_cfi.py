@@ -1,30 +1,33 @@
-# $Id: conversionElectronsStable_cfi.py,v 1.3 2010/04/27 14:26:57 bendavid Exp $
-
 import FWCore.ParameterSet.Config as cms
 
-generalElectronsStable = cms.EDProducer("ProducerStable",
-    iTracks = cms.untracked.string('generalTracks'),
-    oPid    = cms.untracked.int32(11)
+generalElectronsStable = cms.EDProducer(
+  "ProducerStable",
+  iTracks = cms.untracked.string('generalTracks'),
+  oPid    = cms.untracked.int32(11)
 )
 
-ckfInOutElectronsStable = cms.EDProducer("ProducerStable",
-    iTracks = cms.untracked.string('ckfInOutTracksFromConversions'),
-    oPid    = cms.untracked.int32(11)
+ckfInOutElectronsStable = cms.EDProducer(
+  "ProducerStable",
+  iTracks = cms.untracked.string('ckfInOutTracksFromConversions'),
+  oPid    = cms.untracked.int32(11)
 )
 
-ckfOutInElectronsStable = cms.EDProducer("ProducerStable",
-    iTracks = cms.untracked.string('ckfOutInTracksFromConversions'),
-    oPid    = cms.untracked.int32(11)
+ckfOutInElectronsStable = cms.EDProducer(
+  "ProducerStable",
+  iTracks = cms.untracked.string('ckfOutInTracksFromConversions'),
+  oPid    = cms.untracked.int32(11)
 )
 
-gsfElectronsStable = cms.EDProducer("ProducerStable",
-    iTracks = cms.untracked.string('electronGsfTracks'),
-    oPid    = cms.untracked.int32(11)
+gsfElectronsStable = cms.EDProducer(
+  "ProducerStable",
+  iTracks = cms.untracked.string('electronGsfTracks'),
+  oPid    = cms.untracked.int32(11)
 )
 
-conversionStepElectronsStable = cms.EDProducer("ProducerStable",
-    iTracks = cms.untracked.string('conversionStepTracks'),
-    oPid    = cms.untracked.int32(11)
+conversionStepElectronsStable = cms.EDProducer(
+  "ProducerStable",
+  iTracks = cms.untracked.string('conversionStepTracks'),
+  oPid    = cms.untracked.int32(11)
 )
 
 import MitEdm.Producers.stablePartMerger_cfi
@@ -51,25 +54,32 @@ mergedGeneralGsfStable = MitEdm.Producers.stablePartMerger_cfi.stablePartMerger.
   preferCollection = 2,
 )
 
-conversionElectronsStable = cms.Sequence(generalElectronsStable*
-                                         ckfInOutElectronsStable*
-                                         ckfOutInElectronsStable
-                                         )
+conversionElectronsStable = cms.Sequence(
+  generalElectronsStable*
+  ckfInOutElectronsStable*
+  ckfOutInElectronsStable
+)
 
-mvfConversionElectronsStable = cms.Sequence(gsfElectronsStable*
-                                            mergedConversionsStable*
-                                            mergedConversionsGeneralStable*
-                                            mergedElectronsStable)
+mvfConversionElectronsStable = cms.Sequence(
+  gsfElectronsStable*
+  mergedConversionsStable*
+  mergedConversionsGeneralStable*
+  mergedElectronsStable
+)
 
-electronsStable = cms.Sequence(generalElectronsStable*
-                               ckfInOutElectronsStable*
-                               ckfOutInElectronsStable*
-                               gsfElectronsStable*
-                               conversionStepElectronsStable*
-                               mergedConversionsStable*
-                               mergedConversionsGeneralStable*
-                               mergedElectronsStable)
+electronsStable = cms.Sequence(
+  generalElectronsStable*
+  ckfInOutElectronsStable*
+  ckfOutInElectronsStable*
+  gsfElectronsStable*
+  conversionStepElectronsStable*
+  mergedConversionsStable*
+  mergedConversionsGeneralStable*
+  mergedElectronsStable
+)
 
-electronsStableFastSim = cms.Sequence(generalElectronsStable*
-                                      gsfElectronsStable*
-                                      mergedGeneralGsfStable)
+electronsStableFastSim = cms.Sequence(
+  generalElectronsStable*
+  gsfElectronsStable*
+  mergedGeneralGsfStable
+)

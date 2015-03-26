@@ -1,11 +1,8 @@
 //--------------------------------------------------------------------------------------------------
-// $Id:$
-//
 // Original package was:
 //  Package:         RecoTracker/FinalTrackSelectors
 //  Class:           SimpleTrackListMergerTransient
 //  Author: Steve Wagner, stevew@pizero.colorado.edu
-//
 //
 // Authors: J.Bendavid
 //--------------------------------------------------------------------------------------------------
