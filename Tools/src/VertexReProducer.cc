@@ -90,7 +90,7 @@ VertexReProducer::makeVertices(const reco::TrackCollection &tracks,
     t_tks.back().setBeamSpot(bs);
   }
   
-  return algo_->vertices(t_tks, bs);
+  return algo_->vertices(t_tks, bs, "");
 }
 //
 //std::string
