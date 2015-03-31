@@ -30,7 +30,6 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
   const TrajectoryStateClosestToPoint vtxTSCP = tTrack->trajectoryStateClosestToPoint(vtxPoint);
 
   reco::HitPattern hitPattern;
-  int nHits = 0;
   for (uint hi=0; hi<tTrack->recHitsSize(); ++hi) {
     const TrackingRecHit *hit = tTrack->recHit(hi).get();
     DetId geoId = hit->geographicalId();
@@ -43,10 +42,8 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
                                   anyDirection);                                        
                                             
     std::pair<bool,double> crossResult = c.pathLength(det->surface());
-    if ( crossResult.first && crossResult.second >= 0 ) {
-      hitPattern.set(*hit,nHits);
-      nHits++;
-    }
+    if ( crossResult.first && crossResult.second >= 0 )
+      hitPattern.appendHit(*hit);
   }
 
   return hitPattern;
@@ -79,7 +76,6 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
   const LocalPoint nullLocal(0,0,0);
   
   reco::HitPattern hitPattern;
-  int nHits = 0;
   for (uint hi=0; hi<track->recHitsSize(); ++hi) {
     const TrackingRecHit *hit = track->recHit(hi).get();
     DetId geoId = hit->geographicalId();
@@ -111,10 +107,8 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
     
     //add the hit only if it is after the vertex, 
     //allowing for some uncertainty in the vertex position
-    if ( lengthOverSigma>(-sigmaTolerance) ) {
-      hitPattern.set(*hit,nHits);
-      nHits++;
-    } 
+    if ( lengthOverSigma>(-sigmaTolerance) ) 
+      hitPattern.appendHit(*hit);
   }
   return hitPattern;
 }
@@ -144,21 +138,17 @@ std::pair<reco::HitPattern,uint> HitDropper::CorrectedHitsAOD(const reco::Track 
   else
     side = 1;
   
-  int nHits = 0;
   reco::HitPattern hitPattern;
-  const reco::HitPattern* inHitPatterns[3];
-  inHitPatterns[0] = &track->hitPattern();
-  inHitPatterns[1] = &track->trackerExpectedHitsInner();
-  inHitPatterns[2] = &track->trackerExpectedHitsOuter();
   
   uint nWrongHits = 0;
-  
-  for (Int_t hp=0; hp<3; ++hp) {
-    const reco::HitPattern &inhits = *inHitPatterns[hp];
-    for (Int_t hi=0; hi<inhits.numberOfHits(); hi++) {
-      uint32_t hit = inhits.getHitPattern(hi);
-      uint32_t subdet = inhits.getSubStructure(hit);
-      uint32_t layerid = inhits.getLayer(hit);
+
+  reco::HitPattern const& inHitPattern(track->hitPattern());
+  reco::HitPattern::HitCategory categories[] = {reco::HitPattern::TRACK_HITS, reco::HitPattern::MISSING_INNER_HITS, reco::HitPattern::MISSING_OUTER_HITS};  
+  for (Int_t iCat=0; iCat<3; ++iCat) {
+    for (Int_t hi=0; hi<inHitPattern.numberOfHits(categories[iCat]); hi++) {
+      uint32_t hit = inHitPattern.getHitPattern(categories[iCat], hi);
+      uint32_t subdet = reco::HitPattern::getSubStructure(hit);
+      uint32_t layerid = reco::HitPattern::getLayer(hit);
       const DetLayer *det = FindLayer(subdet,layerid,side);
       if (!det) continue;
           
@@ -193,24 +183,39 @@ std::pair<reco::HitPattern,uint> HitDropper::CorrectedHitsAOD(const reco::Track 
       //add the hit only if it is after the vertex, 
       //allowing for some uncertainty in the vertex position
       if ( goodHit ) {
-        bool isStereo = inhits.getSide(hit);
+        // create a new DetId object because reco::HitPattern does not have an
+        // interface for adding a hit pattern as is (i.e. as uint16_t)
         DetId dummyid = det->basicComponents().front()->geographicalId();
-        if (isStereo) {
+        if (reco::HitPattern::getSide(hit)) {
+           // the original hit was at a stereo layer -> turn dummy id into stereo id
           dummyid = StereoDetId(dummyid);
         }
-          
-        const TrackingRecHit::Type hitType = static_cast<TrackingRecHit::Type>(inhits.getHitType(hit));
-        InvalidTrackingRecHit dummyhit(dummyid, hitType);
-        hitPattern.set(dummyhit,nHits);
-        if ( hit != hitPattern.getHitPattern(nHits) )
+        TrackingRecHit::Type hitType(TrackingRecHit::valid);
+        // enums HitPattern::HIT_TYPE and TrackingRecHit::Type would be aligned in any
+        // sensible implementation, but well who knows?
+        switch(reco::HitPattern::getHitType(hit)){
+        case reco::HitPattern::VALID:
+          hitType = TrackingRecHit::valid;
+          break;
+        case reco::HitPattern::MISSING:
+          hitType = TrackingRecHit::missing;
+          break;
+        case reco::HitPattern::INACTIVE:
+          hitType = TrackingRecHit::inactive;
+          break;
+        case reco::HitPattern::BAD:
+          hitType = TrackingRecHit::bad;
+          break;
+        }
+
+        hitPattern.appendHit(dummyid, hitType);
+        if ( hit != hitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, hitPattern.numberOfHits(reco::HitPattern::TRACK_HITS) - 1) )
           throw edm::Exception(edm::errors::Configuration, "HitDropper::CorrectedHitsAOD\n")
-          << "Error! Mismatch in copying hit pattern." << std::endl; 
-          
-        nHits++;
+            << "Error! Mismatch in copying hit pattern.";
       }
       else {
-        if (inhits.validHitFilter(hit)) {
-          if (inhits.trackerHitFilter(hit)) {
+        if (reco::HitPattern::validHitFilter(hit)) {
+          if (reco::HitPattern::trackerHitFilter(hit)) {
             nWrongHits++;
           }
         }
@@ -225,20 +230,18 @@ reco::HitPattern HitDropper::SharedHits(const reco::Track *t1, const reco::Track
 {
   //Return a hit pattern corresponding to the hits on the two tracks which share clusters
   
-  int nHits = 0;
   reco::HitPattern sharedHits;
   
   if (!t1->extra().isAvailable() || !t2->extra().isAvailable())
     return sharedHits;
   
   for (trackingRecHit_iterator iHit1 = t1->recHitsBegin();  iHit1 != t1->recHitsEnd(); ++iHit1) { 
-    const TrackingRecHit *hit1 = iHit1->get();
+    const TrackingRecHit *hit1 = *iHit1;
     if (hit1->isValid()) {
       for (trackingRecHit_iterator iHit2 = t2->recHitsBegin();  iHit2 != t2->recHitsEnd(); ++iHit2) { 
-        const TrackingRecHit *hit2 = iHit2->get();
+        const TrackingRecHit *hit2 = *iHit2;
         if (hit2->isValid() && hit1->sharesInput(hit2,TrackingRecHit::some)) {
-          sharedHits.set(*hit1,nHits);
-          nHits++;
+          sharedHits.appendHit(*hit1);
         }
       }    
     }

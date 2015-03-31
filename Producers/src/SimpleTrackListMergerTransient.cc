@@ -8,6 +8,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,7 +17,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 
 using namespace mitedm;
 
@@ -42,7 +43,8 @@ namespace mitedm
       else if (type == typeid(ProjectedSiStripRecHit2D)) {
 	const ProjectedSiStripRecHit2D *phit = 
           reinterpret_cast<const ProjectedSiStripRecHit2D *>(hit);
-	pID=(&phit->originalHit())->cluster().id();
+
+	pID=phit->omniClusterRef().cluster_strip().id();
       }
       else
 	throw cms::Exception("Unknown RecHit Type")

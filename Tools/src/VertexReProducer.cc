@@ -4,6 +4,7 @@
 
 #include "MitEdm/Tools/interface/VertexReProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -89,7 +90,7 @@ VertexReProducer::makeVertices(const reco::TrackCollection &tracks,
     t_tks.back().setBeamSpot(bs);
   }
   
-  return algo_->vertices(t_tks, bs);
+  return algo_->vertices(t_tks, bs, "");
 }
 //
 //std::string

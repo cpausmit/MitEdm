@@ -103,6 +103,7 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
   // Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
+
   //const double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
   
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
@@ -201,6 +202,7 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
       }
 
       double prob = -99.0;
+
       //int fitStatus = 0;
 
       RefCountedKinematicTree myTree;
@@ -253,6 +255,7 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
 	  if (myTree->isValid()) {
             myTree->movePointerToTheTop();
             the_photon = myTree->currentParticle();                                           
+
             if (the_photon->currentState().isValid()) {
                 //const ParticleMass photon_mass = the_photon->currentState().mass();
                 gamma_dec_vertex = myTree->currentDecayVertex();

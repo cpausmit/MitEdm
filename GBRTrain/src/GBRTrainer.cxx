@@ -466,6 +466,7 @@ void GBRTrainer::TrainTree(const std::vector<GBREvent*> &evts, double sumwtotal,
     
     //weighted variance of target in full dataset
     float fullvariance = sumtgt2 - sumtgt*sumtgt/sumw;
+
     //float fullvariancevar = fullvariance*fullvariance/sumw2/sumw2;
     
     _fullvars[ivar] = fullvariance;
