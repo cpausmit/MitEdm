@@ -487,11 +487,11 @@ void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
       // fill TrackingRecHits
       std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
       unsigned nh1 = iHits.size();
+      tx.setHits(refTrkHits_, outputTrkHits_->size(), nh1);
       for (unsigned ih=0; ih<nh1; ++ih) { 
 	const TrackingRecHit* hit = iHits[ih];
 	//for(trackingRecHit_iterator hit = itB; hit != itE; ++hit) {
 	outputTrkHits_->push_back(hit->clone());
-	tx.add(TrackingRecHitRef(refTrkHits_, outputTrkHits_->size() - 1));
       }
       trackRefs_[current] = reco::GsfTrackRef(refTrks_, outputTrks_->size() - 1);
 
@@ -543,10 +543,10 @@ void SimpleTrackListMergerGsf::produce(edm::Event& e, const edm::EventSetup& es)
       // fill TrackingRecHits
       std::vector<const TrackingRecHit*> &jHits = rh2[track]; 
       unsigned nh2 = jHits.size();
+      tx.setHits(refTrkHits_, outputTrkHits_->size(), nh2);
       for (unsigned jh=0; jh<nh2; ++jh) { 
 	const TrackingRecHit* hit = jHits[jh];
 	outputTrkHits_->push_back(hit->clone());
-	tx.add(TrackingRecHitRef(refTrkHits_, outputTrkHits_->size() - 1));
       }
       trackRefs_[current] = reco::GsfTrackRef(refTrks_, outputTrks_->size() - 1);
 

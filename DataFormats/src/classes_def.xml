@@ -10,8 +10,6 @@
   <class name="edm::Wrapper<std::vector<mitedm::DecayPart> >"/>
   <class name="edm::Ptr<mitedm::BasePart>"/>
   <class name="edm::Ptr<reco::Vertex>"/>
-  <class name="edm::Ptr<reco::Track>"/>
-  <class name="std::vector<edm::Ptr<reco::Track> >"/>
   <class name="edm::Wrapper<std::vector<edm::Ptr<reco::Track> > >"/>
   <class name="mitedm::DaughterData"/>
   <class name="mitedm::StableData"/>

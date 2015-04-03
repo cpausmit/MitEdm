@@ -1,7 +1,7 @@
 // #define private public
 // #define protected public
 
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#if !defined(__CLING__) || defined(__ROOTCLING__)
 #include <iostream>
 #include "RooRealVar.h"
 #include "RooDataSet.h"
