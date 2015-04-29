@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: TrackToTrackAssociator.h,v 1.1 2008/11/04 19:25:55 bendavid Exp $
-//
 // TrackToTrackAssociator
 //
 // Base class for all more specific candidate producers.
@@ -29,9 +27,9 @@ namespace mitedm
       ~TrackToTrackAssociator() {}
     
     protected:
-      void beginJob(const edm::EventSetup&) {}
-      void produce(edm::Event&, const edm::EventSetup&);
-      void endJob() {}
+      void beginJob() override {}
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override {}
 
       // generic accessors to make the code more simple
       void PrintErrorAndExit(const char *msg) const;
