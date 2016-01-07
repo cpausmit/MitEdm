@@ -36,18 +36,18 @@ namespace mitedm
       void produce(edm::Event &e, const edm::EventSetup &c);
 
   private:
-    edm::ParameterSet conf_;
+      edm::EDGetTokenT<mitedm::StablePartCol> trackCollection1Tag_;
+      edm::EDGetTokenT<mitedm::StablePartCol> trackCollection2Tag_;
+      double maxNormalizedChisq_;
+      double minPT_;
+      unsigned minFound_;
+      double epsilon_;
+      double shareFrac_;
+      bool removeDuplicates_;
+      unsigned preferCollection_;
 
-    std::auto_ptr<mitedm::StablePartCol > outputTrks;
-
-    reco::TrackRefProd refTrks;
-    reco::TrackExtraRefProd refTrkExtras;
-    TrackingRecHitRefProd refTrkHits;
-    //edm::RefProd< std::vector<Trajectory> > refTrajs;
-    //std::vector<reco::TrackRef> trackRefs;
-    //edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
-    bool copyExtras_;
-    bool makeReKeyedSeeds_;
+      bool copyExtras_;
+      bool makeReKeyedSeeds_;
   };
 }
 #endif

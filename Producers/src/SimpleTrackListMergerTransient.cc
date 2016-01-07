@@ -56,14 +56,19 @@ namespace mitedm
 }  
 
 SimpleTrackListMergerTransient::SimpleTrackListMergerTransient(edm::ParameterSet const& conf) : 
-  conf_(conf)
+  trackCollection1Tag_(consumes<mitedm::StablePartCol>(edm::InputTag(conf.getParameter<std::string>("StableProducer1")))),
+  trackCollection2Tag_(consumes<mitedm::StablePartCol>(edm::InputTag(conf.getParameter<std::string>("StableProducer2")))),
+  maxNormalizedChisq_(conf.getParameter<double>("MaxNormalizedChisq")),
+  minPT_(conf.getParameter<double>("MinPT")),
+  minFound_(conf.getParameter<unsigned>("MinFound")),
+  epsilon_(conf.getParameter<double>("Epsilon")),
+  shareFrac_(conf.getParameter<double>("ShareFrac")),
+  removeDuplicates_(conf.getParameter<bool>("removeDuplicates")),
+  preferCollection_(conf.getParameter<uint>("preferCollection")),
+  copyExtras_(conf.getUntrackedParameter<bool>("copyExtras", true))
 {
-  // Constructor.
-
-  copyExtras_ = conf_.getUntrackedParameter<bool>("copyExtras", true);
   produces<mitedm::StablePartCol >();
 }
-
 
 SimpleTrackListMergerTransient::~SimpleTrackListMergerTransient() 
 { 
@@ -73,26 +78,7 @@ SimpleTrackListMergerTransient::~SimpleTrackListMergerTransient()
 // Functions that gets called by framework every event
 void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetup& es)
 {
-  // retrieve producer name of input TrackCollection(s)
-  std::string trackProducer1 = conf_.getParameter<std::string>("StableProducer1");
-  std::string trackProducer2 = conf_.getParameter<std::string>("StableProducer2");
-
-  //std::cout
-  //  << "Collections " << trackProducer1 << " " << trackProducer2 << std::endl;
-
-  double maxNormalizedChisq =  conf_.getParameter<double>("MaxNormalizedChisq");
-  double minPT =  conf_.getParameter<double>("MinPT");
-  unsigned int minFound = (unsigned int)conf_.getParameter<int>("MinFound");
-  double epsilon =  conf_.getParameter<double>("Epsilon");
-  bool use_sharesInput = true;
-  if ( epsilon > 0.0 )
-    use_sharesInput = false;
-  double shareFrac =  conf_.getParameter<double>("ShareFrac");
-  
-  //bool promoteQuality = conf_.getParameter<bool>("promoteTrackQuality");
-
-  uint removeDuplicates = conf_.getParameter<bool>("removeDuplicates");
-  uint preferCollection = conf_.getParameter<uint>("preferCollection");
+  bool use_sharesInput = (epsilon_ <= 0.0);
 
   // CP(2014/08/14)> this code is not used anywhere ?!
   //
@@ -117,45 +103,35 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
   // SimpleTrackListMergerTransient to be used as a cleaner only if handed just one list if both
   // input lists don't exist, will issue 2 warnings and generate an empty output collection
 
-  //printf(" - TC1\n");
   const mitedm::StablePartCol *TC1 = 0;
   static const mitedm::StablePartCol s_empty1, s_empty2;
   edm::Handle<mitedm::StablePartCol> trackCollection1;
-  e.getByLabel(trackProducer1, trackCollection1);
+  e.getByToken(trackCollection1Tag_, trackCollection1);
   if (trackCollection1.isValid()) {
     TC1 = trackCollection1.product();
-    //std::cout
-    //  << "1st collection " << trackProducer1 << " has " << TC1->size() << " tracks" << std::endl;
   }
   else {
     TC1 = &s_empty1;
     edm::LogWarning("SimpleTrackListMergerTransient") 
-      << "1st TrackCollection " << trackProducer1
-      << " not found; will only clean 2nd TrackCollection " << trackProducer2 ;
+      << "1st TrackCollection not found; will only clean 2nd TrackCollection";
   }
   const mitedm::StablePartCol tC1 = *TC1;
 
-  //printf(" - TC2\n");
   const mitedm::StablePartCol *TC2 = 0;
   edm::Handle<mitedm::StablePartCol> trackCollection2;
-  e.getByLabel(trackProducer2, trackCollection2);
+  e.getByToken(trackCollection2Tag_, trackCollection2);
   if (trackCollection2.isValid()) {
     TC2 = trackCollection2.product();
-    //std::cout << "2nd collection " << trackProducer2 << " has " 
-    //          << TC2->size() << " tracks" << std::endl ;
   }
   else {
     TC2 = &s_empty2;
     edm::LogWarning("SimpleTrackListMergerTransient") 
-      << "2nd TrackCollection " << trackProducer2 << " not found; will only clean 1st TrackCollection " 
-      << trackProducer1 ;
+      << "2nd TrackCollection not found; will only clean 1st TrackCollection";
   }
   const mitedm::StablePartCol tC2 = *TC2;
 
   // Step B: create empty output collection
-  //printf(" - OUTPUT\n");
-  outputTrks = std::auto_ptr<mitedm::StablePartCol>(new mitedm::StablePartCol);
-  //refTrks = e.getRefBeforePut<std::vector<edm::Ptr<reco::Track> > >();      
+  std::auto_ptr<mitedm::StablePartCol> outputTrks(new mitedm::StablePartCol);
 
   int i;
   std::vector<int> selected1; 
@@ -170,26 +146,22 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
       const reco::Track *track = stable->track();
       if ((short unsigned)track->ndof() < 1) {
         selected1[i]=0; 
-        //std::cout << "L1Track "<< i << " rejected in SimpleTrackListMergerTransient; ndof() < 1" << std::endl ;
+
         continue;
       }
-      if (track->normalizedChi2() > maxNormalizedChisq) {
+      if (track->normalizedChi2() > maxNormalizedChisq_) {
         selected1[i]=0; 
-        //std::cout << "L1Track "<< i 
-        //          << " rejected in SimpleTrackListMergerTransient; normalizedChi2() > maxNormalizedChisq " 
-        //          << track->normalizedChi2() << " " << maxNormalizedChisq << std::endl ;
+
         continue;
       }
-      if (track->found() < minFound) {
+      if (track->found() < minFound_) {
         selected1[i]=0; 
-        //std::cout << "L1Track "<< i << " rejected in SimpleTrackListMergerTransient; found() < minFound " 
-        //          << track->found() << " " << minFound << std::endl ;
+
         continue;
       }
-      if (track->pt() < minPT) {
+      if (track->pt() < minPT_) {
         selected1[i]=0; 
-        //std::cout << "L1Track "<< i << " rejected in SimpleTrackListMergerTransient; pt() < minPT " 
-        //          << track->pt() << " " << minPT << std::endl ;
+
         continue;
       }
     } //end loop over tracks
@@ -199,7 +171,6 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
   for (unsigned int jj=0; jj<tC2.size(); ++jj) 
     selected2.push_back(1);
 
-  //printf(" - C2 - 1\n");
   if (0<tC2.size()) {
     i=-1;
     for (mitedm::StablePartCol::const_iterator stable=tC2.begin(); stable!=tC2.end(); stable++) {
@@ -207,26 +178,22 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
       const reco::Track *track = stable->track();
       if ((short unsigned)track->ndof() < 1) {
         selected2[i]=0; 
-        //std::cout << "L2Track "<< i << " rejected in SimpleTrackListMergerTransient; ndof() < 1" << std::endl ;
+
         continue;
       }
-      if (track->normalizedChi2() > maxNormalizedChisq) {
+      if (track->normalizedChi2() > maxNormalizedChisq_) {
         selected2[i]=0; 
-        //std::cout << "L2Track " << i 
-        //          << " rejected in SimpleTrackListMergerTransient; normalizedChi2() > maxNormalizedChisq " 
-        //          << track->normalizedChi2() << " " << maxNormalizedChisq << std::endl ;
+
         continue;
       }
-      if (track->found() < minFound) {
+      if (track->found() < minFound_) {
         selected2[i]=0; 
-        //std::cout << "L2Track "<< i << " rejected in SimpleTrackListMergerTransient; found() < minFound " 
-        //          << track->found() << " " << minFound << std::endl ;
+
         continue;
       }
-      if (track->pt() < minPT) {
+      if (track->pt() < minPT_) {
         selected2[i]=0; 
-        //std::cout << "L2Track "<< i << " rejected in SimpleTrackListMergerTransient; pt() < minPT " 
-        //          << track->pt() << " " << minPT << std::endl ;
+
         continue;
       }
     }
@@ -235,7 +202,6 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
 
   //  L1 and L2 both have > 0 track - try merging
 
-  //printf(" - MERGING - 1\n");
   std::map<mitedm::StablePartCol::const_iterator, std::vector<const TrackingRecHit*> > rh1;
   for (mitedm::StablePartCol::const_iterator stable=tC1.begin(); stable!=tC1.end(); ++stable) {
     const reco::Track *track = stable->track();
@@ -249,14 +215,10 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
     }
   }
 
-  //printf(" - MERGING - 2\n");
   std::map<mitedm::StablePartCol::const_iterator, std::vector<const TrackingRecHit*> > rh2;
   for (mitedm::StablePartCol::const_iterator stable=tC2.begin(); stable!=tC2.end(); ++stable) {
-    //printf(" - TRACK TRY\n");
     const reco::Track *track = stable->track();
-    //printf(" - TRACK ASSIGNED\n");
-    if (removeDuplicates && track->extra().isAvailable()) {
-      //printf(" - TRACK - HIT - 2\n");
+    if (removeDuplicates_ && track->extra().isAvailable()) {
       trackingRecHit_iterator jtB = track->recHitsBegin();
       trackingRecHit_iterator jtE = track->recHitsEnd();
       for (trackingRecHit_iterator jt = jtB;  jt != jtE; ++jt) { 
@@ -266,13 +228,12 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
     }
   }
 
-  //printf(" - MERGING - 3\n");
   if (0<tC1.size() && 0<tC2.size()) {
     i=-1;
     for (mitedm::StablePartCol::const_iterator stable=tC1.begin(); stable!=tC1.end(); ++stable) {
       i++; 
       const reco::Track *track = stable->track();
-      if (!selected1[i] || !removeDuplicates)
+      if (!selected1[i] || !removeDuplicates_)
 	continue;
       std::vector<const TrackingRecHit*>& iHits = rh1[stable]; 
       unsigned nh1 = iHits.size();
@@ -281,7 +242,7 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
       for (mitedm::StablePartCol::const_iterator stable2=tC2.begin(); stable2!=tC2.end(); ++stable2) {
         j++;
 	const reco::Track *track2 = stable2->track();
-        if ((!selected2[j])||(!selected1[i])||(stable->pid()!=stable2->pid())||(!removeDuplicates))
+        if ((!selected2[j])||(!selected1[i])||(stable->pid()!=stable2->pid())||(!removeDuplicates_))
           continue;
 	std::vector<const TrackingRecHit*>& jHits = rh2[stable2]; 
 	unsigned nh2 = jHits.size();
@@ -296,7 +257,7 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
 	      if (jt->isValid()) {
                 if (!use_sharesInput) {
                   float delta = fabs ( it->localPosition().x()-jt->localPosition().x() ); 
-                  if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon))noverlap++;
+                  if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon_))noverlap++;
                 }
 		else {
                   const TrackingRecHit* kt = jt;
@@ -310,15 +271,14 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
 	int newQualityMask = (qualityMaskT1 | track2->qualityMask()); // take OR of trackQuality 
         float fi=float(noverlap)/float(track->numberOfValidHits()); 
         float fj=float(noverlap)/float(track2->numberOfValidHits());
-	//std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() 
-        //          << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>shareFrac)||(fj>shareFrac)) {
+
+        if ((fi>shareFrac_)||(fj>shareFrac_)) {
 	  //collection preference overrides
-	  if (preferCollection==1) {
+	  if (preferCollection_==1) {
 	    selected2[j]=0;
 	    selected1[i]=10+newQualityMask;
 	  }
-	  else if (preferCollection==2) {
+	  else if (preferCollection_==2) {
 	    selected1[i]=0; 
 	    selected2[j]=10+newQualityMask;
 	  }
@@ -326,17 +286,13 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
 	    if (fi<fj) {
 	      selected2[j]=0; 
 	      selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-	      //std::cout << " removing L2 trk in pair " << std::endl;
 	    }
 	    else {
 	      if (fi>fj) {
 		selected1[i]=0; 
 		selected2[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
-		//std::cout << " removing L1 trk in pair " << std::endl;
 	      }
 	      else {
-		//std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " 
-                //          << track2->normalizedChi2() << std::endl;
 		const double almostSame = 1.001;
 		if (track->normalizedChi2() > almostSame * track2->normalizedChi2()) {
 		  selected1[i]=0;
@@ -348,9 +304,6 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
 		}
 		else {
 		  // If tracks from both iterations are virtually identical, choose the one from the first iteration.
-		  //std::cout<<"MERGE "<<track->algo()<<" "<<track2->algo()<<" "
-                  //         <<track->normalizedChi2()<<" "<<track2->normalizedChi2()<<" "
-                  //         <<(track->normalizedChi2()-track2->normalizedChi2())/track->normalizedChi2()<<std::endl;
 		  if (track->algo() <= track2->algo()) {
 		    selected2[j]=0;
 		    selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
@@ -370,10 +323,6 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
 
   //  output selected tracks - if any
 
-  //printf(" - OUTPUTTING\n");
-
-  //trackRefs.resize(tC1.size()+tC2.size());
-  //std::vector<edm::RefToBase<TrajectorySeed> > seedsRefs(tC1.size()+tC2.size());
   size_t current = 0;
 
   if ( 0<tC1.size() ) {
@@ -381,16 +330,11 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
     for (mitedm::StablePartCol::const_iterator stable=tC1.begin(); stable!=tC1.end(); 
          ++stable, ++current, ++i) {
       if (!selected1[i]) {
-	//trackRefs[current] = reco::TrackRef();
 	continue;
       }
-      //const reco::Track & theTrack = * track;
-      //fill the TrackCollection
       outputTrks->push_back(*stable);
-      //trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
     } //end faux loop over tracks
   } //end more than 0 track
-
 
   //short offset = current; //save offset into trackRefs
   if (0<tC2.size()) {
@@ -398,16 +342,12 @@ void SimpleTrackListMergerTransient::produce(edm::Event& e, const edm::EventSetu
     for (mitedm::StablePartCol::const_iterator stable=tC2.begin(); stable!=tC2.end();
          ++stable, ++current, ++i) {
       if (!selected2[i]) {
-        //trackRefs[current] = reco::TrackRef();
         continue;
       }
-      //const reco::Track & theTrack = * track;
       //fill the TrackCollection
       outputTrks->push_back( *stable );
-      //trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
     } //end faux loop over tracks
   } //end more than 0 track
   
   e.put(outputTrks);
-  return;
 }
