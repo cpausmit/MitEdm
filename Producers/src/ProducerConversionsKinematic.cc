@@ -13,7 +13,6 @@
 #include "MitEdm/Producers/interface/HitDropperRecord.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
-#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
@@ -44,7 +43,7 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 using namespace edm;
@@ -55,16 +54,15 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 ProducerConversionsKinematic::ProducerConversionsKinematic(const ParameterSet& cfg) :
   BaseCandProducer (cfg),
-  iStables1_       (cfg.getUntrackedParameter<string>("iStables1","")),
-  iStables2_       (cfg.getUntrackedParameter<string>("iStables2","")),
-  iPVertexes_      (cfg.getUntrackedParameter<string>("iPVertexes","offlinePrimaryVerticesWithBS")),
-  usePVertex_      (cfg.getUntrackedParameter<bool>  ("usePVertex",true)),
+  iStables1Token_(consumes<StablePartCol>(edm::InputTag(cfg.getUntrackedParameter<string>("iStables1","")))),
+  iStables2Token_(consumes<StablePartCol>(edm::InputTag(cfg.getUntrackedParameter<string>("iStables2","")))),
   convConstraint_  (cfg.getUntrackedParameter<bool>  ("convConstraint",false)),
   convConstraint3D_(cfg.getUntrackedParameter<bool>  ("convConstraint3D",true)),
   rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0)),
   useRhoMin_       (cfg.getUntrackedParameter<bool>  ("useRhoMin",true)),
   useHitDropper_   (cfg.getUntrackedParameter<bool>  ("useHitDropper",true)),
-  applyChargeConstraint_(cfg.getUntrackedParameter<bool>("applyChargeConstraint",false))
+  applyChargeConstraint_(cfg.getUntrackedParameter<bool>("applyChargeConstraint",false)),
+  sameCollection_(cfg.getUntrackedParameter<string>("iStables1","") == cfg.getUntrackedParameter<string>("iStables2",""))
 {
   // Constructor.
 
@@ -84,14 +82,14 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
 
   // First input collection
   Handle<StablePartCol> hStables1;
-  if (!GetProduct(iStables1_, hStables1, evt)) {
+  if (!GetProduct(iStables1Token_, hStables1, evt)) {
     printf("Stable collection 1 not found in ProducerConversionsKinematic\n");
     return;  
   }
   const StablePartCol *pS1 = hStables1.product();
   // Second input collection
   Handle<StablePartCol> hStables2;
-  if (!GetProduct(iStables2_, hStables2, evt)) {
+  if (!GetProduct(iStables2Token_, hStables2, evt)) {
     printf("Stable collection 2 not found in ProducerConversionsKinematic\n");
     return;
   }
@@ -125,7 +123,7 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
   }
   
   std::vector<reco::TransientTrack> ttrks2;
-  if (iStables1_ == iStables2_) {
+  if (sameCollection_) {
     ttrks2 = ttrks1;
   }
   else for (UInt_t i = 0; i<pS2->size(); ++i) {
@@ -153,7 +151,7 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
     const reco::TransientTrack &ttrk1 = ttrks1.at(i);
     
     UInt_t j;
-    if (iStables1_ == iStables2_)
+    if (sameCollection_)
       j = i+1; 
     else
       j = 0;
@@ -411,9 +409,6 @@ void ProducerConversionsKinematic::produce(Event &evt, const EventSetup &setup)
 //         d->setDxyError(dxyErr);
         d->setDxyToPv(dxy);
 //         d->setDxyToPvError(dxyErr);
-        
-//         if (usePVertex_)
-//           d->setPrimaryVertex(vPtr);
         
         // Put the result into our collection
         pD->push_back(*d);

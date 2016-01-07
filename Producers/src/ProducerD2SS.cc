@@ -1,5 +1,3 @@
-// $Id: ProducerD2SS.cc,v 1.13 2008/11/13 17:08:31 paus Exp $
-
 #include "MitEdm/Producers/interface/ProducerD2SS.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -9,11 +7,11 @@
 #include "MitEdm/Producers/interface/HitDropperRecord.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
-#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 using namespace edm;
@@ -24,8 +22,9 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 ProducerD2SS::ProducerD2SS(const ParameterSet& cfg) :
   BaseCandProducer(cfg),
-  iStables1_(cfg.getUntrackedParameter<string>("iStables1","")),
-  iStables2_(cfg.getUntrackedParameter<string>("iStables2",""))
+  iStables1Token_(consumes<StablePartCol>(edm::InputTag(cfg.getUntrackedParameter<string>("iStables1","")))),
+  iStables2Token_(consumes<StablePartCol>(edm::InputTag(cfg.getUntrackedParameter<string>("iStables2","")))),
+  sameCollection_(cfg.getUntrackedParameter<string>("iStables1","") == cfg.getUntrackedParameter<string>("iStables2",""))
 {
   // Constructor
   produces<DecayPartCol>();
@@ -44,12 +43,12 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
 
   // First input collection
   Handle<StablePartCol> hStables1;
-  if (!GetProduct(iStables1_, hStables1, evt))
+  if (!GetProduct(iStables1Token_, hStables1, evt))
     return;
   const StablePartCol *pS1 = hStables1.product();
   // Second input collection
   Handle<StablePartCol> hStables2;
-  if (!GetProduct(iStables2_, hStables2, evt))
+  if (!GetProduct(iStables2Token_, hStables2, evt))
     return;
   const StablePartCol *pS2 = hStables2.product();
 
@@ -70,7 +69,7 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
     const StablePart &s1 =  pS1->at(i);
 
     UInt_t j;
-    if (iStables1_ == iStables2_)
+    if (sameCollection_)
       j = i+1;
     else
       j = 0;

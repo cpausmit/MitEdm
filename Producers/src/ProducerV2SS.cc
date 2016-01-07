@@ -17,6 +17,7 @@
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 #include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
 #include "MitEdm/Producers/interface/ProducerV2SS.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include <TMath.h>
 
 using namespace std;
@@ -53,7 +54,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   // First input collection
   Handle<StablePartCol> hStables1;
   Handle<StablePartCol> hStables2;
-  if (!GetProduct(iStables1_, hStables1, evt) ) {
+  if (!GetProduct(iStables1Token_, hStables1, evt) ) {
     cout << "Couldn't get in collection in Producer V2SS" << endl;
     evt.put(pD);
     return;  
@@ -61,7 +62,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   const StablePartCol *pS1 = hStables1.product();
 
   // Second input collection
-  if(!GetProduct(iStables2_, hStables2, evt)) {
+  if(!GetProduct(iStables2Token_, hStables2, evt)) {
     cout << "Couldn't get in collection in Producer V2SS" << endl;
     evt.put(pD);
     return;  
@@ -100,7 +101,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   }
   
   std::vector<TrackParameters> trkPars2;
-  if (iStables1_ == iStables2_)
+  if (sameCollection_)
     trkPars2 = trkPars1;
   else for (UInt_t i = 0; i<pS2->size(); ++i) {
     const reco::Track *t = pS2->at(i).track();
@@ -129,7 +130,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     //const reco::Track * t1 = s1.track();
     
     UInt_t j;
-    if (iStables1_ == iStables2_)
+    if (sameCollection_)
       j = i+1; 
     else
       j = 0;
