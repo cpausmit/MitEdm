@@ -1,8 +1,8 @@
-// $Id: ProducerV2SS.cc,v 1.22 2010/06/08 20:17:30 bendavid Exp $
-
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -75,6 +75,10 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     setup.get<HitDropperRecord>().get("HitDropper",hDropper);
     dropper = hDropper.product();
   }
+
+  ESHandle<TrackerTopology> hTopo;
+  setup.get<TrackerTopologyRcd>().get(hTopo);
+  TrackerTopology const& topo(*hTopo);
   
   //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
@@ -236,12 +240,14 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         
         //build corrected HitPattern for StableData, removing hits before the fit vertex
         if (useHitDropper_) {
-          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(), 
+          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(),
+                                                                             topo,
                                                           vtxPos, 
                                                           trkMom1, 
                                                           dlErr, 
                                                           dlzErr);
-          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(), 
+          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(),
+                                                                             topo,
                                                           vtxPos, 
                                                           trkMom2, 
                                                           dlErr, 
@@ -254,7 +260,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
           c1.SetNWrongHits(hits1.second);
           c2.SetNWrongHits(hits2.second);
           
-          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track());
+          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track(), topo);
           d->setSharedHits(sharedHits);
         }
         

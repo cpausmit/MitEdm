@@ -1,11 +1,11 @@
-// $Id: ProducerConversions.cc,v 1.24 2010/06/08 20:17:30 bendavid Exp $
-
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -95,9 +95,13 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
   }
   
   // Get hit dropper
-  ESHandle<HitDropper> hDropper;
+  edm::ESHandle<HitDropper> hDropper;
   setup.get<HitDropperRecord>().get("HitDropper",hDropper);
   const HitDropper *dropper = hDropper.product();
+
+  ESHandle<TrackerTopology> hTopo;
+  setup.get<TrackerTopologyRcd>().get(hTopo);
+  TrackerTopology const& topo(*hTopo);
   
   //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
@@ -272,8 +276,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         
         // Build corrected HitPattern for StableData, removing hits before the fit vertex
         if (useHitDropper_) {
-          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
-          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);                 
+          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(), topo, vtxPos, trkMom1, dlErr, dlzErr);
+          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(), topo, vtxPos, trkMom2, dlErr, dlzErr);                 
    
           c1.SetHits(hits1.first);
           c2.SetHits(hits2.first);
@@ -282,7 +286,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
           c1.SetNWrongHits(hits1.second);
           c2.SetNWrongHits(hits2.second);
           
-          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track());
+          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track(), topo);
           d->setSharedHits(sharedHits);
         }
         

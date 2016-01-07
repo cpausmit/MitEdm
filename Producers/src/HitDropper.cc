@@ -1,5 +1,3 @@
-// $Id: HitDropper.cc,v 1.11 2009/12/15 23:27:34 bendavid Exp $
-
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
@@ -19,6 +17,7 @@ using namespace mitedm;
 
 //--------------------------------------------------------------------------------------------------
 reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
+                                           TrackerTopology const& topo,
                                            const ThreeVector &vtxPos) const
 {
   // Return reco::HitPattern structure for the given track with all hits occuring before vtxPos
@@ -43,7 +42,7 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
                                             
     std::pair<bool,double> crossResult = c.pathLength(det->surface());
     if ( crossResult.first && crossResult.second >= 0 )
-      hitPattern.appendHit(*hit);
+      hitPattern.appendHit(*hit, topo);
   }
 
   return hitPattern;
@@ -51,16 +50,18 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::TransientTrack *tTrack,
 
 //--------------------------------------------------------------------------------------------------
 reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
+                                           TrackerTopology const& topo,
                                            const ThreeVector &vtxPos) const
 {
   // Build the transient track and then return the corrected HitPattern.
 
   reco::TransientTrack tTrack = builder_->build(track);
-  return CorrectedHits(&tTrack, vtxPos);
+  return CorrectedHits(&tTrack, topo, vtxPos);
 }
 
 //--------------------------------------------------------------------------------------------------
 reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
+                                           TrackerTopology const& topo,
                                            const ThreeVector &vtxPos,
                                            const ThreeVector &trkMom,
                                            Double_t lxyError,
@@ -108,19 +109,21 @@ reco::HitPattern HitDropper::CorrectedHits(const reco::Track *track,
     //add the hit only if it is after the vertex, 
     //allowing for some uncertainty in the vertex position
     if ( lengthOverSigma>(-sigmaTolerance) ) 
-      hitPattern.appendHit(*hit);
+      hitPattern.appendHit(*hit, topo);
   }
   return hitPattern;
 }
 
 
 //--------------------------------------------------------------------------------------------------
-std::pair<reco::HitPattern,uint> HitDropper::CorrectedHitsAOD(const reco::Track *track,
-                                           const ThreeVector &vtxPos,
-                                           const ThreeVector &trkMom,
-                                           Double_t lxyError,
-                                           Double_t lzError,
-                                           Double_t sigmaTolerance) const
+std::pair<reco::HitPattern,uint>
+HitDropper::CorrectedHitsAOD(const reco::Track *track,
+                             TrackerTopology const& topo,
+                             const ThreeVector &vtxPos,
+                             const ThreeVector &trkMom,
+                             Double_t lxyError,
+                             Double_t lzError,
+                             Double_t sigmaTolerance) const
 {
   // Return reco::HitPattern structure for the given track with all hits occuring before vtxPos
   // on the track (relative to the primary vertex if given) removed.
@@ -208,7 +211,7 @@ std::pair<reco::HitPattern,uint> HitDropper::CorrectedHitsAOD(const reco::Track 
           break;
         }
 
-        hitPattern.appendHit(dummyid, hitType);
+        hitPattern.appendHit(dummyid, hitType, topo);
         if ( hit != hitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, hitPattern.numberOfHits(reco::HitPattern::TRACK_HITS) - 1) )
           throw edm::Exception(edm::errors::Configuration, "HitDropper::CorrectedHitsAOD\n")
             << "Error! Mismatch in copying hit pattern.";
@@ -226,7 +229,8 @@ std::pair<reco::HitPattern,uint> HitDropper::CorrectedHitsAOD(const reco::Track 
   return std::pair<reco::HitPattern,uint>(hitPattern,nWrongHits);
 }
 
-reco::HitPattern HitDropper::SharedHits(const reco::Track *t1, const reco::Track *t2) const
+reco::HitPattern
+HitDropper::SharedHits(const reco::Track *t1, const reco::Track *t2, TrackerTopology const& topo) const
 {
   //Return a hit pattern corresponding to the hits on the two tracks which share clusters
   
@@ -241,7 +245,7 @@ reco::HitPattern HitDropper::SharedHits(const reco::Track *t1, const reco::Track
       for (trackingRecHit_iterator iHit2 = t2->recHitsBegin();  iHit2 != t2->recHitsEnd(); ++iHit2) { 
         const TrackingRecHit *hit2 = *iHit2;
         if (hit2->isValid() && hit1->sharesInput(hit2,TrackingRecHit::some)) {
-          sharedHits.appendHit(*hit1);
+          sharedHits.appendHit(*hit1, topo);
         }
       }    
     }

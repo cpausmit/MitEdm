@@ -2,8 +2,10 @@
 
 #include "MitEdm/Producers/interface/ProducerD2SS.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MitEdm/Producers/interface/HitDropperRecord.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
@@ -55,6 +57,10 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
   ESHandle<HitDropper> hDropper;
   setup.get<HitDropperRecord>().get("HitDropper",hDropper);
   const HitDropper *dropper = hDropper.product();
+
+  ESHandle<TrackerTopology> hTopo;
+  setup.get<TrackerTopologyRcd>().get(hTopo);
+  TrackerTopology const& topo(*hTopo);
 
   // Create the output collection
   auto_ptr<DecayPartCol> pD(new DecayPartCol());
@@ -126,8 +132,8 @@ void ProducerD2SS::produce(Event &evt, const EventSetup &setup)
                                   fit.getTrackP4(2).pz());
 
         // Build corrected HitPattern for StableData, removing hits before the fit vertex
-        reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
-        reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);
+        reco::HitPattern hits1 = dropper->CorrectedHits(s1.track(), topo, vtxPos, trkMom1, dlErr, dlzErr);
+        reco::HitPattern hits2 = dropper->CorrectedHits(s2.track(), topo, vtxPos, trkMom2, dlErr, dlzErr);
 
         c1.SetHits(hits1);
         c2.SetHits(hits2);
