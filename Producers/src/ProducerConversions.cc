@@ -1,11 +1,10 @@
-// $Id: ProducerConversions.cc,v 1.24 2010/06/08 20:17:30 bendavid Exp $
-
 #include "MitEdm/Producers/interface/ProducerConversions.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -13,12 +12,12 @@
 #include "MitEdm/Producers/interface/HitDropperRecord.h"
 #include "MitEdm/Producers/interface/HitDropper.h"
 #include "MitEdm/DataFormats/interface/Types.h"
-#include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/DecayPart.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
 #include "MitEdm/DataFormats/interface/StableData.h"
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 #include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include <TMath.h>
 
 using namespace std;
@@ -30,16 +29,17 @@ using namespace mithep;
 //--------------------------------------------------------------------------------------------------
 ProducerConversions::ProducerConversions(const ParameterSet& cfg) :
   BaseCandProducer (cfg),
-  iStables1_       (cfg.getUntrackedParameter<string>("iStables1","")),
-  iStables2_       (cfg.getUntrackedParameter<string>("iStables2","")),
-  iPVertexes_      (cfg.getUntrackedParameter<string>("iPVertexes","offlinePrimaryVerticesWithBS")),
+  iStables1Token_(consumes<StablePartCol>(edm::InputTag(cfg.getUntrackedParameter<string>("iStables1","")))),
+  iStables2Token_(consumes<StablePartCol>(edm::InputTag(cfg.getUntrackedParameter<string>("iStables2","")))),
+  iPVertexesToken_(consumes<reco::VertexCollection>(edm::InputTag(cfg.getUntrackedParameter<string>("iPVertexes","offlinePrimaryVerticesWithBS")))),
   usePVertex_      (cfg.getUntrackedParameter<bool>  ("usePVertex",true)),
   convConstraint_  (cfg.getUntrackedParameter<bool>  ("convConstraint",false)),
   convConstraint3D_(cfg.getUntrackedParameter<bool>  ("convConstraint3D",true)),
   rhoMin_          (cfg.getUntrackedParameter<double>("rhoMin",0.0)),
   useRhoMin_       (cfg.getUntrackedParameter<bool>  ("useRhoMin",true)),
   useHitDropper_   (cfg.getUntrackedParameter<bool>  ("useHitDropper",true)),
-  applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false))
+  applyChargeConstraint_(cfg.getUntrackedParameter<bool>  ("applyChargeConstraint",false)),
+  sameCollection_(cfg.getUntrackedParameter<string>("iStables1","") == cfg.getUntrackedParameter<string>("iStables2",""))
 {
   // Constructor.
 
@@ -59,14 +59,14 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
 
   // First input collection
   Handle<StablePartCol> hStables1;
-  if (!GetProduct(iStables1_, hStables1, evt)) {
+  if (!GetProduct(iStables1Token_, hStables1, evt)) {
     printf("Stable collection 1 not found in ProducerConversions\n");
     return;  
   }
   const StablePartCol *pS1 = hStables1.product();
   // Second input collection
   Handle<StablePartCol> hStables2;
-  if (!GetProduct(iStables2_, hStables2, evt)) {
+  if (!GetProduct(iStables2Token_, hStables2, evt)) {
     printf("Stable collection 2 not found in ProducerConversions\n");
     return;
   }
@@ -77,7 +77,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
   if (usePVertex_) {
     // Primary vertex collection
     Handle<reco::VertexCollection> hVertexes;
-    if (!GetProduct(iPVertexes_, hVertexes, evt))
+    if (!GetProduct(iPVertexesToken_, hVertexes, evt))
       return;
     const reco::VertexCollection *pV = hVertexes.product();
   
@@ -95,9 +95,13 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
   }
   
   // Get hit dropper
-  ESHandle<HitDropper> hDropper;
+  edm::ESHandle<HitDropper> hDropper;
   setup.get<HitDropperRecord>().get("HitDropper",hDropper);
   const HitDropper *dropper = hDropper.product();
+
+  ESHandle<TrackerTopology> hTopo;
+  setup.get<TrackerTopologyRcd>().get(hTopo);
+  TrackerTopology const& topo(*hTopo);
   
   //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
@@ -118,10 +122,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     trkPars1.push_back(mvfTrk);
   }
   
-  bool sameCollection = iStables1_ == iStables2_;
-  
   std::vector<TrackParameters> trkPars2;
-  if (sameCollection)
+  if (sameCollection_)
     trkPars2 = trkPars1;
   else for (UInt_t i = 0; i<pS2->size(); ++i) {
     const reco::Track *t = pS2->at(i).track();
@@ -150,7 +152,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     const TrackParameters &trkPar1 = trkPars1.at(i);
     
     UInt_t j;
-    if (sameCollection)
+    if (sameCollection_)
       j = i+1; 
     else
       j = 0;
@@ -161,7 +163,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
     for (; j<pS2->size(); ++j) {
       const StablePart &s2 = pS2->at(j);
       
-      if (!sameCollection) {
+      if (!sameCollection_) {
         std::pair<edm::Ptr<reco::Track>,edm::Ptr<reco::Track> > pair1(s1.trackPtr(),s2.trackPtr());
         std::pair<edm::Ptr<reco::Track>,edm::Ptr<reco::Track> > pair2(s2.trackPtr(),s1.trackPtr());
         if (pairSet.find(pair1)!=pairSet.end() || pairSet.find(pair2)!=pairSet.end()) {
@@ -272,8 +274,8 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
         
         // Build corrected HitPattern for StableData, removing hits before the fit vertex
         if (useHitDropper_) {
-          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(), vtxPos, trkMom1, dlErr, dlzErr);
-          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(), vtxPos, trkMom2, dlErr, dlzErr);                 
+          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(), topo, vtxPos, trkMom1, dlErr, dlzErr);
+          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(), topo, vtxPos, trkMom2, dlErr, dlzErr);                 
    
           c1.SetHits(hits1.first);
           c2.SetHits(hits2.first);
@@ -282,7 +284,7 @@ void ProducerConversions::produce(Event &evt, const EventSetup &setup)
           c1.SetNWrongHits(hits1.second);
           c2.SetNWrongHits(hits2.second);
           
-          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track());
+          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track(), topo);
           d->setSharedHits(sharedHits);
         }
         

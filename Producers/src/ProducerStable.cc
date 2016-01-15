@@ -1,11 +1,10 @@
-// $Id: ProducerStable.cc,v 1.5 2008/11/02 13:56:14 bendavid Exp $
-
 #include "MitEdm/Producers/interface/ProducerStable.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "MitEdm/DataFormats/interface/Collections.h"
 #include "MitEdm/DataFormats/interface/StablePart.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace std;
 using namespace edm;
@@ -15,7 +14,7 @@ using namespace mitedm;
 //--------------------------------------------------------------------------------------------------
 ProducerStable::ProducerStable(const ParameterSet& cfg) :
   BaseCandProducer(cfg),
-  iTracks_(cfg.getUntrackedParameter<string>("iTracks",""))
+  tracksToken_(consumes<edm::View<reco::Track>>(cfg.getUntrackedParameter<string>("iTracks", "")))
 {
   // Constructor.
 
@@ -35,7 +34,7 @@ void ProducerStable::produce(Event &evt, const EventSetup &setup)
 
   // Get the track input collection
   Handle<View<reco::Track> > hTrks;
-  if (!GetProduct(iTracks_, hTrks, evt)) {
+  if (!GetProduct(tracksToken_, hTrks, evt)) {
     printf("Track Collection not found in ProducerStable\n");
     return;
   }
@@ -49,15 +48,14 @@ void ProducerStable::produce(Event &evt, const EventSetup &setup)
     const mitedm::TrackPtr thePtr = iTrks.ptrAt(it - iTrks.begin());
     StablePart *s = new StablePart(oPid_,thePtr);
     if (0)
-      printf(" Track(%s): %14.8f, %14.8f, %14.8f\n",iTracks_.data(),it->pt(),it->phi(),it->eta());
+      printf(" Track: %14.8f, %14.8f, %14.8f\n",it->pt(),it->phi(),it->eta());
     pS->push_back(*s);
     delete s;
   }
 
   // Write the collection even if it is empty
   if (0)
-    cout << " Stable::produce(" << iTracks_.data()
-	 << ") - " << pS->size() << " entries collection created -" << " (Pid: " << oPid_ << ")\n";
+    cout << " Stable::produce - " << pS->size() << " entries collection created -" << " (Pid: " << oPid_ << ")\n";
   evt.put(pS);
 }
 

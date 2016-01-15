@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ProducerD2SS.h,v 1.5 2008/10/24 19:57:47 paus Exp $
-//
 // ProducerD2SS
 //
 // Commmon two body particle decay reconstruction (e.g J/psi -> mu mu), special implementations
@@ -13,6 +11,7 @@
 #define MITEDM_PRODUCERS_PRODUCERD2SS_H
 
 #include "MitEdm/Producers/interface/BaseCandProducer.h"
+#include "MitEdm/DataFormats/interface/Collections.h"
 
 namespace mitedm
 {
@@ -26,8 +25,9 @@ namespace mitedm
       void produce(edm::Event&, const edm::EventSetup&);
 
       // Parameters to steer the particularities of this instance
-      std::string iStables1_; // input label first stable particle
-      std::string iStables2_; // input label second stable particle
+      edm::EDGetTokenT<StablePartCol> iStables1Token_; // input token first stable particle
+      edm::EDGetTokenT<StablePartCol> iStables2Token_; // input token second stable particle
+      bool   sameCollection_; // true if iStables1 and 2 are the same collection
   };
 }
 #endif

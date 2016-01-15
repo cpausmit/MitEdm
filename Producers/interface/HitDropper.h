@@ -1,6 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: HitDropper.h,v 1.9 2009/12/15 23:27:34 bendavid Exp $
-//
 // HitDropper
 //
 // Utility to remove (or rather flag) hits from a track which are inconsistant with a vertex fit.
@@ -19,6 +17,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "MitEdm/DataFormats/interface/Types.h"
 
+class TrackerTopology;
+
 namespace mitedm
 {
   class HitDropper
@@ -31,22 +31,26 @@ namespace mitedm
         trackerGeoSearch_(search) {}
 
       reco::HitPattern              CorrectedHits(const reco::TransientTrack *tTrack,
+                                                  TrackerTopology const&,
                                                   const ThreeVector &vtxPos) const;
       reco::HitPattern              CorrectedHits(const reco::Track *track,
+                                                  TrackerTopology const&,
                                                   const ThreeVector &vtxPos) const;
       reco::HitPattern              CorrectedHits(const reco::Track *track,
+                                                  TrackerTopology const&,
                                                   const ThreeVector &vtxPos,
                                                   const ThreeVector &trkMom,
                                                   Double_t lxyError,
                                                   Double_t lzError,
                                                   Double_t sigmaTolerance=3.0) const;
       std::pair<reco::HitPattern,uint> CorrectedHitsAOD(const reco::Track *track,
+                                                  TrackerTopology const&,
                                                   const ThreeVector &vtxPos,
                                                   const ThreeVector &trkMom,
                                                   Double_t lxyError,
                                                   Double_t lzError,
                                                   Double_t sigmaTolerance=1.5) const;
-      reco::HitPattern              SharedHits(const reco::Track *t1, const reco::Track *t2) const;                                                  
+      reco::HitPattern              SharedHits(const reco::Track *t1, const reco::Track *t2, TrackerTopology const&) const;                                                  
       bool                          IsBarrel(const GeomDet *det) const;
       bool                          IsDisk(const GeomDet *det) const;
           

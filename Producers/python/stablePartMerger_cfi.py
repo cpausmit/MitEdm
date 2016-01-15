@@ -11,7 +11,7 @@ stablePartMerger = cms.EDProducer(
   # maximum chisq/dof
   MaxNormalizedChisq = cms.double(1e9),
   # minimum number of RecHits used in fit
-  MinFound = cms.int32(0),
+  MinFound = cms.uint32(0),
   StableProducer1 = cms.string(''),
   StableProducer2 = cms.string(''),
   # set new quality for confirmed tracks

@@ -12,6 +12,8 @@
 #define MITEDM_PRODUCERS_PRODUCERCONVERSIONS_H
 
 #include "MitEdm/Producers/interface/BaseCandProducer.h"
+#include "MitEdm/DataFormats/interface/Collections.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace mitedm
 {
@@ -24,9 +26,9 @@ namespace mitedm
     protected:
       void produce(edm::Event&, const edm::EventSetup&);
       
-      std::string iStables1_;        //input label first stable particle
-      std::string iStables2_;        //input label second stable particle
-      std::string iPVertexes_;       //input label for primary vertex collection
+      edm::EDGetTokenT<StablePartCol> iStables1Token_; //input token first stable particle
+      edm::EDGetTokenT<StablePartCol> iStables2Token_; //input token second stable particle
+      edm::EDGetTokenT<reco::VertexCollection> iPVertexesToken_; //input token for primary vertex collection
       bool        usePVertex_;       //compute decay parameters with respect to primary vertex
       bool        convConstraint_;   //use 2d conversion constraint for fit
       bool        convConstraint3D_; //use 3d conversion constraint for fit
@@ -34,6 +36,7 @@ namespace mitedm
       bool        useRhoMin_;        //apply radius preselection
       bool        useHitDropper_;    //=true if hit dropper is to be used
       bool        applyChargeConstraint_; //require opposite charged tracks
+      bool        sameCollection_; // if iStables 1 and 2 are the same collection
   };
 }
 #endif

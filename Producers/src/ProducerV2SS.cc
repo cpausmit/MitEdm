@@ -1,8 +1,8 @@
-// $Id: ProducerV2SS.cc,v 1.22 2010/06/08 20:17:30 bendavid Exp $
-
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -17,6 +17,7 @@
 #include "MitEdm/VertexFitInterface/interface/MvfInterface.h"
 #include "MitEdm/VertexFitInterface/interface/TrackParameters.h"
 #include "MitEdm/Producers/interface/ProducerV2SS.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include <TMath.h>
 
 using namespace std;
@@ -53,7 +54,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   // First input collection
   Handle<StablePartCol> hStables1;
   Handle<StablePartCol> hStables2;
-  if (!GetProduct(iStables1_, hStables1, evt) ) {
+  if (!GetProduct(iStables1Token_, hStables1, evt) ) {
     cout << "Couldn't get in collection in Producer V2SS" << endl;
     evt.put(pD);
     return;  
@@ -61,7 +62,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   const StablePartCol *pS1 = hStables1.product();
 
   // Second input collection
-  if(!GetProduct(iStables2_, hStables2, evt)) {
+  if(!GetProduct(iStables2Token_, hStables2, evt)) {
     cout << "Couldn't get in collection in Producer V2SS" << endl;
     evt.put(pD);
     return;  
@@ -75,6 +76,10 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     setup.get<HitDropperRecord>().get("HitDropper",hDropper);
     dropper = hDropper.product();
   }
+
+  ESHandle<TrackerTopology> hTopo;
+  setup.get<TrackerTopologyRcd>().get(hTopo);
+  TrackerTopology const& topo(*hTopo);
   
   //Get Magnetic Field from event setup, taking value at (0,0,0)
   edm::ESHandle<MagneticField> magneticField;
@@ -96,7 +101,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
   }
   
   std::vector<TrackParameters> trkPars2;
-  if (iStables1_ == iStables2_)
+  if (sameCollection_)
     trkPars2 = trkPars1;
   else for (UInt_t i = 0; i<pS2->size(); ++i) {
     const reco::Track *t = pS2->at(i).track();
@@ -125,7 +130,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
     //const reco::Track * t1 = s1.track();
     
     UInt_t j;
-    if (iStables1_ == iStables2_)
+    if (sameCollection_)
       j = i+1; 
     else
       j = 0;
@@ -236,12 +241,14 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
         
         //build corrected HitPattern for StableData, removing hits before the fit vertex
         if (useHitDropper_) {
-          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(), 
+          std::pair<reco::HitPattern,uint> hits1 = dropper->CorrectedHitsAOD(s1.track(),
+                                                                             topo,
                                                           vtxPos, 
                                                           trkMom1, 
                                                           dlErr, 
                                                           dlzErr);
-          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(), 
+          std::pair<reco::HitPattern,uint> hits2 = dropper->CorrectedHitsAOD(s2.track(),
+                                                                             topo,
                                                           vtxPos, 
                                                           trkMom2, 
                                                           dlErr, 
@@ -254,7 +261,7 @@ void ProducerV2SS::produce(Event &evt, const EventSetup &setup)
           c1.SetNWrongHits(hits1.second);
           c2.SetNWrongHits(hits2.second);
           
-          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track());
+          reco::HitPattern sharedHits = dropper->SharedHits(s1.track(),s2.track(), topo);
           d->setSharedHits(sharedHits);
         }
         
