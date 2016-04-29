@@ -20,9 +20,9 @@ class VertexReProducer
 {
   public:
       /// This is the real constructor to be used
-      VertexReProducer(const edm::Handle<reco::VertexCollection> &configFromOriginalVertexCollection, const edm::Event &iEvent ) ;
+      VertexReProducer(const edm::Handle<reco::VertexCollection>&, const edm::Event&);
       /// This is only for testing
-      VertexReProducer(const edm::ParameterSet &configByHand) { configure(configByHand); } 
+      VertexReProducer(const edm::ParameterSet&);
 
       /// Make the vertices
       std::vector<TransientVertex> makeVertices(const reco::TrackCollection &tracks, const reco::BeamSpot &bs, const edm::EventSetup &iSetup) const;
@@ -37,7 +37,6 @@ class VertexReProducer
       const edm::InputTag &	inputBeamSpot() const { return beamSpotTag_; }
 
   private:
-      void              configure(const edm::ParameterSet &iConfig);
       edm::ParameterSet config_;
       edm::InputTag	tracksTag_;
       edm::InputTag	beamSpotTag_;

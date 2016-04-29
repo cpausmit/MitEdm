@@ -19,6 +19,11 @@ VertexReProducer::VertexReProducer(const edm::Handle<reco::VertexCollection> &ha
   if (prov == 0)
     throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
 
+  if (edm::moduleName(*prov) != "PrimaryVertexProducer") 
+    throw cms::Exception("Configuration")
+      << "Vertices to re-produce don't come from a PrimaryVertexProducer, but from a "
+      << edm::moduleName(*prov) <<".\n";
+
   // get paramter set id and then the parameter set
   //edm::ParameterSetID psid = prov->psetID();
   //edm::pset::Registry *psregistry = edm::pset::Registry::instance();
@@ -26,7 +31,7 @@ VertexReProducer::VertexReProducer(const edm::Handle<reco::VertexCollection> &ha
   //if (!psregistry->getMapped(psid, psetFromProvenance)) 
   //  throw cms::Exception("CorruptData") << "Vertex handle parameter set ID id = " << psid;
 
-  const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov);
+  config_ = edm::parameterSet(*prov);
 
   //// test whether this is the proper collection
   //if (moduleName(*prov) != "PrimaryVertexProducer") 
@@ -34,45 +39,18 @@ VertexReProducer::VertexReProducer(const edm::Handle<reco::VertexCollection> &ha
   //    << "Vertices to re-produce don't come from a PrimaryVertexProducer, but from a "
   //    << moduleName(*prov) <<".\n";
 
-  if (edm::moduleName(*prov) != "PrimaryVertexProducer") 
-    throw cms::Exception("Configuration")
-      << "Vertices to re-produce don't come from a PrimaryVertexProducer, but from a "
-      << edm::moduleName(*prov) <<".\n";
-  
-  configure(psetFromProvenance); 
-  
-  // Now we also dig out the ProcessName used for the reco::Tracks and reco::Vertices
-  std::vector<edm::BranchID> parents = prov->parents();
-  bool foundTracks = false;
-  bool foundBeamSpot = false;
-  for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end();
-       it != ed; ++it) {
-    edm::Provenance parprov = iEvent.getProvenance(*it);
-    if (parprov.friendlyClassName() == "recoTracks") {
-      tracksTag_ = edm::InputTag(parprov.moduleLabel(), parprov.productInstanceName(),
-				 parprov.processName());
-      foundTracks = true;
-    }
-    else if (parprov.friendlyClassName() == "recoBeamSpot") {
-      beamSpotTag_ = edm::InputTag(parprov.moduleLabel(), parprov.productInstanceName(),
-				   parprov.processName());
-      foundBeamSpot = true;
-    }
-  }
-  if (!foundTracks || !foundBeamSpot) {
-    edm::LogWarning("VertexReProducer_MissingParentage") << 
-      "Can't find parentage info for vertex collection inputs: " << 
-      (foundTracks ? "" : "tracks ") << (foundBeamSpot ? "" : "beamSpot") << "\n";
-  }
+  algo_.reset(new PrimaryVertexProducerAlgorithm(config_));
+
+  tracksTag_ = config_.getParameter<edm::InputTag>("TrackLabel");
+  beamSpotTag_ = config_.getParameter<edm::InputTag>("beamSpotLabel");
 }
 
-void
-VertexReProducer::configure(const edm::ParameterSet &iConfig) 
+VertexReProducer::VertexReProducer(const edm::ParameterSet & iConfig) :
+  config_(iConfig),
+  tracksTag_(iConfig.getParameter<edm::InputTag>("TrackLabel")),
+  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotLabel")),
+  algo_(new PrimaryVertexProducerAlgorithm(iConfig))
 {
-  config_ = iConfig;
-  tracksTag_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
-  beamSpotTag_ = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
-  algo_.reset(new PrimaryVertexProducerAlgorithm(iConfig)); 
 }
 
 std::vector<TransientVertex> 
