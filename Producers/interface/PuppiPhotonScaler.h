@@ -30,15 +30,18 @@ class PuppiPhotonScaler : public edm::stream::EDProducer<> {
 
  private:
  virtual void produce(edm::Event&, const edm::EventSetup&);
- bool matchPFCandidate(reco::PFCandidate const&, reco::Candidate const&) const;
+ bool matchCandidate(reco::Candidate const&, reco::Candidate const&) const;
 
  edm::EDGetTokenT<PFView> tokenPFCandidates_;
- edm::EDGetTokenT<PFView> tokenPuppiCandidates_;
+ edm::EDGetTokenT<CandidateView> tokenPuppiCandidates_;
  edm::EDGetTokenT<CandidateView> tokenPhotonCandidates_;
  edm::EDGetTokenT<PFRefVectorMap> tokenFootprints_;
  edm::EDGetTokenT<BoolMap> tokenPhotonId_; 
 
+ double defaultWeight_;
  double pt_;
+ double eta_;
+ bool matchByRef_;
  std::vector<double> dRMatch_;
  std::vector<unsigned> pdgIds_;
  bool usePhotonId_;
